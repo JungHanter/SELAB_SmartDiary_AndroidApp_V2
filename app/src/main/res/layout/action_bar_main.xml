@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center_horizontal">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="40dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:gravity="center_vertical"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textAllCaps="false"
+            android:textStyle="normal"
+            android:text="@string/app_name"
+            android:id="@+id/tvActionBarTitle"
+            android:textSize="20sp" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:orientation="vertical"
+        android:padding="8dp"
+        android:focusable="true"
+        android:clickable="true"
+        android:background="@drawable/button_action_bar_menu_bg"
+        android:onClick="onActionMenuClick"
+        android:id="@+id/btnActionBarProfile" >
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/iconmonstr_profile_padding"
+            android:scaleType="fitCenter" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_toRightOf="@id/btnActionBarProfile"
+        android:layout_centerVertical="true"
+        android:orientation="vertical"
+        android:padding="8dp"
+        android:focusable="true"
+        android:clickable="true"
+        android:background="@drawable/button_action_bar_menu_bg"
+        android:onClick="onActionMenuClick"
+        android:id="@+id/btnActionBarSettings" >
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/iconmonstr_settings_padding"
+            android:scaleType="fitCenter" />
+    </LinearLayout>
+
+    <!--<TextView-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_centerInParent="true"-->
+        <!--android:layout_centerVertical="true"-->
+        <!--android:layout_centerHorizontal="true"-->
+        <!--android:gravity="center_vertical"-->
+        <!--android:textAlignment="center"-->
+        <!--android:textColor="@color/white"-->
+        <!--android:textAllCaps="false"-->
+        <!--android:textStyle="bold"-->
+        <!--android:background="@color/red_500"-->
+        <!--android:text="@string/app_name"-->
+        <!--android:id="@+id/action_bar_title"-->
+        <!--android:textSize="20sp" />-->
+
+    <!--<ImageButton-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_alignParentEnd="true"-->
+        <!--android:layout_alignParentRight="true"-->
+        <!--android:src="@drawable/iconmonstr_profile"-->
+        <!--android:id="@+id/btnActionBarSearch"/>-->
+</RelativeLayout>

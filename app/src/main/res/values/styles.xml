@@ -1,0 +1,44 @@
+<resources>
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/indigo_500</item>
+        <item name="colorPrimaryDark">@color/indigo_700</item>
+        <item name="colorAccent">@color/teal_500</item>
+    </style>
+
+    <style name="LoginTheme" parent="AppTheme">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/indigo_500</item>
+        <item name="colorPrimaryDark">@color/indigo_700</item>
+        <item name="colorAccent">@color/teal_500</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar" parent="AppTheme">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="IndigoSwitchStyle">
+        <item name="colorButtonNormal">@color/indigo_500</item>
+        <item name="colorSwitchThumbNormal">@color/indigo_500</item>
+        <item name="android:colorBackground">@color/indigo_200</item>
+        <item name="android:colorForeground">@color/indigo_500</item>
+        <item name="colorControlActivated">@color/indigo_500</item>
+        <item name="colorControlHighlight">@color/indigo_200</item>
+        <item name="colorControlNormal">@color/indigo_500</item>
+        <item name="colorAccent">@color/teal_500</item>
+    </style>
+
+    <style name="TealSwitchStyle">
+        <item name="colorButtonNormal">@color/teal_500</item>
+        <item name="colorSwitchThumbNormal">@color/teal_500</item>
+        <item name="android:colorBackground">@color/teal_200</item>
+        <item name="android:colorForeground">@color/teal_500</item>
+        <item name="colorControlActivated">@color/teal_500</item>
+        <item name="colorControlHighlight">@color/teal_200</item>
+        <item name="colorControlNormal">@color/teal_500</item>
+        <item name="colorAccent">@color/teal_500</item>
+    </style>
+
+</resources>

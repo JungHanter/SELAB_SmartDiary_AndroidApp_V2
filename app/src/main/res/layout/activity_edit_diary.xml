@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:background="@color/grey_100"
+    tools:context=".WriteDiaryActivity">
+
+    <ProgressBar
+        android:id="@+id/progressLayout"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone" />
+
+    <ScrollView
+        android:id="@+id/viewWriteDiaryForm"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/activity_vertical_margin"
+            tools:context="ssu.sel.smartdiary.WriteDiaryActivity">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:minHeight="220dp"
+                android:maxHeight="400dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="12dp"
+                android:padding="12dp"
+                android:background="@drawable/background_list_element">
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/edtDiaryTitle"
+                    android:inputType="text"
+                    android:lines="1"
+                    android:singleLine="true"
+                    android:hint="Title"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textSize="14sp"
+                    android:textColor="@color/grey700_clickable_text_color"
+                    android:text="2016. 09. 07."
+                    android:focusable="true"
+                    android:clickable="true"
+                    android:onClick="onClick"
+                    android:layout_gravity="right"
+                    android:id="@+id/tvDiarySelectDate" />
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:minHeight="120dp"
+                    android:maxHeight="400dp"
+                    android:inputType="textMultiLine"
+                    android:ems="10"
+                    android:gravity="top"
+                    android:hint="Converted text..."
+                    android:id="@+id/edtDiaryContent"
+                    android:layout_marginTop="16dp"/>
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:textSize="14sp"
+                    android:hint="Textual Annotation"
+                    android:id="@+id/edtAnnotation"
+                    android:layout_marginTop="6dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="120dp"
+                android:maxHeight="200dp"
+                android:orientation="vertical"
+                android:layout_gravity="center_horizontal"
+                android:paddingTop="6dp"
+                android:paddingBottom="8dp"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/background_list_element">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/tvEnvironment"
+                    android:focusable="false"
+                    android:clickable="false"
+                    android:background="?attr/editTextBackground"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="@color/black"
+                    android:text="Environmental Contexts" />
+
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" >
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="14sp"
+                                android:text="Location: "/>
+                            <EditText
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="14sp"
+                                android:id="@+id/edtLocation" />
+                        </LinearLayout>
+
+                        <!--<LinearLayout-->
+                            <!--android:layout_width="match_parent"-->
+                            <!--android:layout_height="wrap_content"-->
+                            <!--android:orientation="horizontal">-->
+                            <!--<TextView-->
+                                <!--android:layout_width="wrap_content"-->
+                                <!--android:layout_height="wrap_content"-->
+                                <!--android:textSize="14sp"-->
+                                <!--android:text="Weather: "/>-->
+                            <!--<EditText-->
+                                <!--android:layout_width="match_parent"-->
+                                <!--android:layout_height="wrap_content"-->
+                                <!--android:textSize="14sp"-->
+                                <!--android:id="@+id/edtWeather" />-->
+                        <!--</LinearLayout>-->
+
+                    </LinearLayout>
+                </ScrollView>
+            </LinearLayout>
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/button_indigo"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:text="Confirm"
+                android:onClick="onClick"
+                android:id="@+id/btnDiaryConfirm" />
+
+        </LinearLayout>
+        <!-- End of Same Layout of WriteDiaryActivity(activity_write_diary.xml) -->
+
+    </ScrollView>
+</LinearLayout>
