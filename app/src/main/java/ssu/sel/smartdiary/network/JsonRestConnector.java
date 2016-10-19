@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,6 +18,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
@@ -113,6 +115,16 @@ public class JsonRestConnector {
                         os = conn.getOutputStream();
                         os.write(json.toString().getBytes());
                         os.flush();
+//                        if (method.equals("POST")) {
+//                            os.write(json.toString().getBytes());
+//                            os.flush();
+//                        } else {
+//                            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(os));
+//                            bw.write(json.toString());
+////                            bw.write("{\"test\":\"Hansang\"}");
+//                            bw.flush();
+//                        }
+                        os.close();
                     }
 
                     int resCode = conn.getResponseCode();

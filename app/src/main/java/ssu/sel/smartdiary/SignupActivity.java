@@ -161,20 +161,43 @@ public class SignupActivity extends AppCompatActivity {
         edtPassword.setError(null);
         edtPasswordConfirm.setError(null);
         edtUserName.setError(null);
+        edtBirthday.setError(null);
+        edtPhone.setError(null);
+        edtEmail.setError(null);
 
         String userId = edtUserId.getText().toString();
         String password = edtPassword.getText().toString();
         String passwordConfirm = edtPasswordConfirm.getText().toString();
         String userName = edtUserName.getText().toString();
+        long birthday = birthdayCal.getTimeInMillis();
+        String phone = edtPhone.getText().toString();
+        String email = edtEmail.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
+
+        if (!isBirthdayValid(birthday)) {
+            edtBirthday.setError("Birthday is invalid");
+            cancel = true;
+        }
+
+        if (!isEmailValid(email)) {
+            edtEmail.setError("This is not email forma");
+            focusView = edtEmail;
+            cancel = true;
+        }
+
+        if (!isPhoneValid(phone)) {
+            edtPhone.setError("Phone number is too short");
+            focusView = edtPhone;
+            cancel = true;
+        }
 
         if (TextUtils.isEmpty(userName)) {
             edtUserName.setError(getString(R.string.error_field_required));
             focusView = edtUserName;
             cancel = true;
-        } else if (!isUserIdValid(userName)) {
+        } else if (!isUserNameValid(userName)) {
             edtUserName.setError("The name is too short");
             focusView = edtUserName;
             cancel = true;
@@ -217,13 +240,32 @@ public class SignupActivity extends AppCompatActivity {
                 json.put("password", password);
                 json.put("name", userName);
                 json.put("gender", selGender);
-                json.put("timestamp", birthdayCal.getTimeInMillis());    //TODO updated
+                json.put("birthday", birthdayCal.getTimeInMillis());
+                json.put("phone", phone);
+                json.put("email", email);
             } catch (Exception e) {
                 e.printStackTrace();
             }
             profileConnector.request(json);
         }
     }
+
+//    protected void attemptDone(String userId, String password, String userName,
+//                               String gender, long birthday, String phone, String email) {
+//        JSONObject json = new JSONObject();
+//        try {
+//            json.put("user_id", userId);
+//            json.put("password", password);
+//            json.put("name", userName);
+//            json.put("gender", selGender);
+//            json.put("birthday", birthdayCal.getTimeInMillis());
+//            json.put("phone", phone);
+//            json.put("email", email);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        profileConnector.request(json);
+//    }
 
     private boolean isUserIdValid(String userId) {
         return userId.length() >= 3;
@@ -235,6 +277,19 @@ public class SignupActivity extends AppCompatActivity {
 
     private boolean isUserNameValid(String userName) {
         return userName.length() >= 4;
+    }
+
+    private boolean isBirthdayValid(long birthday) {
+        Calendar calendar = Calendar.getInstance();
+        return calendar.getTimeInMillis() > birthday;
+    }
+
+    private boolean isPhoneValid(String phone) { return phone.length() > 8; }
+
+    private boolean isEmailValid(String email) {
+        final char[] emailChar = email.toCharArray();
+        return (emailChar[0] != '@' && emailChar[emailChar.length-1] != '@'
+                && email.indexOf('@') > 0 && (email.indexOf('@')==email.lastIndexOf('@')));
     }
 
     public void onConfirmButtonClick(View v) {
@@ -256,7 +311,7 @@ public class SignupActivity extends AppCompatActivity {
      * Shows the progress UI and hides the profile/signup form.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    private void showProgress(final boolean show) {
+    protected void showProgress(final boolean show) {
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
         // for very easy animations. If available, use these APIs to fade-in
         // the progress spinner.

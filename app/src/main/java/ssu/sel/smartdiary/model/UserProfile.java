@@ -13,11 +13,14 @@ public class UserProfile {
     private String userName;
     private Calendar birthday;
     private String gender;
+    private String email;
+    private String phone;
 
     private UserProfile(){}
 
     public static void setUserProfile(String userID, String password, String userName,
-                                      Calendar birthday, String gender) {
+                                      Calendar birthday, String gender,
+                                      String email, String phone) {
         if (globalInstance == null) {
             globalInstance = new UserProfile();
         }
@@ -26,13 +29,16 @@ public class UserProfile {
         globalInstance.userName = userName;
         globalInstance.birthday = birthday;
         globalInstance.gender = gender;
+        globalInstance.email = email;
+        globalInstance.phone = phone;
     }
 
     public static void setUserProfile(String userID, String password, String userName,
-                                      long birthday, String gender) {
+                                      long birthday, String gender,
+                                      String email, String phone) {
         Calendar birthdayCalendar = Calendar.getInstance();
         birthdayCalendar.setTimeInMillis(birthday);
-        setUserProfile(userID, password, userName, birthdayCalendar, gender);
+        setUserProfile(userID, password, userName, birthdayCalendar, gender, email, phone);
     }
 
     public static UserProfile getUserProfile() {
@@ -57,5 +63,13 @@ public class UserProfile {
 
     public String getGender() {
         return gender;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPhone() {
+        return phone;
     }
 }
