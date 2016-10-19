@@ -50,22 +50,40 @@
                     android:id="@+id/edtDiaryTitle"
                     android:textColor="@color/teal_500"
                     android:inputType="text"
+                    android:textSize="20sp"
                     android:lines="1"
                     android:singleLine="true"
                     android:hint="Title"/>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:layout_marginTop="4dp"
-                    android:textSize="14sp"
-                    android:textColor="@color/grey700_clickable_text_color"
-                    android:text="2016. 09. 07."
-                    android:focusable="true"
-                    android:clickable="true"
-                    android:onClick="onClick"
-                    android:layout_gravity="right"
-                    android:id="@+id/tvDiarySelectDate" />
+                    android:gravity="right">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="18sp"
+                        android:textColor="@color/teal500_clickable_text_color"
+                        android:text="2016. 09. 07."
+                        android:focusable="true"
+                        android:clickable="true"
+                        android:onClick="onClick"
+                        android:id="@+id/tvDiarySelectDate" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="18sp"
+                        android:textColor="@color/teal500_clickable_text_color"
+                        android:text="18:23"
+                        android:paddingLeft="6dp"
+                        android:focusable="true"
+                        android:clickable="true"
+                        android:onClick="onClick"
+                        android:id="@+id/tvDiarySelectTime" />
+
+                </LinearLayout>
 
                 <EditText
                     android:layout_width="match_parent"
@@ -73,6 +91,7 @@
                     android:minHeight="120dp"
                     android:maxHeight="400dp"
                     android:inputType="textMultiLine"
+                    android:textSize="18sp"
                     android:ems="10"
                     android:gravity="top"
                     android:hint="Diary Content"

@@ -20,6 +20,10 @@ import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import org.json.JSONObject;
+
+import ssu.sel.smartdiary.model.UserProfile;
+import ssu.sel.smartdiary.network.MultipartRestConnector;
 import ssu.sel.smartdiary.speech.MSSpeechRecognizer;
 import ssu.sel.smartdiary.speech.WavRecorder;
 
@@ -30,9 +34,10 @@ public class NewAudioDiaryActivity extends AppCompatActivity {
     private Button btnStartRecord = null;
     private Button btnStopRecord = null;
     private TextView tvRecordStatus = null;
-    private EditText edtTitle = null;
+//    private EditText edtTitle = null;
     private EditText edtRecord = null;
-    private TextView tvDiarySelectDate = null;
+//    private TextView tvDiarySelectDate = null;
+    private Button btnRecordNext = null;
 
     private View viewRecordLayout = null;
     private View viewProgress = null;
@@ -42,8 +47,8 @@ public class NewAudioDiaryActivity extends AppCompatActivity {
     private AlertDialog dlgRecord = null;
     private AlertDialog dlgAlert = null;
     private AlertDialog dlgCancel = null;
-    private Calendar selectedDate;
-    private DatePickerDialog dlgDatePicker = null;
+//    private Calendar selectedDate;
+//    private DatePickerDialog dlgDatePicker = null;
 
     public boolean nowRecordingStatus = false;
 
@@ -69,12 +74,14 @@ public class NewAudioDiaryActivity extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(false);
         setContentView(R.layout.activity_new_audio_diary);
 
-        edtTitle = (EditText) findViewById(R.id.edtDiaryTitle);
+//        edtTitle = (EditText) findViewById(R.id.edtDiaryTitle);
         edtRecord = (EditText) findViewById(R.id.edtDiaryContent);
         btnStartRecord = (Button) findViewById(R.id.btnStartRecord);
         btnStopRecord = (Button) findViewById(R.id.btnStopRecord);
         tvRecordStatus = (TextView) findViewById(R.id.tvRecordStatus);
-        tvDiarySelectDate = (TextView) findViewById(R.id.tvDiarySelectDate);
+//        tvDiarySelectDate = (TextView) findViewById(R.id.tvDiarySelectDate);
+        btnRecordNext = (Button) findViewById(R.id.btnRecordNext);
+        btnRecordNext.setEnabled(false);
         setModals();
 
         viewRecordLayout = findViewById(R.id.layoutBtnRecord);
@@ -92,6 +99,8 @@ public class NewAudioDiaryActivity extends AppCompatActivity {
                 }
                 setDiaryText(sb.toString());
                 showProgress(false);
+
+                btnRecordNext.setEnabled(true);
             }
 
             @Override
@@ -128,21 +137,21 @@ public class NewAudioDiaryActivity extends AppCompatActivity {
                 Log.d("NewAudioDiaryActivity", "Recognition Failed");
                 openAlertModal(message, "Recognition Failed");
                 showProgress(false);
+                btnRecordNext.setEnabled(false);
             }
         };
 
         speechRecognizer = new MSSpeechRecognizer(this, recognizeDoneListener);
 
-        GlobalUtils.removeTempFiles();
-        Log.d("FileDir", GlobalUtils.RECORDED_TEMP_FILE_DIR.getPath());
+        WavRecorder.removeRecordedTempFiles();
     }
 
     private void setModals() {
-        selectedDate = Calendar.getInstance();
-        tvDiarySelectDate.setText(GlobalUtils.DIARY_DATE_FORMAT.format(selectedDate.getTime()));
-        dlgDatePicker = new DatePickerDialog(this, datePickerListener,
-                selectedDate.get(Calendar.YEAR), selectedDate.get(Calendar.MONTH),
-                selectedDate.get(Calendar.DAY_OF_MONTH));
+//        selectedDate = Calendar.getInstance();
+//        tvDiarySelectDate.setText(GlobalUtils.DIARY_DATE_FORMAT.format(selectedDate.getTime()));
+//        dlgDatePicker = new DatePickerDialog(this, datePickerListener,
+//                selectedDate.get(Calendar.YEAR), selectedDate.get(Calendar.MONTH),
+//                selectedDate.get(Calendar.DAY_OF_MONTH));
 
         dlgCancel = new AlertDialog.Builder(this).setMessage("Are you sure to cancel?")
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -187,6 +196,7 @@ public class NewAudioDiaryActivity extends AppCompatActivity {
         recordedPartCount = 0;
         recordedStrings.clear();
         clearDiaryText();
+        btnRecordNext.setEnabled(false);
 
         mWavRecorder = new WavRecorder();
         mWavRecorder.startRecord();
@@ -229,17 +239,17 @@ public class NewAudioDiaryActivity extends AppCompatActivity {
             case R.id.btnStopRecord:
                 stopRecording();
                 return;
-            case R.id.tvDiarySelectDate:
-                dlgDatePicker.show();
-                return;
+//            case R.id.tvDiarySelectDate:
+//                dlgDatePicker.show();
+//                return;
             case R.id.btnRecordNext:
                 Intent intent = new Intent(NewAudioDiaryActivity.this, WriteDiaryActivity.class);
                 intent.putExtra("WRITE_DIARY_TYPE", "NEW_AUDIO");
 
                 String content = edtRecord.getText().toString();
-                String title = edtTitle.getText().toString();
-                intent.putExtra("DIARY_TITLE", title);
-                intent.putExtra("DIARY_DATE", selectedDate);
+//                String title = edtTitle.getText().toString();
+//                intent.putExtra("DIARY_TITLE", title);
+//                intent.putExtra("DIARY_DATE", selectedDate);
                 intent.putExtra("DIARY_CONTENT", content);
                 intent.putExtra("DIARY_AUDIO", mWavRecorder.getRecordFile());
 
@@ -267,17 +277,17 @@ public class NewAudioDiaryActivity extends AppCompatActivity {
         dlgAlert.show();
     }
 
-    private DatePickerDialog.OnDateSetListener datePickerListener =
-            new DatePickerDialog.OnDateSetListener() {
-                @Override
-                public void onDateSet(DatePicker datePicker, int year, int month, int dayOfMonth) {
-                    Calendar cal = Calendar.getInstance();
-                    cal.set(year, month, dayOfMonth, 0, 0);
-                    selectedDate = cal;
-
-                    tvDiarySelectDate.setText(year + ". " + (month + 1) + ". " + dayOfMonth + ".");
-                }
-            };
+//    private DatePickerDialog.OnDateSetListener datePickerListener =
+//            new DatePickerDialog.OnDateSetListener() {
+//                @Override
+//                public void onDateSet(DatePicker datePicker, int year, int month, int dayOfMonth) {
+//                    Calendar cal = Calendar.getInstance();
+//                    cal.set(year, month, dayOfMonth, 0, 0);
+//                    selectedDate = cal;
+//
+//                    tvDiarySelectDate.setText(year + ". " + (month + 1) + ". " + dayOfMonth + ".");
+//                }
+//            };
 
 
     private void clearDiaryText() {

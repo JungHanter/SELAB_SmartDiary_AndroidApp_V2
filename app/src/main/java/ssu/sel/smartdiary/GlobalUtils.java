@@ -20,23 +20,25 @@ public class GlobalUtils {
     public static final DateFormat DIARY_DATE_FORMAT =
             new SimpleDateFormat("yyyy. MM. dd.", Locale.getDefault());
     public static final DateFormat DIARY_DATETIME_FORMAT =
-            new SimpleDateFormat("yyyy. MM. dd. HH:mm:ss", Locale.getDefault());
+            new SimpleDateFormat("yyyy. MM. dd. HH:mm", Locale.getDefault());
+    public static final DateFormat DIARY_TIME_FORMAT =
+            new SimpleDateFormat("HH:mm", Locale.getDefault());
 
-    public static final File RECORDED_TEMP_FILE_DIR =
-            new File (Environment.getExternalStorageDirectory().getPath() + "/smartdiary/tmp/");
+//    public static final File RECORDED_TEMP_FILE_DIR =
+//            new File (Environment.getExternalStorageDirectory().getPath() + "/smartdiary/tmp/");
 
-    public static void removeTempFiles() {
-        String[] fileList = RECORDED_TEMP_FILE_DIR.list();
-        if (fileList != null) {
-            for (int i = 0; i < fileList.length; i++) {
-                String filename = fileList[i];
-                File f = new File(RECORDED_TEMP_FILE_DIR.getPath() + "/" + filename);
-                try {
-                    if (f.exists()) {
-                        f.delete();
-                    }
-                } catch (Exception e) {}
-            }
-        }
-    }
+//    public static void removeTempFiles() {
+//        String[] fileList = RECORDED_TEMP_FILE_DIR.list();
+//        if (fileList != null) {
+//            for (int i = 0; i < fileList.length; i++) {
+//                String filename = fileList[i];
+//                File f = new File(RECORDED_TEMP_FILE_DIR.getPath() + "/" + filename);
+//                try {
+//                    if (f.exists()) {
+//                        f.delete();
+//                    }
+//                } catch (Exception e) {}
+//            }
+//        }
+//    }
 }

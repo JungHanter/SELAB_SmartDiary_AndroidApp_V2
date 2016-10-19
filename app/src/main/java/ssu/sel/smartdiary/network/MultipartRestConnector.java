@@ -52,19 +52,23 @@ public class MultipartRestConnector {
                         .setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
 
                 if (fileDir != null && fileDir.exists()) {
-                    String[] fileList = fileDir.list();
-                    if (fileList != null && fileList.length > 0) {
-//                        builder.addTextBody("count", "" + fileList.length);
-                        for (int i = 0; i < fileList.length; i++) {
-                            String filename = fileList[i];
-                            File file = new File(fileDir.getPath() + "/" + filename);
-                            Log.d("MultipartConnector", file.getPath());
-                            if (file.exists()) {
-                                builder.addPart("file" + i, new FileBody(file));
+                    if (fileDir.isDirectory()) {
+                        String[] fileList = fileDir.list();
+                        if (fileList != null && fileList.length > 0) {
+                            for (int i = 0; i < fileList.length; i++) {
+                                String filename = fileList[i];
+                                File file = new File(fileDir.getPath() + "/" + filename);
+                                Log.d("MultipartConnector", file.getPath());
+                                if (file.exists()) {
+                                    builder.addPart("file" + i, new FileBody(file));
+                                }
                             }
                         }
                     } else {
-//                        builder.addTextBody("count", "0");
+                        Log.d("MultipartConnector", fileDir.getPath());
+                        if (fileDir.exists()) {
+                            builder.addPart("file0", new FileBody(fileDir));
+                        }
                     }
                 }
 //                builder.addPart("json", new StringBody(json.toString(), ContentType.TEXT_PLAIN));

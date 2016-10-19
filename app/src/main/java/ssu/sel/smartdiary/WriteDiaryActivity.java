@@ -3,8 +3,10 @@ package ssu.sel.smartdiary;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -16,9 +18,16 @@ import android.view.View;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.TimePicker;
+
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.appindexing.Thing;
+import com.google.android.gms.common.api.GoogleApiClient;
 
 import org.json.JSONObject;
 
+import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -26,6 +35,7 @@ import java.util.Locale;
 
 import ssu.sel.smartdiary.model.UserProfile;
 import ssu.sel.smartdiary.network.MultipartRestConnector;
+import ssu.sel.smartdiary.speech.WavRecorder;
 
 public class WriteDiaryActivity extends AppCompatActivity {
 
@@ -34,6 +44,7 @@ public class WriteDiaryActivity extends AppCompatActivity {
     protected EditText edtTitle = null;
     protected EditText edtContent = null;
     protected TextView tvDiarySelectDate = null;
+    protected TextView tvDiarySelectTime = null;
 
     protected EditText edtAnnotation = null;
     protected EditText edtEnvLocation = null;
@@ -46,14 +57,22 @@ public class WriteDiaryActivity extends AppCompatActivity {
     protected AlertDialog dlgConfirm = null;
     protected Calendar selectedDate;
     protected DatePickerDialog dlgDatePicker = null;
-    protected DateFormat diaryDateFormat = new SimpleDateFormat("yyyy. M. dd.", Locale.getDefault());
+    protected TimePickerDialog dlgTimePicker = null;
 
     protected MultipartRestConnector saveDiaryConnector = null;
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initView();
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     protected void initView() {
@@ -66,9 +85,9 @@ public class WriteDiaryActivity extends AppCompatActivity {
         Intent intent = getIntent();
         diaryAcitivityType = intent.getStringExtra("WRITE_DIARY_TYPE");
         if (diaryAcitivityType.equals("NEW_TEXT"))
-            ((TextView)mActionBarView.findViewById(R.id.tvActionBarTitle)).setText("New Text Diary");
+            ((TextView) mActionBarView.findViewById(R.id.tvActionBarTitle)).setText("New Text Diary");
         else if (diaryAcitivityType.equals("NEW_AUDIO"))
-            ((TextView)mActionBarView.findViewById(R.id.tvActionBarTitle)).setText("New Audio Diary");
+            ((TextView) mActionBarView.findViewById(R.id.tvActionBarTitle)).setText("New Audio Diary");
         else
             throw new NullPointerException("No Intent for WriteDiaryType!");
         actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
@@ -77,18 +96,20 @@ public class WriteDiaryActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_write_diary);
 
-        edtTitle = (EditText)findViewById(R.id.edtDiaryTitle);
-        edtContent = (EditText)findViewById(R.id.edtDiaryContent);
+        edtTitle = (EditText) findViewById(R.id.edtDiaryTitle);
+        edtContent = (EditText) findViewById(R.id.edtDiaryContent);
         tvDiarySelectDate = (TextView) findViewById(R.id.tvDiarySelectDate);
-        edtAnnotation = (EditText)findViewById(R.id.edtAnnotation);
-        edtEnvLocation = (EditText)findViewById(R.id.edtEnvLocation);
+        tvDiarySelectTime = (TextView) findViewById(R.id.tvDiarySelectTime);
+        edtAnnotation = (EditText) findViewById(R.id.edtAnnotation);
+        edtEnvLocation = (EditText) findViewById(R.id.edtEnvLocation);
         viewWirteDiaryLayout = findViewById(R.id.viewWriteDiaryForm);
         viewProgress = findViewById(R.id.progressLayout);
 
         if (diaryAcitivityType.equals("NEW_AUDIO")) {
-            edtTitle.setText(intent.getStringExtra("DIARY_TITLE"));
+//            edtTitle.setText(intent.getStringExtra("DIARY_TITLE"));
             edtContent.setText(intent.getStringExtra("DIARY_CONTENT"));
-            selectedDate = (Calendar) intent.getSerializableExtra("DIARY_DATE");
+//            selectedDate = (Calendar) intent.getSerializableExtra("DIARY_DATE");
+            selectedDate = Calendar.getInstance();
         } else {
             selectedDate = Calendar.getInstance();
         }
@@ -98,10 +119,14 @@ public class WriteDiaryActivity extends AppCompatActivity {
     }
 
     protected void setModals() {
-        tvDiarySelectDate.setText(diaryDateFormat.format(selectedDate.getTime()));
+        tvDiarySelectDate.setText(GlobalUtils.DIARY_DATE_FORMAT.format(selectedDate.getTime()));
+        tvDiarySelectTime.setText(GlobalUtils.DIARY_TIME_FORMAT.format(selectedDate.getTime()));
         dlgDatePicker = new DatePickerDialog(this, datePickerListener,
                 selectedDate.get(Calendar.YEAR), selectedDate.get(Calendar.MONTH),
                 selectedDate.get(Calendar.DAY_OF_MONTH));
+        dlgTimePicker = new TimePickerDialog(this, timePickerListener,
+                selectedDate.get(Calendar.HOUR_OF_DAY), selectedDate.get(Calendar.SECOND), true);
+
 
         dlgAlert = new AlertDialog.Builder(this).setMessage("Message")
                 .setNeutralButton("OK", new DialogInterface.OnClickListener() {
@@ -116,7 +141,7 @@ public class WriteDiaryActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         if (diaryAcitivityType.equals("NEW_AUDIO")) {
-                            GlobalUtils.removeTempFiles();
+                            WavRecorder.removeRecordedTempFiles();
                         }
 
                         dialogInterface.dismiss();
@@ -155,7 +180,7 @@ public class WriteDiaryActivity extends AppCompatActivity {
                                 Boolean success = resJson.getBoolean("create_diary");
                                 if (success) {
                                     if (diaryAcitivityType.equals("NEW_AUDIO")) {
-                                        GlobalUtils.removeTempFiles();
+                                        WavRecorder.removeRecordedTempFiles();
                                     }
 
                                     WriteDiaryActivity.this.finish();
@@ -208,9 +233,10 @@ public class WriteDiaryActivity extends AppCompatActivity {
 
         showProgress(true);
         if (diaryAcitivityType.equals("NEW_AUDIO")) {
-            saveDiaryConnector.request(GlobalUtils.RECORDED_TEMP_FILE_DIR, json);
+            File recordedFile = (File) getIntent().getSerializableExtra("DIARY_AUDIO");
+            saveDiaryConnector.request(recordedFile, json);
         } else {
-            saveDiaryConnector.request(null, json);
+//            saveDiaryConnector.request(null, json);
         }
     }
 
@@ -218,7 +244,7 @@ public class WriteDiaryActivity extends AppCompatActivity {
         switch (v.getId()) {
             case R.id.btnActionBarCancel:
                 dlgCancel.show();
-                ((TextView)v.findViewById(R.id.tvOfBtnActionBarCancel)).setText("Edit");
+                ((TextView) v.findViewById(R.id.tvOfBtnActionBarCancel)).setText("Edit");
                 return;
         }
     }
@@ -231,6 +257,9 @@ public class WriteDiaryActivity extends AppCompatActivity {
             case R.id.tvDiarySelectDate:
                 dlgDatePicker.show();
                 return;
+            case R.id.tvDiarySelectTime:
+                dlgTimePicker.show();
+                return;
         }
     }
 
@@ -238,11 +267,23 @@ public class WriteDiaryActivity extends AppCompatActivity {
             new DatePickerDialog.OnDateSetListener() {
                 @Override
                 public void onDateSet(DatePicker datePicker, int year, int month, int dayOfMonth) {
-                    Calendar cal = Calendar.getInstance();
-                    cal.set(year, month, dayOfMonth, 0, 0);
-                    selectedDate = cal;
+//                    Calendar cal = Calendar.getInstance();
+//                    cal.set(year, month, dayOfMonth, 0, 0);
+//                    selectedDate = cal;
+                    selectedDate.set(year, month, dayOfMonth);
 
                     tvDiarySelectDate.setText(GlobalUtils.DIARY_DATE_FORMAT.format(selectedDate.getTime()));
+                }
+            };
+
+    protected TimePickerDialog.OnTimeSetListener timePickerListener =
+            new TimePickerDialog.OnTimeSetListener() {
+                @Override
+                public void onTimeSet(TimePicker timePicker, int hourOfDay, int minute) {
+                    selectedDate.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                    selectedDate.set(Calendar.MINUTE, minute);
+
+                    tvDiarySelectTime.setText(GlobalUtils.DIARY_TIME_FORMAT.format(selectedDate.getTime()));
                 }
             };
 
@@ -271,5 +312,41 @@ public class WriteDiaryActivity extends AppCompatActivity {
             viewProgress.setVisibility(show ? View.VISIBLE : View.GONE);
             viewWirteDiaryLayout.setVisibility(show ? View.GONE : View.VISIBLE);
         }
+    }
+
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    public Action getIndexApiAction() {
+        Thing object = new Thing.Builder()
+                .setName("WriteDiary Page") // TODO: Define a title for the content shown.
+                // TODO: Make sure this auto-generated URL is correct.
+                .setUrl(Uri.parse("http://[ENTER-YOUR-URL-HERE]"))
+                .build();
+        return new Action.Builder(Action.TYPE_VIEW)
+                .setObject(object)
+                .setActionStatus(Action.STATUS_TYPE_COMPLETED)
+                .build();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.connect();
+        AppIndex.AppIndexApi.start(client, getIndexApiAction());
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        AppIndex.AppIndexApi.end(client, getIndexApiAction());
+        client.disconnect();
     }
 }
