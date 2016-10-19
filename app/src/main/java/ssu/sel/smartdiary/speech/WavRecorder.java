@@ -18,16 +18,18 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import static android.R.attr.level;
+
 /**
  * Created by hanter on 16. 10. 12..
  */
 public class WavRecorder {
-    private final static int HEADER_WAVE_CHANNEL_MONO = 1;  //wav
+    private final static int HEADER_WAVE_CHANNEL_STEREO = 2;  //wav
     private final static int HEADER_SIZE = 0x2c;
     private final static int HEADER_RECORDER_BPP = 16;
 
     private final static int RECORDER_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
-    private final static int RECORDER_CHANNELS = AudioFormat.CHANNEL_IN_MONO;
+    private final static int RECORDER_CHANNELS = AudioFormat.CHANNEL_IN_STEREO;
     private final static int RECORDER_SAMPLERATE = 16000;
 
     private final int BUFFER_SIZE;
@@ -36,7 +38,7 @@ public class WavRecorder {
     private Thread recordingThread;
     private boolean isRecording;
     private boolean isFullRecording;
-    private BufferedOutputStream fullFileWriteBos;
+    private FileOutputStream fullFileWriteFos;
     private int audioLen = 0;
 
     private File recordFile = null;
@@ -52,9 +54,22 @@ public class WavRecorder {
 
     private static final float MAX_REPORTABLE_AMP = 32767f;
     private static final float MAX_REPORTABLE_DB = 90.3087f;
-    private static final double THRESHOLD_SILENCE = 40;
-    private static final double THRESHOLD_SILENCE_CNT = (RECORDER_SAMPLERATE / 8000) * 4;
-    private static final double THRESHOLD_SILENCE_SUM = THRESHOLD_SILENCE*THRESHOLD_SILENCE_CNT*0.9;
+
+//    private static final double THRESHOLD_SILENCE = 40;
+//    private static final double THRESHOLD_SILENCE_CNT = (RECORDER_SAMPLERATE / 8000) * 4;
+//    private static final double THRESHOLD_SILENCE_SUM = THRESHOLD_SILENCE*THRESHOLD_SILENCE_CNT*0.9;
+
+    private static final double[] THRESHOLD_SILENCE_ENDTIME = {60*1000, 70*1000, 80*1000, 90*1000, 100*1000, 105*1000}; //1분, 1분 10, ...
+//    private static final double[] THRESHOLD_SILENCE_ENDTIME = {30*1000, 35*1000, 40*1000, 45*1000, 50*1000, 60*1000}; //For Testing
+    private static final double[] THRESHOLD_SILENCE = {45, 50, 55, 65, 75};
+    private static final double[] THRESHOLD_SILENCE_CNT = {6, 5, 4, 4, 3}; //count 1당 주기 약 0.12초
+    private static double[] THRESHOLD_SILENCE_SUM = new double[5];
+    static {
+        for (int i=0; i<3; i++)
+            THRESHOLD_SILENCE_SUM[i] = THRESHOLD_SILENCE[i]*THRESHOLD_SILENCE_CNT[i]*0.9;
+        for (int i=3; i<5; i++)
+            THRESHOLD_SILENCE_SUM[i] = THRESHOLD_SILENCE[i]*THRESHOLD_SILENCE_CNT[i];
+    }
 
     private int silenceCnt = 0;
     private int recordCnt = 0;
@@ -68,7 +83,7 @@ public class WavRecorder {
         }
 
         BUFFER_SIZE = AudioRecord.getMinBufferSize(RECORDER_SAMPLERATE,
-                RECORDER_CHANNELS, RECORDER_AUDIO_ENCODING);
+                RECORDER_CHANNELS, RECORDER_AUDIO_ENCODING) * 3;
         isRecording = false;
 
 
@@ -86,7 +101,7 @@ public class WavRecorder {
 
         isFullRecording = true;
         try {
-            fullFileWriteBos = new BufferedOutputStream(new FileOutputStream(fullTempFile));
+            fullFileWriteFos = new FileOutputStream(fullTempFile);
             startRecording();
             return true;
         } catch (Exception e) {
@@ -99,7 +114,7 @@ public class WavRecorder {
         isFullRecording = false;
         stopRecording();
         try {
-            fullFileWriteBos.close();
+            fullFileWriteFos.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -138,6 +153,7 @@ public class WavRecorder {
 
     private void stopRecording() {
         stopRecordingTask();
+
         if (recorder != null){
             int i = recorder.getState();
             if (i==1) recorder.stop();
@@ -167,55 +183,73 @@ public class WavRecorder {
 
         if (tempFile.exists()) tempFile.delete();
 
-        BufferedOutputStream bos = null;
+        FileOutputStream os = null;
 
         try {
-            bos = new BufferedOutputStream(new FileOutputStream(tempFile));
+            os = new FileOutputStream(tempFile);
         } catch (FileNotFoundException e1) {
             e1.printStackTrace();
         }
 
         int read = 0;
-        if (null != bos) {
+        if (null != os) {
             silenceCnt = 0;
             double levelSum = 0;
             double startTime = System.currentTimeMillis();
             boolean isFinishedForNext = false;
             while(isRecording && !isFinishedForNext) {
                 read = recorder.read(buffer, 0, BUFFER_SIZE);
+
                 if (AudioRecord.ERROR_INVALID_OPERATION != read) {
                     try {
-                        bos.write(buffer);
-                        fullFileWriteBos.write(buffer);
+                        os.write(buffer);
+                        fullFileWriteFos.write(buffer);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
 
-                double level = calcAmplitude(buffer);
-                if (level <= THRESHOLD_SILENCE) {
-                    silenceCnt++;
-                    levelSum += level;
-                } else {
-                    silenceCnt = 0;
-                    levelSum = 0;
+                int sileceDetectiveLevel = -1;
+                double nowTime = System.currentTimeMillis();
+                for (int d=THRESHOLD_SILENCE_ENDTIME.length-1; d>=0; d--) {
+                    if (nowTime - startTime >= THRESHOLD_SILENCE_ENDTIME[d]) {
+                        sileceDetectiveLevel = d;
+                        break;
+                    }
                 }
 
-                if (silenceCnt >= THRESHOLD_SILENCE_CNT) {
-                    if (levelSum <= THRESHOLD_SILENCE_SUM) {
-                        Log.d("WavRecorder", "Silence Detected. Level Sum: " + levelSum);
-                        double endTime = System.currentTimeMillis();
-                        if (endTime - startTime > 60 * 1000) {
+                if (sileceDetectiveLevel == -1) {
+                    //Nothing
+                    //silenceCnt = 0;
+                    //levelSum = 0;
+                } else if (sileceDetectiveLevel == THRESHOLD_SILENCE_ENDTIME.length-1) {
+                    isFinishedForNext = true;
+                    Log.d("WavRecorder", "Time Over. (1:45)");
+                } else {
+                    double level = calcAmplitude(buffer);
+                    if (level <= THRESHOLD_SILENCE[sileceDetectiveLevel]) {
+                        silenceCnt++;
+                        levelSum += level;
+                    } else {
+                        silenceCnt = 0;
+                        levelSum = 0;
+                    }
+
+                    if (silenceCnt >= THRESHOLD_SILENCE_CNT[sileceDetectiveLevel]) {
+                        if (levelSum <= THRESHOLD_SILENCE_SUM[sileceDetectiveLevel]) {
+                            Log.d("WavRecorder", "Silence Detected. Level" +sileceDetectiveLevel
+                                    + " with time[" + (nowTime - startTime) + "], Sum: " + levelSum);
                             isFinishedForNext = true;
+                        } else {
+                            silenceCnt = 0;
+                            levelSum = 0;
                         }
                     }
-                    silenceCnt = 0;
-                    levelSum = 0;
                 }
             }
 
             try {
-                bos.close();
+                os.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -237,7 +271,7 @@ public class WavRecorder {
         long totalDataLen;
         long longSampleRate = RECORDER_SAMPLERATE;
         long byteRate = HEADER_RECORDER_BPP * RECORDER_SAMPLERATE *
-                HEADER_WAVE_CHANNEL_MONO /8;
+                HEADER_WAVE_CHANNEL_STEREO / 8;
 
         byte[] data = new byte[BUFFER_SIZE];
 
@@ -248,7 +282,7 @@ public class WavRecorder {
             totalDataLen = totalAudioLen + 36;
 
             writeWaveFileHeader(out, totalAudioLen, totalDataLen,
-                    longSampleRate, HEADER_WAVE_CHANNEL_MONO, byteRate);
+                    longSampleRate, HEADER_WAVE_CHANNEL_STEREO, byteRate);
 
             while(in.read(data) != -1) {
                 out.write(data);
@@ -344,8 +378,11 @@ public class WavRecorder {
     }
 
     public static int getRecordedFileNum() {
-        if (!RECORDED_TEMP_PART_FILE_DIR.exists()) {
+        Log.d("WavRecorder", "Recorded files:");
+        if (RECORDED_TEMP_PART_FILE_DIR.exists()) {
             String[] fileList = RECORDED_TEMP_PART_FILE_DIR.list();
+            for (String file: fileList)
+                Log.d("WavRecorder", " - " + file);
             return fileList.length;
         } else return 0;
     }

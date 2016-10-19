@@ -38,7 +38,7 @@ public class MSSpeechRecognizer {
 
     public interface OnRecognizeDoneListener {
         void onRecognizeDone();
-        void onPartialRecognizeDone();
+        void onPartialRecognizeDone(String text);
         void onPartialRecognize(String text);
         void onFail(String message);
     }
@@ -53,52 +53,76 @@ public class MSSpeechRecognizer {
         recogEvents = new ISpeechRecognitionServerEvents() {
             @Override
             public void onPartialResponseReceived(final String s) {
+//                Log.d("Recognizer", "Partial Response: " + s);
                 listener.onPartialRecognize(s);
             }
 
             @Override
             public void onFinalResponseReceived(final RecognitionResult response) {
-                boolean isFinalDictationMessage =
-                        (response.RecognitionStatus == RecognitionStatus.EndOfDictation ||
-                                response.RecognitionStatus == RecognitionStatus.DictationEndSilenceTimeout);
+//                boolean isFinalDictationMessage =
+//                        (response.RecognitionStatus == RecognitionStatus.EndOfDictation ||
+//                                response.RecognitionStatus == RecognitionStatus.DictationEndSilenceTimeout);
+//
+//                boolean isFailed = response.RecognitionStatus == RecognitionStatus.InitialSilenceTimeout ||
+//                        response.RecognitionStatus == RecognitionStatus.BabbleTimeout ||
+//                        response.RecognitionStatus == RecognitionStatus.RecognitionError ||
+//                        response.RecognitionStatus == RecognitionStatus.None;
 
-                boolean isFailed = response.RecognitionStatus == RecognitionStatus.InitialSilenceTimeout ||
-                        response.RecognitionStatus == RecognitionStatus.BabbleTimeout ||
-                        response.RecognitionStatus == RecognitionStatus.RecognitionError ||
-                        response.RecognitionStatus == RecognitionStatus.None;
-
-                Log.d("MS Speech Recognizer", "Final Response: " + response.RecognitionStatus);
+                Log.d("Recognizer", "Final Response: " + response.RecognitionStatus);
+//                if (response.Results != null) {
+//                    Log.d("Recognizer", "Final Response Results:");
+//                    for (int i = 0; i < response.Results.length; i++) {
+//                        Log.d("Recognizer", " - " + response.Results[i].DisplayText);
+//                    }
+//                }
 
                 //error
-                if (isFailed) {
-                    listener.onFail("Final Response Error: " + response.RecognitionStatus.toString());
-                    speechResponseStatus = SpeechResponseStatus.Failed;
-                } else {
-                    if (isFinalDictationMessage) {
-                        if (recognizingRecordCount >= recordedCount) {
-                            listener.onRecognizeDone();
-                        } else {
-                            listener.onPartialRecognizeDone();
-                            recognizingRecordCount++;
-                            transmitAudio(recognizingRecordCount);
-                        }
-
-                        speechResponseStatus = SpeechResponseStatus.OK;
-                    } else {
+//                if (isFailed) {
+//                    listener.onFail("Final Response Error: " + response.RecognitionStatus.toString());
+//                    speechResponseStatus = SpeechResponseStatus.Failed;
+//                }
+                if (response.RecognitionStatus == RecognitionStatus.RecognitionSuccess) {
+                    Log.d("Recognizer", "Partial Response Results:");
+                    if (response.Results != null) {
                         StringBuilder sb = new StringBuilder();
                         for (int i = 0; i < response.Results.length; i++) {
+                            if (i>0) sb.append('\n');
                             sb.append(response.Results[i].DisplayText);
+                            Log.d("Recognizer", " - " + response.Results[i].DisplayText);
                         }
-                        listener.onPartialRecognize(sb.toString());
+                        listener.onPartialRecognizeDone(sb.toString());
+                    } else {
+                        listener.onPartialRecognizeDone("");
                     }
+
+                } else if (response.RecognitionStatus == RecognitionStatus.EndOfDictation ||
+                        response.RecognitionStatus == RecognitionStatus.DictationEndSilenceTimeout) {
+                    if (recognizingRecordCount >= recordedCount) {
+                        Log.d("Recognizer", "All Audio Recognized. ["
+                                + recognizingRecordCount + "/" + recordedCount + "]");
+                        listener.onRecognizeDone();
+                        speechResponseStatus = SpeechResponseStatus.OK;
+                    } else {
+                        recognizingRecordCount++;
+                        Log.d("Recognizer", "Start Transmit Next Audio ["
+                                + recognizingRecordCount + "/" + recordedCount + "]");
+                        transmitAudio(recognizingRecordCount);
+                    }
+
+                } else {
+                    listener.onFail("Final Response Error: " + response.RecognitionStatus.toString());
+                    speechResponseStatus = SpeechResponseStatus.Failed;
                 }
             }
 
             @Override
-            public void onIntentReceived(String s) {}
+            public void onIntentReceived(String s) {
+                Log.d("Recognizer", "Intent Received: " + s);
+            }
 
             @Override
             public void onError(final int errorCode, final String response) {
+                Log.d("Recognizer", "Error: [" + errorCode + "] " + response);
                 listener.onFail("ErrorCode: " + errorCode
                         + "\nStatus: "
                         + SpeechClientStatus.fromInt(errorCode)
@@ -116,17 +140,26 @@ public class MSSpeechRecognizer {
                 "en-us", recogEvents, PRIMARY_KEY, SECONDARY_KEY);
 
         recordedCount = WavRecorder.getRecordedFileNum();
-        recognizingRecordCount = 1;
-        transmitAudio(recognizingRecordCount);
+        Log.d("Recognizer", "# of Audio files: " + recordedCount);
+
+        if (recordedCount < 1) {
+            listener.onFail("There is no recorded files.");
+        } else {
+            recognizingRecordCount = 1;
+            transmitAudio(recognizingRecordCount);
+        }
     }
 
     private void transmitAudio(int recordNum) {
-        Log.d("MS Speech Recognizer", "Converting the record #" + recordNum);
+//        Log.d("Recognizer", "Converting the record #" + recordNum);
+        Log.d("Recognizer", "Converting the record [" + recordNum + "/" + recordedCount + "]");
+        File recoredeFile = WavRecorder.getRecordedFile(recordNum);
+        Log.d("Recognizer", "Transmit audio file \"" + recoredeFile + "\"");
         RecognitionTask doDataReco = new RecognitionTask(dataClient,
                 SpeechRecognitionMode.LongDictation,
-                WavRecorder.getRecordedFile(recordNum));
+                recoredeFile);
         try {
-            doDataReco.execute().get(300, TimeUnit.SECONDS);
+            doDataReco.execute().get(500, TimeUnit.SECONDS);
         } catch (Exception e) {
             doDataReco.cancel(true);
             speechResponseStatus = SpeechResponseStatus.Timeout;
@@ -172,7 +205,7 @@ public class MSSpeechRecognizer {
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            Log.d("MS Speech Recognizer", "send recognition request");
+            Log.d("Recognizer", "send recognition request");
         }
     }
 }

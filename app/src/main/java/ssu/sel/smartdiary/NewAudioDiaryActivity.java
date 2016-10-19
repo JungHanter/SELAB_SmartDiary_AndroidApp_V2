@@ -1,21 +1,23 @@
 package ssu.sel.smartdiary;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
+import android.text.Spanned;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import ssu.sel.smartdiary.speech.MSSpeechRecognizer;
@@ -34,6 +36,8 @@ public class NewAudioDiaryActivity extends AppCompatActivity {
 
     private View viewRecordLayout = null;
     private View viewProgress = null;
+    private ScrollView scrollNewAudioDiaryForm = null;
+    private View viewNewAudioDiaryForm = null;
 
     private AlertDialog dlgRecord = null;
     private AlertDialog dlgAlert = null;
@@ -75,6 +79,8 @@ public class NewAudioDiaryActivity extends AppCompatActivity {
 
         viewRecordLayout = findViewById(R.id.layoutBtnRecord);
         viewProgress = findViewById(R.id.progressLayout);
+        scrollNewAudioDiaryForm = (ScrollView)findViewById(R.id.viewNewAudioDiaryScroll);
+        viewNewAudioDiaryForm = findViewById(R.id.viewNewAudioDiaryForm);
 
         recognizeDoneListener = new MSSpeechRecognizer.OnRecognizeDoneListener() {
             @Override
@@ -84,23 +90,13 @@ public class NewAudioDiaryActivity extends AppCompatActivity {
                 for (String s : recordedStrings) {
                     sb.append(s).append('\n');
                 }
-                edtRecord.setText(sb.toString());
+                setDiaryText(sb.toString());
                 showProgress(false);
             }
 
             @Override
-            public void onPartialRecognizeDone() {
-                Log.d("NewAudioDiaryActivity", "Recognition Partially Done!!!");
-                StringBuilder sb = new StringBuilder();
-                for (String s : recordedStrings) {
-                    sb.append(s).append('\n');
-                }
-                edtRecord.setText(sb.toString());
-                recordedPartCount++;
-            }
-
-            @Override
-            public void onPartialRecognize(String text) {
+            public void onPartialRecognizeDone(String text) {
+                Log.d("NewAudioDiaryActivity", "A Part of Recognition Done!!!");
                 if (recordedStrings.size() == recordedPartCount) {
                     recordedStrings.add("");
                 }
@@ -109,11 +105,27 @@ public class NewAudioDiaryActivity extends AppCompatActivity {
                 for (String s : recordedStrings) {
                     sb.append(s).append('\n');
                 }
-                edtRecord.setText(sb.toString());
+                setDiaryText(sb.toString());
+                recordedPartCount++;
+            }
+
+            @Override
+            public void onPartialRecognize(String text) {
+//                Log.d("NewAudioDiaryActivity", "Partially Recognizing... " + text);
+                if (recordedStrings.size() == recordedPartCount) {
+                    recordedStrings.add("");
+                }
+                recordedStrings.set(recordedPartCount, "<font color='#999999'>" + text + "</font>");
+                StringBuilder sb = new StringBuilder();
+                for (String s : recordedStrings) {
+                    sb.append(s).append("<br/>");
+                }
+                setDiaryText(Html.fromHtml(sb.toString()));
             }
 
             @Override
             public void onFail(String message) {
+                Log.d("NewAudioDiaryActivity", "Recognition Failed");
                 openAlertModal(message, "Recognition Failed");
                 showProgress(false);
             }
@@ -136,7 +148,8 @@ public class NewAudioDiaryActivity extends AppCompatActivity {
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        GlobalUtils.removeTempFiles();
+                        mWavRecorder.stopRecord();
+                        WavRecorder.removeRecordedTempFiles();
                         dialogInterface.dismiss();
                         NewAudioDiaryActivity.this.finish();
                     }
@@ -158,7 +171,7 @@ public class NewAudioDiaryActivity extends AppCompatActivity {
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        clearText();
+                        clearDiaryText();
                         startRecording();
                     }
                 }).setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -173,7 +186,7 @@ public class NewAudioDiaryActivity extends AppCompatActivity {
     public void startRecording() {
         recordedPartCount = 0;
         recordedStrings.clear();
-        clearText();
+        clearDiaryText();
 
         mWavRecorder = new WavRecorder();
         mWavRecorder.startRecord();
@@ -182,19 +195,12 @@ public class NewAudioDiaryActivity extends AppCompatActivity {
 
     //if recording is stopped successfully,
     public void stopRecording() {
+//        showProgress(true);
+        showProgressUsingHandler(true);
         setRecordingStatus(false);
+
         mWavRecorder.stopRecord();
-        showProgress(true);
-
         speechRecognizer.startRecognize();
-    }
-
-    private void clearText() {
-        edtRecord.setText("");
-    }
-
-    private void addConvertedText(String text) {
-        edtRecord.append(text + '\n');
     }
 
     private void setRecordingStatus(boolean bRecording) {
@@ -274,30 +280,46 @@ public class NewAudioDiaryActivity extends AppCompatActivity {
             };
 
 
-    private void showProgress(final boolean show) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-
-            viewRecordLayout.setVisibility(show ? View.GONE : View.VISIBLE);
-            viewRecordLayout.animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    viewRecordLayout.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
-
-            viewProgress.setVisibility(show ? View.VISIBLE : View.GONE);
-            viewProgress.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    viewProgress.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
-        } else {
-            viewProgress.setVisibility(show ? View.VISIBLE : View.GONE);
-            viewRecordLayout.setVisibility(show ? View.GONE : View.VISIBLE);
-        }
+    private void clearDiaryText() {
+        edtRecord.setText("");
     }
+
+    private void setDiaryText(String text) {
+        edtRecord.setText(text);
+        scrollNewAudioDiaryForm.post(new Runnable() {
+            @Override
+            public void run() {
+                scrollNewAudioDiaryForm.smoothScrollTo(0, viewNewAudioDiaryForm.getBottom());
+            }
+        });
+    }
+
+    private void setDiaryText(Spanned spannedText) {
+        edtRecord.setText(spannedText);
+        scrollNewAudioDiaryForm.post(new Runnable() {
+            @Override
+            public void run() {
+                scrollNewAudioDiaryForm.smoothScrollTo(0, viewNewAudioDiaryForm.getBottom());
+            }
+        });
+    }
+
+    private void showProgress(final boolean show) {
+        viewProgress.setVisibility(show ? View.VISIBLE : View.GONE);
+        viewRecordLayout.setVisibility(show ? View.GONE : View.VISIBLE);
+    }
+
+    private void showProgressUsingHandler(final boolean show) {
+        Message msg = Message.obtain(showProgressHandler);
+        msg.arg1 = show ? 1 : 0;
+        showProgressHandler.sendMessage(msg);
+    }
+
+    private Handler showProgressHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            if(msg.arg1 == 0) showProgress(false);
+            else showProgress(true);
+        }
+    };
 }
