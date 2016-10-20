@@ -81,7 +81,7 @@ public class DiaryListActivity extends AppCompatActivity {
                 new DiaryListViewAdapter.OnDiaryViewItemClickListener() {
             @Override
             public void onClick(DiaryListViewItem diary) {
-                Intent intent = new Intent(DiaryListActivity.this, EditDiaryActivity.class);
+                Intent intent = new Intent(DiaryListActivity.this, ViewDiaryActivity.class);
                 intent.putExtra("DIARY_ID", diary.getDiaryID());
                 startActivity(intent);
             }

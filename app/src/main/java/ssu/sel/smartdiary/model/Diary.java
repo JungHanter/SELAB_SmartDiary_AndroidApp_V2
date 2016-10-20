@@ -1,5 +1,12 @@
 package ssu.sel.smartdiary.model;
 
+import android.text.TextUtils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -32,6 +39,62 @@ public class Diary {
         this.diaryContexts.addAll(diaryContexts);
     }
 
+    public static Diary fromJSON(JSONObject jsonDiary, JSONArray jsonContexts) {
+        Diary diary = null;
+        try {
+            long time = jsonDiary.getLong("created_date");
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(time);
+
+            diary = new Diary(jsonDiary.getInt("audio_diary_id"), jsonDiary.getString("title"),
+                    calendar, jsonDiary.getString("content"));
+
+            if (jsonContexts != null) {
+                for (int i = 0; i < jsonContexts.length(); i++) {
+                    JSONObject jsonContext = jsonContexts.getJSONObject(i);
+                    DiaryContext diaryContext = DiaryContext.fromJSON(jsonContext);
+                    if (diaryContext != null) {
+                        diary.addDiaryContext(diaryContext);
+                    }
+                }
+            }
+        } catch (JSONException je) {
+            je.printStackTrace();
+        }
+        return diary;
+    }
+
+    public JSONObject toJSON() {
+        return null;
+    }
+
+    public DiaryContext getAnnotation() {
+        for (DiaryContext context : diaryContexts) {
+            if(context.getClass() == DiaryAnnotation.class ||
+                    context.getContextType().equals(DiaryContext.CONTEXT_TYPE_ANNOTATION)) {
+                return context;
+            }
+        }
+        return null;
+    }
+
+    public ArrayList<DiaryContext> getDiaryContexts(String type) {
+        return getDiaryContexts(type, null);
+    }
+
+    public ArrayList<DiaryContext> getDiaryContexts(String type, String subType) {
+        ArrayList<DiaryContext> searchContexts = new ArrayList<>();
+        for (DiaryContext context : diaryContexts) {
+            if(context.getContextType().equals(type)) {
+                if (subType == null || TextUtils.isEmpty(subType)) {
+                    searchContexts.add(context);
+                } else if (context.getSubType().equals(subType)) {
+                    searchContexts.add(context);
+                }
+            }
+        }
+        return searchContexts;
+    }
 
     public int getDiaryID() {
         return diaryID;

@@ -42,8 +42,11 @@
             android:name=".WriteDiaryActivity"
             android:label="New Audio Diary" />
         <activity
-            android:name=".EditDiaryActivity"
+            android:name=".ViewDiaryActivity"
             android:label="Diary" />
+        <!--<activity-->
+            <!--android:name=".EditDiaryActivity"-->
+            <!--android:label="Diary" />-->
         <activity
             android:name=".AnalyticsActivity"
             android:label="Analytics"

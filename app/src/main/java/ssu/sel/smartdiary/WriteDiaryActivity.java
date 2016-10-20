@@ -28,6 +28,8 @@ import org.json.JSONObject;
 import java.io.File;
 import java.util.Calendar;
 
+import ssu.sel.smartdiary.model.Diary;
+import ssu.sel.smartdiary.model.DiaryContext;
 import ssu.sel.smartdiary.model.UserProfile;
 import ssu.sel.smartdiary.network.MultipartRestConnector;
 import ssu.sel.smartdiary.speech.WavRecorder;
@@ -253,7 +255,7 @@ public class WriteDiaryActivity extends AppCompatActivity {
                 JSONArray arrContexts = new JSONArray();
                 if (!TextUtils.isEmpty(annotation)) {
                     JSONObject jsonAnnotation = new JSONObject();
-                    jsonAnnotation.put("type", "annotation");
+                    jsonAnnotation.put("type", DiaryContext.CONTEXT_TYPE_ANNOTATION);
                     jsonAnnotation.put("subtype", "");
                     jsonAnnotation.put("value", annotation);
                     jsonAnnotation.put("date_added", createdTime);
@@ -263,8 +265,8 @@ public class WriteDiaryActivity extends AppCompatActivity {
                     String[] places = envPlace.split(",");
                     for (String place : places) {
                         JSONObject jsonPlace = new JSONObject();
-                        jsonPlace.put("type", "environment");
-                        jsonPlace.put("subtype", "place");
+                        jsonPlace.put("type", DiaryContext.CONTEXT_TYPE_ENVIRONMENT);
+                        jsonPlace.put("subtype", DiaryContext.SUB_TYPE_ENV_PLACE);
                         jsonPlace.put("value", place.trim());
                         jsonPlace.put("date_added", createdTime);
                         arrContexts.put(jsonPlace);
@@ -274,8 +276,8 @@ public class WriteDiaryActivity extends AppCompatActivity {
                     String[] weathers = envWeather.split(",");
                     for (String weather : weathers) {
                         JSONObject jsonWeather = new JSONObject();
-                        jsonWeather.put("type", "environment");
-                        jsonWeather.put("subtype", "weather");
+                        jsonWeather.put("type", DiaryContext.CONTEXT_TYPE_ENVIRONMENT);
+                        jsonWeather.put("subtype", DiaryContext.SUB_TYPE_ENV_WEATHER);
                         jsonWeather.put("value", weather.trim());
                         jsonWeather.put("date_added", createdTime);
                         arrContexts.put(jsonWeather);
@@ -285,8 +287,8 @@ public class WriteDiaryActivity extends AppCompatActivity {
                     String[] events = envEvents.split(",");
                     for (String event : events) {
                         JSONObject jsonEvent = new JSONObject();
-                        jsonEvent.put("type", "environment");
-                        jsonEvent.put("subtype", "event");
+                        jsonEvent.put("type", DiaryContext.CONTEXT_TYPE_ENVIRONMENT);
+                        jsonEvent.put("subtype", DiaryContext.SUB_TYPE_ENV_EVENT);
                         jsonEvent.put("value", event.trim());
                         jsonEvent.put("date_added", createdTime);
                         arrContexts.put(jsonEvent);

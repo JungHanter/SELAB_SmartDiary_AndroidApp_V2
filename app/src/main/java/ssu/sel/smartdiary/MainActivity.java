@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
                 new DiaryListViewAdapter.OnDiaryViewItemClickListener() {
             @Override
             public void onClick(DiaryListViewItem diary) {
-                Intent intent = new Intent(MainActivity.this, EditDiaryActivity.class);
+                Intent intent = new Intent(MainActivity.this, ViewDiaryActivity.class);
                 intent.putExtra("DIARY_ID", diary.getDiaryID());
                 startActivity(intent);
             }
@@ -211,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
             case R.id.tvDiaryListElem4:
             case R.id.tvDiaryListElem5:
                 int selectedDiary = (v.getId() - R.id.tvDiaryListElem1) / 4;
-                intent = new Intent(MainActivity.this, EditDiaryActivity.class);
+                intent = new Intent(MainActivity.this, ViewDiaryActivity.class);
                 intent.putExtra("DIARY_ID", recentDiaryIDs[selectedDiary]);
                 startActivity(intent);
                 return;
