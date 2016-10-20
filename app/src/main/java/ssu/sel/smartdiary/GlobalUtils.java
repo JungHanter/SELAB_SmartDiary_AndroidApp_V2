@@ -24,8 +24,18 @@ public class GlobalUtils {
     public static final DateFormat DIARY_TIME_FORMAT =
             new SimpleDateFormat("HH:mm", Locale.getDefault());
 
-//    public static final File RECORDED_TEMP_FILE_DIR =
-//            new File (Environment.getExternalStorageDirectory().getPath() + "/smartdiary/tmp/");
+    public static final File AUDIO_DIARY_DIR =
+            new File (Environment.getExternalStorageDirectory().getPath() + "/smartdiary/audio/");
+
+    public static File getAudioDiaryFile(String userId, int audioDiaryId) {
+        File userFolder = new File(AUDIO_DIARY_DIR.getPath() + "/" + userId + "/");
+        if (!userFolder.exists()) userFolder.mkdirs();
+        return new File( AUDIO_DIARY_DIR.getPath() + "/" + userId + "/" + audioDiaryId + ".wav");
+    }
+    public static boolean existsAudioDiaryFile(String userId, int audioDiaryId) {
+        File audioFile = getAudioDiaryFile(userId, audioDiaryId);
+        return audioFile.exists();
+    }
 
 //    public static void removeTempFiles() {
 //        String[] fileList = RECORDED_TEMP_FILE_DIR.list();

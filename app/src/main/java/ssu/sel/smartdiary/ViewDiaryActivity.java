@@ -25,8 +25,8 @@ import java.util.Calendar;
 import ssu.sel.smartdiary.model.Diary;
 import ssu.sel.smartdiary.model.DiaryContext;
 import ssu.sel.smartdiary.model.UserProfile;
+import ssu.sel.smartdiary.network.AudioDownloadConnector;
 import ssu.sel.smartdiary.network.JsonRestConnector;
-import ssu.sel.smartdiary.network.MultipartRestConnector;
 
 /**
  * Created by hanter on 16. 10. 7..
@@ -50,6 +50,7 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
     private JsonRestConnector getDiaryInfoConnector = null;
     private JsonRestConnector deleteDiaryInfoConnector = null;
     private JsonRestConnector analyzeDiaryConnector = null;
+    private AudioDownloadConnector downloadConnector = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +97,10 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
         btnConfirm = (Button)findViewById(R.id.btnDiaryConfirm);
         viewWriteDiaryLayout = findViewById(R.id.viewWriteDiaryForm);
         viewProgress = findViewById(R.id.progressLayout);
+        tvDiaryAudioDownloading = (TextView) findViewById(R.id.tvDiaryAudioDownloading);
+        btnDiaryAudioPlay = (Button) findViewById(R.id.btnDiaryAudioPlay);
+        btnDiaryAudioPause = (Button) findViewById(R.id.btnDiaryAudioPause);
+        btnDiaryAudioStop = (Button) findViewById(R.id.btnDiaryAudioStop);
 
         viewDiaryAnalytics = findViewById(R.id.viewDiaryAnalytics);
         viewPositiveAnalytics = findViewById(R.id.viewPositiveAnalytics);
@@ -109,6 +114,11 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
         edtTitle.setText("");
         edtContent.setText("");
         selectedDate = Calendar.getInstance();
+
+        tvDiaryAudioDownloading.setVisibility(View.VISIBLE);
+        btnDiaryAudioPlay.setVisibility(View.GONE);
+        btnDiaryAudioPause.setVisibility(View.GONE);
+        btnDiaryAudioStop.setVisibility(View.GONE);
 
         setModals();
         setJsonConnectors();
@@ -141,6 +151,10 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
                                     nowDiary = Diary.fromJSON(diary, diaryContexts);
                                     setDiary(nowDiary);
 
+                                    //request file download
+                                    downloadConnector.request(UserProfile.getUserProfile().getUserID(),
+                                            nowDiary.getDiaryID());
+
                                     //TODO get analytics
 //                                    showAnalyticsProgress(true);
 //                                    JSONObject analyticsJson = new JSONObject();
@@ -158,6 +172,22 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
                             }
                         }
                         showProgress(false);
+                    }
+                });
+
+        downloadConnector = new AudioDownloadConnector("download", "POST",
+                new AudioDownloadConnector.OnConnectListener() {
+                    @Override
+                    public void onDone(Boolean success) {
+                        if (success) {
+                            audioFile = GlobalUtils.getAudioDiaryFile(UserProfile.getUserProfile().getUserID(),
+                                    nowDiary.getDiaryID());
+                            setAudioPlayer();
+                            Log.d("ViewDiaryActivity", "File downloaded");
+                        } else  {
+                            openAlertModal("Downloading audio file is failed.");
+                            tvDiaryAudioDownloading.setText("Downloading Audio Failed");
+                        }
                     }
                 });
 

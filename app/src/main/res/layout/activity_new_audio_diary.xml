@@ -144,7 +144,8 @@
                             android:enabled="false"
                             android:onClick="onAudioControlClick"
                             android:background="@drawable/button_diary_audio_pause"
-                            android:id="@+id/btnDiaryAudioPause" />
+                            android:id="@+id/btnDiaryAudioPause"
+                            android:visibility="gone"/>
                         <Button
                             android:layout_width="24dp"
                             android:layout_height="24dp"
