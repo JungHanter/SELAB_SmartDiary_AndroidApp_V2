@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
         //recent 5 diaries
         JSONObject json = new JSONObject();
         try {
-            json.put("user_id", UserProfile.getUserProfile().getUserID());
+             json.put("user_id", UserProfile.getUserProfile().getUserID());
             json.put("limit", 5);
         } catch (Exception e) {
             e.printStackTrace();
@@ -251,15 +251,19 @@ public class MainActivity extends AppCompatActivity {
                                         TextView tvContent = (TextView)findViewById(R.id.tvDiaryListElemContent1 + 4*i);
 
                                         tvTitle.setText(diary.getString("title"));
-                                        long time = diary.getLong("timestamp");
+                                        long time = diary.getLong("created_date");
                                         Calendar calendar = Calendar.getInstance();
                                         calendar.setTimeInMillis(time);
                                         tvDate.setText(GlobalUtils.DIARY_DATE_FORMAT.format(calendar.getTime()));
-                                        tvContent.setText(diary.getString("text"));
+                                        tvContent.setText(diary.getString("content"));
 
-                                        recentDiaryIDs[i] = diary.getInt("diary_id");
+                                        recentDiaryIDs[i] = diary.getInt("audio_diary_id");
 //                                        Log.d("Diary Text - JsonString", diary.getString("text"));
                                         diaryLayout.setVisibility(View.VISIBLE);
+                                    }
+                                    for (int i=diaries.length(); i<5; i++) {
+                                        View diaryLayout = findViewById(R.id.tvDiaryListElem1 + 4*i);
+                                        diaryLayout.setVisibility(View.GONE);
                                     }
                                 } else {
                                     recentDiaryIDs = new int[0];
@@ -295,15 +299,15 @@ public class MainActivity extends AppCompatActivity {
                                     JSONArray diaries = resJson.getJSONArray("result");
                                     for (int i=0; i<diaries.length(); i++) {
                                         JSONObject diary = diaries.getJSONObject(i);
-                                        long time = diary.getLong("timestamp");
+                                        long time = diary.getLong("created_date");
                                         Calendar calendar = Calendar.getInstance();
                                         calendar.setTimeInMillis(time);
 
                                         searchAdapter.addItem(new DiaryListViewItem(
-                                                diary.getInt("diary_id"),
+                                                diary.getInt("audio_diary_id"),
                                                 diary.getString("title"),
                                                 GlobalUtils.DIARY_DATE_FORMAT.format(calendar.getTime()),
-                                                diary.getString("text")
+                                                diary.getString("content")
                                         ));
                                     }
                                     searchAdapter.notifyDataSetChanged();

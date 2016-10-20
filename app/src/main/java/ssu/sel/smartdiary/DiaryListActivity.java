@@ -192,15 +192,15 @@ public class DiaryListActivity extends AppCompatActivity {
                                     JSONArray diaries = resJson.getJSONArray("result");
                                     for (int i=0; i<diaries.length(); i++) {
                                         JSONObject diary = diaries.getJSONObject(i);
-                                        long time = diary.getLong("timestamp");
+                                        long time = diary.getLong("created_date");
                                         Calendar calendar = Calendar.getInstance();
                                         calendar.setTimeInMillis(time);
 
                                         adapter.addItem(new DiaryListViewItem(
-                                                diary.getInt("diary_id"),
+                                                diary.getInt("audio_diary_id"),
                                                 diary.getString("title"),
                                                 GlobalUtils.DIARY_DATE_FORMAT.format(calendar.getTime()),
-                                                diary.getString("text")
+                                                diary.getString("content")
                                         ));
                                     }
                                     adapter.notifyDataSetChanged();
@@ -237,15 +237,15 @@ public class DiaryListActivity extends AppCompatActivity {
                                     JSONArray diaries = resJson.getJSONArray("result");
                                     for (int i=0; i<diaries.length(); i++) {
                                         JSONObject diary = diaries.getJSONObject(i);
-                                        long time = diary.getLong("timestamp");
+                                        long time = diary.getLong("created_date");
                                         Calendar calendar = Calendar.getInstance();
                                         calendar.setTimeInMillis(time);
 
                                         searchAdapter.addItem(new DiaryListViewItem(
-                                                diary.getInt("diary_id"),
+                                                diary.getInt("audio_diary_id"),
                                                 diary.getString("title"),
                                                 GlobalUtils.DIARY_DATE_FORMAT.format(calendar.getTime()),
-                                                diary.getString("text")
+                                                diary.getString("content")
                                         ));
                                     }
                                     searchAdapter.notifyDataSetChanged();

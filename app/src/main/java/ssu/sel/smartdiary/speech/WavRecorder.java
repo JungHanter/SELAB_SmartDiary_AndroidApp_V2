@@ -59,7 +59,7 @@ public class WavRecorder {
 //    private static final double THRESHOLD_SILENCE_CNT = (RECORDER_SAMPLERATE / 8000) * 4;
 //    private static final double THRESHOLD_SILENCE_SUM = THRESHOLD_SILENCE*THRESHOLD_SILENCE_CNT*0.9;
 
-    private static final double[] THRESHOLD_SILENCE_ENDTIME = {60*1000, 70*1000, 80*1000, 90*1000, 100*1000, 105*1000}; //1분, 1분 10, ...
+    private static final double[] THRESHOLD_SILENCE_ENDTIME = {50*1000, 60*1000, 70*1000, 75*1000, 80*1000, 85*1000-1}; //50초 60초 ...
 //    private static final double[] THRESHOLD_SILENCE_ENDTIME = {30*1000, 35*1000, 40*1000, 45*1000, 50*1000, 60*1000}; //For Testing
     private static final double[] THRESHOLD_SILENCE = {45, 50, 55, 65, 75};
     private static final double[] THRESHOLD_SILENCE_CNT = {6, 5, 4, 4, 3}; //count 1당 주기 약 0.12초
@@ -224,7 +224,7 @@ public class WavRecorder {
                     //levelSum = 0;
                 } else if (sileceDetectiveLevel == THRESHOLD_SILENCE_ENDTIME.length-1) {
                     isFinishedForNext = true;
-                    Log.d("WavRecorder", "Time Over. (1:45)");
+                    Log.d("WavRecorder", "Time Over. (1:25)");
                 } else {
                     double level = calcAmplitude(buffer);
                     if (level <= THRESHOLD_SILENCE[sileceDetectiveLevel]) {

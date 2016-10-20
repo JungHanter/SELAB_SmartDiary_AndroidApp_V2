@@ -41,4 +41,12 @@
         <item name="colorAccent">@color/teal_500</item>
     </style>
 
+    <style name="AccentTeal">
+        <item name="colorAccent">@color/teal_500</item>
+    </style>
+
+    <style name="AccentIndigo">
+        <item name="colorAccent">@color/indigo_500</item>
+    </style>
+
 </resources>

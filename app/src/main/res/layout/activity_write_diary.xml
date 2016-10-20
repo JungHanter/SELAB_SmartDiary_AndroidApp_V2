@@ -48,7 +48,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/edtDiaryTitle"
-                    android:textColor="@color/teal_500"
+                    android:textColor="@color/indigo_500"
+                    android:backgroundTint="@color/indigo_500"
                     android:inputType="text"
                     android:textSize="20sp"
                     android:lines="1"
@@ -138,6 +139,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -146,13 +148,55 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textSize="14sp"
-                            android:text="Location: "/>
+                            android:textColor="@color/teal_500"
+                            android:text="Place: "/>
                         <EditText
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:textSize="14sp"
-                            android:id="@+id/edtEnvLocation"
+                            android:id="@+id/edtEnvPlace"
                             android:inputType="text"
+                            android:hint="ex) Cafe, School, ..."
+                            android:lines="1" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="14sp"
+                            android:textColor="@color/teal_500"
+                            android:text="Weather: "/>
+                        <EditText
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textSize="14sp"
+                            android:id="@+id/edtEnvWeather"
+                            android:inputType="text"
+                            android:hint="ex) Sunny, Rainy, ..."
+                            android:lines="1" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="14sp"
+                            android:textColor="@color/teal_500"
+                            android:text="Special Events:"/>
+                        <EditText
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textSize="14sp"
+                            android:id="@+id/edtEnvEvents"
+                            android:inputType="text"
+                            android:hint="ex) Christmas, Wedding, ..."
                             android:lines="1" />
                     </LinearLayout>
 

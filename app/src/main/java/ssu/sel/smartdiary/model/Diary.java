@@ -1,6 +1,8 @@
 package ssu.sel.smartdiary.model;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 
 /**
  * Created by hanter on 16. 10. 7..
@@ -10,41 +12,26 @@ public class Diary {
     private String title;
     private Calendar date;
     private String content;
-    private String annotation;
-    private String location;
+    private ArrayList<DiaryContext> diaryContexts = null;
 
-    public Diary(String title, Calendar date, String content) {
-        this.title = title;
-        this.date = date;
-        this.content = content;
-        this.annotation = "";
-        this.location = "";
-    }
-
-    public Diary(String title, Calendar date, String content, String annotation) {
-        this.title = title;
-        this.date = date;
-        this.content = content;
-        this.annotation = annotation;
-        this.location = "";
-    }
-
-    public Diary(String title, Calendar date, String content, String annotation, String location) {
-        this.title = title;
-        this.date = date;
-        this.content = content;
-        this.annotation = annotation;
-        this.location = location;
-    }
-
-    public Diary(int diaryID, String title, Calendar date, String content, String annotation, String location) {
+    public Diary(int diaryID, String title, Calendar date, String content) {
         this.diaryID = diaryID;
         this.title = title;
         this.date = date;
         this.content = content;
-        this.annotation = annotation;
-        this.location = location;
+        this.diaryContexts = new ArrayList<>();
     }
+
+    public Diary(int diaryID, String title, Calendar date, String content,
+                 Collection<DiaryContext> diaryContexts) {
+        this.diaryID = diaryID;
+        this.title = title;
+        this.date = date;
+        this.content = content;
+        this.diaryContexts = new ArrayList<>();
+        this.diaryContexts.addAll(diaryContexts);
+    }
+
 
     public int getDiaryID() {
         return diaryID;
@@ -78,19 +65,19 @@ public class Diary {
         this.content = content;
     }
 
-    public String getAnnotation() {
-        return annotation;
+    public ArrayList<DiaryContext> getDiaryContexts() {
+        return diaryContexts;
     }
 
-    public void setAnnotation(String annotation) {
-        this.annotation = annotation;
+    public DiaryContext getDiaryContext(int index) {
+        return diaryContexts.get(index);
     }
 
-    public String getLocation() {
-        return location;
+    public void addDiaryContext(DiaryContext diaryContext) {
+        diaryContexts.add(diaryContext);
     }
 
-    public void setLocation(String location) {
-        this.location = location;
+    public void addDiaryContexts(Collection<DiaryContext> diaryContexts) {
+        this.diaryContexts.addAll(diaryContexts);
     }
 }

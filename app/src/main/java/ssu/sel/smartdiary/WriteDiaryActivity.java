@@ -6,12 +6,14 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -20,18 +22,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.appindexing.Thing;
-import com.google.android.gms.common.api.GoogleApiClient;
-
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Locale;
 
 import ssu.sel.smartdiary.model.UserProfile;
 import ssu.sel.smartdiary.network.MultipartRestConnector;
@@ -47,9 +42,11 @@ public class WriteDiaryActivity extends AppCompatActivity {
     protected TextView tvDiarySelectTime = null;
 
     protected EditText edtAnnotation = null;
-    protected EditText edtEnvLocation = null;
+    protected EditText edtEnvPlace = null;
+    protected EditText edtEnvWeather = null;
+    protected EditText edtEnvEvents = null;
 
-    protected View viewWirteDiaryLayout = null;
+    protected View viewWriteDiaryLayout = null;
     protected View viewProgress = null;
 
     protected AlertDialog dlgAlert = null;
@@ -60,19 +57,11 @@ public class WriteDiaryActivity extends AppCompatActivity {
     protected TimePickerDialog dlgTimePicker = null;
 
     protected MultipartRestConnector saveDiaryConnector = null;
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
-    private GoogleApiClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initView();
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     protected void initView() {
@@ -101,9 +90,16 @@ public class WriteDiaryActivity extends AppCompatActivity {
         tvDiarySelectDate = (TextView) findViewById(R.id.tvDiarySelectDate);
         tvDiarySelectTime = (TextView) findViewById(R.id.tvDiarySelectTime);
         edtAnnotation = (EditText) findViewById(R.id.edtAnnotation);
-        edtEnvLocation = (EditText) findViewById(R.id.edtEnvLocation);
-        viewWirteDiaryLayout = findViewById(R.id.viewWriteDiaryForm);
+        edtEnvPlace = (EditText) findViewById(R.id.edtEnvPlace);
+        edtEnvWeather = (EditText) findViewById(R.id.edtEnvWeather);
+        edtEnvEvents = (EditText) findViewById(R.id.edtEnvEvents);
+        viewWriteDiaryLayout = findViewById(R.id.viewWriteDiaryForm);
         viewProgress = findViewById(R.id.progressLayout);
+
+        Drawable edtTitleBGDrawble = edtTitle.getBackground();
+        edtTitleBGDrawble.mutate().setColorFilter(getResources().getColor(R.color.indigo_500),
+                PorterDuff.Mode.SRC_ATOP);
+        edtTitle.setBackground(edtTitleBGDrawble);
 
         if (diaryAcitivityType.equals("NEW_AUDIO")) {
 //            edtTitle.setText(intent.getStringExtra("DIARY_TITLE"));
@@ -215,28 +211,103 @@ public class WriteDiaryActivity extends AppCompatActivity {
     }
 
     protected void saveDiary() {
-        JSONObject json = new JSONObject();
+        String title = edtTitle.getText().toString();
+        String content = edtTitle.getText().toString();
 
-        try {
-            json.put("user_id", UserProfile.getUserProfile().getUserID());
-            json.put("timestamp", selectedDate.getTime().getTime());
-            json.put("title", edtTitle.getText().toString());
-            json.put("text", edtContent.getText().toString());
-            json.put("annotation", edtAnnotation.getText().toString());
-            json.put("location", edtEnvLocation.getText().toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-            dlgAlert.setMessage("JSON Creation Error");
-            dlgAlert.show();
-            return;
+        boolean cancel = false;
+        View focusView = null;
+
+        if (TextUtils.isEmpty(content)) {
+            edtContent.setError("Content is empty");
+            focusView = edtContent;
+            cancel = true;
         }
 
-        showProgress(true);
-        if (diaryAcitivityType.equals("NEW_AUDIO")) {
-            File recordedFile = (File) getIntent().getSerializableExtra("DIARY_AUDIO");
-            saveDiaryConnector.request(recordedFile, json);
+        if (TextUtils.isEmpty(title)) {
+            edtTitle.setError("Title is empty");
+            focusView = edtTitle;
+            cancel = true;
+        } else if (title.length() < 4) {
+            edtTitle.setError("Title is too short");
+            focusView = edtTitle;
+            cancel = true;
+        }
+
+        if (cancel) {
+            focusView.requestFocus();
+
         } else {
-//            saveDiaryConnector.request(null, json);
+            String annotation = edtAnnotation.getText().toString();
+            String envPlace = edtEnvPlace.getText().toString();
+            String envWeather = edtEnvWeather.getText().toString();
+            String envEvents = edtEnvEvents.getText().toString();
+            long createdTime = selectedDate.getTime().getTime();
+
+            JSONObject json = new JSONObject();
+            try {
+                json.put("user_id", UserProfile.getUserProfile().getUserID());
+                json.put("created_date", createdTime);
+                json.put("title", title);
+                json.put("content", content);
+
+                JSONArray arrContexts = new JSONArray();
+                if (!TextUtils.isEmpty(annotation)) {
+                    JSONObject jsonAnnotation = new JSONObject();
+                    jsonAnnotation.put("type", "annotation");
+                    jsonAnnotation.put("subtype", "");
+                    jsonAnnotation.put("value", annotation);
+                    jsonAnnotation.put("date_added", createdTime);
+                    arrContexts.put(jsonAnnotation);
+                }
+                if (!TextUtils.isEmpty(envPlace)) {
+                    String[] places = envPlace.split(",");
+                    for (String place : places) {
+                        JSONObject jsonPlace = new JSONObject();
+                        jsonPlace.put("type", "environment");
+                        jsonPlace.put("subtype", "place");
+                        jsonPlace.put("value", place.trim());
+                        jsonPlace.put("date_added", createdTime);
+                        arrContexts.put(jsonPlace);
+                    }
+                }
+                if (!TextUtils.isEmpty(envWeather)) {
+                    String[] weathers = envWeather.split(",");
+                    for (String weather : weathers) {
+                        JSONObject jsonWeather = new JSONObject();
+                        jsonWeather.put("type", "environment");
+                        jsonWeather.put("subtype", "weather");
+                        jsonWeather.put("value", weather.trim());
+                        jsonWeather.put("date_added", createdTime);
+                        arrContexts.put(jsonWeather);
+                    }
+                }
+                if (!TextUtils.isEmpty(envEvents)) {
+                    String[] events = envEvents.split(",");
+                    for (String event : events) {
+                        JSONObject jsonEvent = new JSONObject();
+                        jsonEvent.put("type", "environment");
+                        jsonEvent.put("subtype", "event");
+                        jsonEvent.put("value", event.trim());
+                        jsonEvent.put("date_added", createdTime);
+                        arrContexts.put(jsonEvent);
+                    }
+                }
+                json.put("diary_context", arrContexts);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                dlgAlert.setMessage("JSON Creation Error");
+                dlgAlert.show();
+                return;
+            }
+
+            showProgress(true);
+            if (diaryAcitivityType.equals("NEW_AUDIO")) {
+                File recordedFile = (File) getIntent().getSerializableExtra("DIARY_AUDIO");
+                saveDiaryConnector.request(recordedFile, json);
+            } else {
+//                saveDiaryConnector.request(null, json);
+            }
         }
     }
 
@@ -291,12 +362,12 @@ public class WriteDiaryActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-            viewWirteDiaryLayout.setVisibility(show ? View.GONE : View.VISIBLE);
+            viewWriteDiaryLayout.setVisibility(show ? View.GONE : View.VISIBLE);
             viewProgress.animate().setDuration(shortAnimTime).alpha(
                     show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    viewWirteDiaryLayout.setVisibility(show ? View.GONE : View.VISIBLE);
+                    viewWriteDiaryLayout.setVisibility(show ? View.GONE : View.VISIBLE);
                 }
             });
 
@@ -310,43 +381,7 @@ public class WriteDiaryActivity extends AppCompatActivity {
             });
         } else {
             viewProgress.setVisibility(show ? View.VISIBLE : View.GONE);
-            viewWirteDiaryLayout.setVisibility(show ? View.GONE : View.VISIBLE);
+            viewWriteDiaryLayout.setVisibility(show ? View.GONE : View.VISIBLE);
         }
-    }
-
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
-    public Action getIndexApiAction() {
-        Thing object = new Thing.Builder()
-                .setName("WriteDiary Page") // TODO: Define a title for the content shown.
-                // TODO: Make sure this auto-generated URL is correct.
-                .setUrl(Uri.parse("http://[ENTER-YOUR-URL-HERE]"))
-                .build();
-        return new Action.Builder(Action.TYPE_VIEW)
-                .setObject(object)
-                .setActionStatus(Action.STATUS_TYPE_COMPLETED)
-                .build();
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client.connect();
-        AppIndex.AppIndexApi.start(client, getIndexApiAction());
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        AppIndex.AppIndexApi.end(client, getIndexApiAction());
-        client.disconnect();
     }
 }

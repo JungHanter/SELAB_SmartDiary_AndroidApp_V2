@@ -1,8 +1,9 @@
 package ssu.sel.smartdiary;
 
-import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -15,20 +16,16 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import org.json.JSONObject;
-
-import ssu.sel.smartdiary.model.UserProfile;
-import ssu.sel.smartdiary.network.MultipartRestConnector;
 import ssu.sel.smartdiary.speech.MSSpeechRecognizer;
 import ssu.sel.smartdiary.speech.WavRecorder;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.ArrayList;
-import java.util.Calendar;
 
 public class NewAudioDiaryActivity extends AppCompatActivity {
     private Button btnStartRecord = null;
@@ -38,6 +35,10 @@ public class NewAudioDiaryActivity extends AppCompatActivity {
     private EditText edtRecord = null;
 //    private TextView tvDiarySelectDate = null;
     private Button btnRecordNext = null;
+
+    private Button btnDiaryAudioPlay = null;
+    private Button btnDiaryAudioPause = null;
+    private Button btnDiaryAudioStop = null;
 
     private View viewRecordLayout = null;
     private View viewProgress = null;
@@ -53,6 +54,9 @@ public class NewAudioDiaryActivity extends AppCompatActivity {
     public boolean nowRecordingStatus = false;
 
     private WavRecorder mWavRecorder = null;
+
+    private boolean bPlayerEnable = false;
+    private MediaPlayer mPlayer = null;
 
     private MSSpeechRecognizer.OnRecognizeDoneListener recognizeDoneListener = null;
     private MSSpeechRecognizer speechRecognizer = null;
@@ -83,6 +87,10 @@ public class NewAudioDiaryActivity extends AppCompatActivity {
         btnRecordNext = (Button) findViewById(R.id.btnRecordNext);
         btnRecordNext.setEnabled(false);
         setModals();
+
+        btnDiaryAudioPlay = (Button) findViewById(R.id.btnDiaryAudioPlay);
+        btnDiaryAudioPause = (Button) findViewById(R.id.btnDiaryAudioPause);
+        btnDiaryAudioStop = (Button) findViewById(R.id.btnDiaryAudioStop);
 
         viewRecordLayout = findViewById(R.id.layoutBtnRecord);
         viewProgress = findViewById(R.id.progressLayout);
@@ -138,6 +146,7 @@ public class NewAudioDiaryActivity extends AppCompatActivity {
                 openAlertModal(message, "Recognition Failed");
                 showProgress(false);
                 btnRecordNext.setEnabled(false);
+                setDiaryAudioPlayer(false);
             }
         };
 
@@ -157,8 +166,10 @@ public class NewAudioDiaryActivity extends AppCompatActivity {
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        mWavRecorder.stopRecord();
+                        if (mWavRecorder != null)
+                            mWavRecorder.stopRecord();
                         WavRecorder.removeRecordedTempFiles();
+                        setDiaryAudioPlayer(false);
                         dialogInterface.dismiss();
                         NewAudioDiaryActivity.this.finish();
                     }
@@ -196,6 +207,7 @@ public class NewAudioDiaryActivity extends AppCompatActivity {
         recordedPartCount = 0;
         recordedStrings.clear();
         clearDiaryText();
+        setDiaryAudioPlayer(false);
         btnRecordNext.setEnabled(false);
 
         mWavRecorder = new WavRecorder();
@@ -211,6 +223,13 @@ public class NewAudioDiaryActivity extends AppCompatActivity {
 
         mWavRecorder.stopRecord();
         speechRecognizer.startRecognize();
+        new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                setDiaryAudioPlayer(true);
+            }
+        }.sendEmptyMessageDelayed(0, 500);
     }
 
     private void setRecordingStatus(boolean bRecording) {
@@ -243,6 +262,8 @@ public class NewAudioDiaryActivity extends AppCompatActivity {
 //                dlgDatePicker.show();
 //                return;
             case R.id.btnRecordNext:
+                setDiaryAudioPlayer(false);
+
                 Intent intent = new Intent(NewAudioDiaryActivity.this, WriteDiaryActivity.class);
                 intent.putExtra("WRITE_DIARY_TYPE", "NEW_AUDIO");
 
@@ -265,6 +286,82 @@ public class NewAudioDiaryActivity extends AppCompatActivity {
                 dlgCancel.show();
                 return;
         }
+    }
+
+    public void onAudioControlClick(View v) {
+        switch (v.getId()) {
+            case R.id.btnDiaryAudioPlay:
+                mPlayer.start();
+                btnDiaryAudioPlay.setVisibility(View.GONE);
+                btnDiaryAudioPause.setVisibility(View.VISIBLE);
+                return;
+
+            case R.id.btnDiaryAudioPause:
+                if(mPlayer.isPlaying())
+                    mPlayer.pause();
+                btnDiaryAudioPause.setVisibility(View.GONE);
+                btnDiaryAudioPlay.setVisibility(View.VISIBLE);
+                return;
+
+            case R.id.btnDiaryAudioStop:
+//                if(mPlayer.isPlaying())
+//                    mPlayer.stop();
+//                mPlayer.seekTo(0);
+//                try {
+//                    mPlayer.prepare();
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//                mPlayer.stop();
+                if (mPlayer.isPlaying()) mPlayer.pause();
+                mPlayer.seekTo(0);
+                btnDiaryAudioPause.setVisibility(View.GONE);
+                btnDiaryAudioPlay.setVisibility(View.VISIBLE);
+                return;
+        }
+    }
+
+    private void setDiaryAudioPlayer(boolean enable) {
+        if (mWavRecorder != null) {
+            File diaryAudioFile = mWavRecorder.getRecordFile();
+            if (enable && diaryAudioFile != null && diaryAudioFile.exists()) {
+                try {
+                    FileInputStream fis = new FileInputStream(diaryAudioFile);
+                    mPlayer = new MediaPlayer();
+                    mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                    mPlayer.setDataSource(fis.getFD());
+                    mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                        @Override
+                        public void onCompletion(MediaPlayer mp) {
+                            mp.seekTo(0);
+                            btnDiaryAudioPause.setVisibility(View.GONE);
+                            btnDiaryAudioPlay.setVisibility(View.VISIBLE);
+                            Log.d("NewAudioDiaryActivity", "Player Completion.");
+                        }
+                    });
+                    mPlayer.prepare();
+                    Log.d("NewAudioDiaryActivity", "Media Player Setup");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    enable = false;
+                }
+            } else {
+                enable = false;
+                if (mPlayer != null) {
+                    mPlayer.stop();
+                    mPlayer.release();
+                    mPlayer = null;
+                }
+            }
+        } else {
+            enable = false;
+        }
+        bPlayerEnable = enable;
+        btnDiaryAudioPlay.setEnabled(enable);
+        btnDiaryAudioPause.setEnabled(enable);
+        btnDiaryAudioStop.setEnabled(enable);
+        btnDiaryAudioPause.setVisibility(View.GONE);
+        btnDiaryAudioPlay.setVisibility(View.VISIBLE);
     }
 
     private void openAlertModal(CharSequence msg) {
@@ -312,6 +409,11 @@ public class NewAudioDiaryActivity extends AppCompatActivity {
                 scrollNewAudioDiaryForm.smoothScrollTo(0, viewNewAudioDiaryForm.getBottom());
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        dlgCancel.show();
     }
 
     private void showProgress(final boolean show) {
