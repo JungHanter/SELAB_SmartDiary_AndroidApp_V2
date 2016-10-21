@@ -60,19 +60,20 @@ public class DiarySearchToolbar extends LinearLayout {
         layoutSearchTime.setVisibility(View.VISIBLE);
         layoutSearchText.setVisibility(View.GONE);
 
-        SwitchCompat switchSearchType = (SwitchCompat)findViewById(R.id.switchSearchType);
-        switchSearchType.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
-                if (checked) {
-                    layoutSearchTime.setVisibility(View.GONE);
-                    layoutSearchText.setVisibility(View.VISIBLE);
-                } else {
-                    layoutSearchTime.setVisibility(View.VISIBLE);
-                    layoutSearchText.setVisibility(View.GONE);
-                }
-            }
-        });
+        //no support search by text
+//        SwitchCompat switchSearchType = (SwitchCompat)findViewById(R.id.switchSearchType);
+//        switchSearchType.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
+//                if (checked) {
+//                    layoutSearchTime.setVisibility(View.GONE);
+//                    layoutSearchText.setVisibility(View.VISIBLE);
+//                } else {
+//                    layoutSearchTime.setVisibility(View.VISIBLE);
+//                    layoutSearchText.setVisibility(View.GONE);
+//                }
+//            }
+//        });
 
         View.OnClickListener onClickListener = new View.OnClickListener() {
             @Override

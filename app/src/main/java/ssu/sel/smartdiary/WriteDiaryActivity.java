@@ -28,8 +28,12 @@ import android.widget.TimePicker;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.Calendar;
 
 import ssu.sel.smartdiary.model.Diary;
@@ -146,7 +150,8 @@ public class WriteDiaryActivity extends AppCompatActivity {
 
         setJsonConnectors();
 
-        setAudioPlayer();
+        if (audioFile != null)
+            setAudioPlayer();
     }
 
     protected void setAudioPlayer() {
@@ -234,10 +239,38 @@ public class WriteDiaryActivity extends AppCompatActivity {
                         if (resJson != null) {
                             Log.d("WriteDiary - Json", resJson.toString());
                             try {
-                                Boolean success = resJson.getBoolean("create_diary");
+                                boolean success = resJson.getBoolean("create_diary");
+                                int diaryId = resJson.getInt("audio_diary_id");
                                 if (success) {
                                     if (diaryAcitivityType.equals("NEW_AUDIO")) {
                                         WavRecorder.removeRecordedTempFiles();
+                                    }
+
+                                    //Copy the temp file to diary audio cache file
+                                    if(audioFile != null) {
+                                        try {
+                                            BufferedInputStream bis = new BufferedInputStream(new FileInputStream(audioFile));
+                                            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(
+                                                    GlobalUtils.getAudioDiaryFile(
+                                                            UserProfile.getUserProfile().getUserID(), diaryId)));
+
+                                            byte[] buf = new byte [1024*10];
+                                            int byteLen;
+                                            while ((byteLen = bis.read(buf)) > 0) {
+                                                bos.write(buf, 0 ,byteLen);
+                                            }
+                                            bis.close();
+                                            bos.close();
+
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                            Log.d("WriteDiaryAcitivity", "Audio Copy Failed");
+                                            try {
+                                                GlobalUtils.getAudioDiaryFile(
+                                                        UserProfile.getUserProfile().getUserID(), diaryId)
+                                                                .delete();
+                                            } catch (Exception e2) {}
+                                        }
                                     }
 
                                     WriteDiaryActivity.this.finish();

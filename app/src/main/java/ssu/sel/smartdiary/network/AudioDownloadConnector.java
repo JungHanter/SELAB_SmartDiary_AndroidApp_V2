@@ -29,7 +29,7 @@ import ssu.sel.smartdiary.GlobalUtils;
  * Created by hanter on 16. 9. 21..
  */
 public class AudioDownloadConnector {
-    public static final String SERVER_URL = "http://203.253.23.7:8000/api/";
+    public static final String SERVER_URL = GlobalUtils.SERVER_URL;
     public static int CONNECTION_TIME_OUT = 3000;
     public static int READ_TIME_OUT = 10000;
 

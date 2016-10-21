@@ -24,11 +24,13 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import ssu.sel.smartdiary.GlobalUtils;
+
 /**
  * Created by hanter on 16. 9. 21..
  */
 public class JsonRestConnector {
-    public static final String SERVER_URL = "http://203.253.23.7:8000/api/";
+    public static final String SERVER_URL = GlobalUtils.SERVER_URL;
     public static int CONNECTION_TIME_OUT = 3000;
     public static int READ_TIME_OUT = 10000;
 
@@ -91,24 +93,24 @@ public class JsonRestConnector {
                         url = new URL(urlSB.toString());
                         conn = (HttpURLConnection)url.openConnection();
 
+                        conn.setRequestProperty("Accept", "application/json");
+                        conn.setRequestMethod("GET");
+
                         conn.setDoInput(true);
                         conn.setConnectTimeout(CONNECTION_TIME_OUT);
                         conn.setReadTimeout(READ_TIME_OUT);
-
-                        conn.setRequestMethod("GET");
-                        conn.setRequestProperty("Accept", "application/json");
                     } else {
                         url = new URL(SERVER_URL + apiUrl);
                         conn = (HttpURLConnection)url.openConnection();
+
+                        conn.setRequestProperty("Accept", "application/json");
+                        conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+                        conn.setRequestMethod(method);
 
                         conn.setDoInput(true);
                         conn.setDoOutput(true);
                         conn.setConnectTimeout(CONNECTION_TIME_OUT);
                         conn.setReadTimeout(READ_TIME_OUT);
-
-                        conn.setRequestMethod(method);
-                        conn.setRequestProperty("Accept", "application/json");
-                        conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
 
                         Log.d("JsonConnector", "request json: " + json.toString());
 

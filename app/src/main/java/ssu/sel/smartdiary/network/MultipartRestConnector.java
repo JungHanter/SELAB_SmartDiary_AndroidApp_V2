@@ -25,11 +25,13 @@ import org.json.JSONObject;
 import java.io.File;
 import java.nio.charset.Charset;
 
+import ssu.sel.smartdiary.GlobalUtils;
+
 /**
  * Created by hanter on 16. 9. 30..
  */
 public class MultipartRestConnector {
-    public static final String SERVER_URL = JsonRestConnector.SERVER_URL;
+    public static final String SERVER_URL = GlobalUtils.SERVER_URL;
     public static int CONNECTION_TIME_OUT = 3000;
     public static int READ_TIME_OUT = 10000;
 

@@ -17,6 +17,8 @@ public class GlobalUtils {
         Locale.setDefault(new Locale("ko", "KR"));
     }
 
+    public static final String SERVER_URL = "http://203.253.23.7:8000/api/";
+
     public static final DateFormat DIARY_DATE_FORMAT =
             new SimpleDateFormat("yyyy. MM. dd.", Locale.getDefault());
     public static final DateFormat DIARY_DATETIME_FORMAT =

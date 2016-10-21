@@ -42,13 +42,12 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
 
     private int diaryID = -1;
     private Diary nowDiary = null;
-    private Diary editedDiary = null;
 
     private AlertDialog dlgDeleteDone = null;
     private AlertDialog dlgDeleteConfirm = null;
 
     private JsonRestConnector getDiaryInfoConnector = null;
-    private JsonRestConnector deleteDiaryInfoConnector = null;
+    private JsonRestConnector deleteDiaryConnector = null;
     private JsonRestConnector analyzeDiaryConnector = null;
     private AudioDownloadConnector downloadConnector = null;
 
@@ -191,7 +190,7 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
                     }
                 });
 
-        deleteDiaryInfoConnector = new JsonRestConnector("diary/delete", "POST",
+        deleteDiaryConnector = new JsonRestConnector("diary/delete", "POST",
                 new JsonRestConnector.OnConnectListener() {
                     @Override
                     public void onDone(JSONObject resJson) {
@@ -201,6 +200,17 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
                         } else {
                             try {
                                 if (resJson.getBoolean("delete_diary")) {
+                                    try {
+                                        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                                            mediaPlayer.stop();
+                                            mediaPlayer.release();
+                                        }
+                                        GlobalUtils.getAudioDiaryFile(UserProfile.getUserProfile().getUserID(),
+                                                nowDiary.getDiaryID()).delete();
+                                    } catch (Exception e) {}
+                                    mediaPlayer = null;
+                                    nowDiary = null;
+
                                     dlgDeleteDone.show();
                                 } else {
                                     Log.d("Main - Json", "Delete diary failed");
@@ -293,13 +303,18 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
                         JSONObject json = new JSONObject();
                         try {
                             json.put("user_id", UserProfile.getUserProfile().getUserID());
-                            json.put("diary_id", nowDiary.getDiaryID());
+                            json.put("audio_diary_id", nowDiary.getDiaryID());
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
 
+                        // STOP
+                        if (mediaPlayer!=null && mediaPlayer.isPlaying()) mediaPlayer.pause();
+                        btnDiaryAudioPause.setVisibility(View.GONE);
+                        btnDiaryAudioPlay.setVisibility(View.VISIBLE);
+
                         showProgress(true);
-                        deleteDiaryInfoConnector.request(json);
+                        deleteDiaryConnector.request(json);
                     }
                 }).setNegativeButton("No", new DialogInterface.OnClickListener() {
                     @Override
