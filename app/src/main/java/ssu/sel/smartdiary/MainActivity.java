@@ -31,6 +31,8 @@ import ssu.sel.smartdiary.view.DiaryListViewItem;
 import ssu.sel.smartdiary.view.DiarySearchToolbar;
 
 public class MainActivity extends AppCompatActivity {
+    public static MainActivity rootMainActivity = null;
+
     private JsonRestConnector getRecentDiaryConnector = null;
     private JsonRestConnector searchTimeConnector = null;
     private JsonRestConnector searchTextConnector = null;
@@ -49,8 +51,15 @@ public class MainActivity extends AppCompatActivity {
     private AlertDialog dlgAlert = null;
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        rootMainActivity = null;
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        rootMainActivity = this;
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowHomeEnabled(false);

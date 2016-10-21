@@ -2,6 +2,7 @@ package ssu.sel.smartdiary;
 
 import android.app.DatePickerDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -26,11 +27,28 @@ import java.util.Locale;
 import ssu.sel.smartdiary.model.UserProfile;
 import ssu.sel.smartdiary.network.JsonRestConnector;
 
+import static ssu.sel.smartdiary.MainActivity.rootMainActivity;
+
 public class ProfileActivity extends SignupActivity {
+    private Button btnLogout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        btnLogout = (Button)findViewById(R.id.btnProfileCancel);
+        btnLogout.setVisibility(View.VISIBLE);
+        btnLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                UserProfile.removeUserProfile();
+                Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                ProfileActivity.this.finish();
+                if (rootMainActivity!=null) rootMainActivity.finish();
+            }
+        });
 
         ((TextView)actionBarView.findViewById(R.id.tvActionBarTitle)).setText("Profile");
         btnConfirm.setText("Update");
@@ -81,6 +99,13 @@ public class ProfileActivity extends SignupActivity {
                             try {
                                 Boolean success = resJson.getBoolean("update_user");
                                 if (success) {
+                                    //update user profile
+                                    UserProfile.setUserProfile(edtUserId.getText().toString(),
+                                            edtPassword.getText().toString(),
+                                            edtUserName.getText().toString(),
+                                            birthdayCal, selGender,
+                                            edtEmail.getText().toString(),
+                                            edtPhone.getText().toString());
                                     openAlertModal("Profile is successfully updated.");
                                 } else {
                                     openAlertModal("Profile is not updated.");

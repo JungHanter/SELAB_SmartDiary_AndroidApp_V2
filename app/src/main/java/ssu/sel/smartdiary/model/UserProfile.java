@@ -45,6 +45,10 @@ public class UserProfile {
         return globalInstance;
     }
 
+    public static void removeUserProfile() {
+        globalInstance = null;
+    }
+
     public String getUserID() {
         return userID;
     }
@@ -71,5 +75,29 @@ public class UserProfile {
 
     public String getPhone() {
         return phone;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public void setBirthday(Calendar birthday) {
+        this.birthday = birthday;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 }
