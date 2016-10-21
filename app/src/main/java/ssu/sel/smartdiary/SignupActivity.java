@@ -174,12 +174,7 @@ public class SignupActivity extends AppCompatActivity {
         String email = edtEmail.getText().toString();
 
         boolean cancel = false;
-        View focusView = null;
-
-        if (!isBirthdayValid(birthday)) {
-            edtBirthday.setError("Birthday is invalid");
-            cancel = true;
-        }
+        View focusView = btnConfirm;
 
         if (!isEmailValid(email)) {
             edtEmail.setError("This is not email forma");
@@ -190,6 +185,11 @@ public class SignupActivity extends AppCompatActivity {
         if (!isPhoneValid(phone)) {
             edtPhone.setError("Phone number is too short");
             focusView = edtPhone;
+            cancel = true;
+        }
+
+        if (!isBirthdayValid(birthday)) {
+            edtBirthday.setError("Birthday is invalid");
             cancel = true;
         }
 

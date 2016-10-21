@@ -66,6 +66,7 @@ public class ProfileActivity extends SignupActivity {
         edtPhone.setText(profile.getPhone());
         radioGender.clearCheck();
 
+        selGender = profile.getGender();
         if(profile.getGender().equals("female")) {
             ((RadioButton)findViewById(R.id.radioGenderFemale)).setChecked(true);
         } else {
