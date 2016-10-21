@@ -170,6 +170,7 @@ public class NewAudioDiaryActivity extends AppCompatActivity {
                             mWavRecorder.stopRecord();
                         WavRecorder.removeRecordedTempFiles();
                         setDiaryAudioPlayer(false);
+                        speechRecognizer.cancelRecognize();
                         dialogInterface.dismiss();
                         NewAudioDiaryActivity.this.finish();
                     }

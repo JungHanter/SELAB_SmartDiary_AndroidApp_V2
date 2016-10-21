@@ -102,6 +102,8 @@ public class MSSpeechRecognizer {
                                 + recognizingRecordCount + "/" + recordedCount + "]");
                         listener.onRecognizeDone();
                         speechResponseStatus = SpeechResponseStatus.OK;
+                        dataClient = null;
+
                     } else {
                         recognizingRecordCount++;
                         Log.d("Recognizer", "Start Transmit Next Audio ["
@@ -112,6 +114,7 @@ public class MSSpeechRecognizer {
                 } else {
                     listener.onFail("Final Response Error: " + response.RecognitionStatus.toString());
                     speechResponseStatus = SpeechResponseStatus.Failed;
+                    dataClient = null;
                 }
             }
 
@@ -150,30 +153,41 @@ public class MSSpeechRecognizer {
         }
     }
 
+    public void cancelRecognize() {
+        if (lastRecogReqTask != null)
+            try { lastRecogReqTask.cancel(true); } catch (Exception e) {}
+        if (dataClient != null) {
+            try { dataClient.audioStop(); } catch (Exception e) {}
+            try { dataClient.endAudio(); } catch (Exception e) {}
+            dataClient = null;
+        }
+    }
+
+    private RecognitionReqTask lastRecogReqTask = null;
     private void transmitAudio(int recordNum) {
 //        Log.d("Recognizer", "Converting the record #" + recordNum);
         Log.d("Recognizer", "Converting the record [" + recordNum + "/" + recordedCount + "]");
         File recoredeFile = WavRecorder.getRecordedFile(recordNum);
         Log.d("Recognizer", "Transmit audio file \"" + recoredeFile + "\"");
-        RecognitionTask doDataReco = new RecognitionTask(dataClient,
+        lastRecogReqTask = new RecognitionReqTask(dataClient,
                 SpeechRecognitionMode.LongDictation,
                 recoredeFile);
         try {
-            doDataReco.execute().get(500, TimeUnit.SECONDS);
+            lastRecogReqTask.execute().get(500, TimeUnit.SECONDS);
         } catch (Exception e) {
-            doDataReco.cancel(true);
+            lastRecogReqTask.cancel(true);
             speechResponseStatus = SpeechResponseStatus.Timeout;
         }
     }
 
-    private class RecognitionTask extends AsyncTask<Void, Void, Void> {
+    private class RecognitionReqTask extends AsyncTask<Void, Void, Void> {
         DataRecognitionClient dataClient;
         SpeechRecognitionMode mode;
         File recordfile;
 
-        RecognitionTask(DataRecognitionClient dataClient,
-                        SpeechRecognitionMode mode,
-                        File recordfile) {
+        RecognitionReqTask(DataRecognitionClient dataClient,
+                           SpeechRecognitionMode mode,
+                           File recordfile) {
             this.dataClient = dataClient;
             this.mode = mode;
             this.recordfile = recordfile;
@@ -206,6 +220,7 @@ public class MSSpeechRecognizer {
         @Override
         protected void onPostExecute(Void aVoid) {
             Log.d("Recognizer", "send recognition request");
+            lastRecogReqTask = null;
         }
     }
 }
