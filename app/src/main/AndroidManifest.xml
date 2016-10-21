@@ -19,6 +19,7 @@
         <activity
             android:name=".LoginActivity"
             android:label="@string/app_name"
+            android:screenOrientation="portrait"
             android:theme="@style/LoginTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,40 +28,49 @@
         </activity>
         <activity
             android:name=".MainActivity"
+            android:screenOrientation="portrait"
             android:label="@string/app_name">
         </activity>
         <activity
             android:name=".DiaryListActivity"
+            android:screenOrientation="portrait"
             android:label="Diary List"
             android:parentActivityName=".MainActivity" />
         <activity
             android:name=".NewAudioDiaryActivity"
+            android:screenOrientation="portrait"
             android:label="New Audio Diary"
             android:parentActivityName=".MainActivity">
         </activity>
         <activity
             android:name=".WriteDiaryActivity"
+            android:screenOrientation="portrait"
             android:label="New Audio Diary" />
         <activity
             android:name=".ViewDiaryActivity"
+            android:screenOrientation="portrait"
             android:label="Diary" />
         <!--<activity-->
             <!--android:name=".EditDiaryActivity"-->
             <!--android:label="Diary" />-->
         <activity
             android:name=".AnalyticsActivity"
+            android:screenOrientation="portrait"
             android:label="Analytics"
             android:parentActivityName=".MainActivity" />
         <activity
             android:name=".SettingsActivity"
+            android:screenOrientation="portrait"
             android:label="Settings"
             android:parentActivityName=".MainActivity" />
         <activity
             android:name=".SignupActivity"
+            android:screenOrientation="portrait"
             android:label="Sign Up"
             android:parentActivityName=".LoginActivity" />
         <activity
             android:name=".ProfileActivity"
+            android:screenOrientation="portrait"
             android:label="Profile"
             android:parentActivityName=".MainActivity" />
         <!-- ATTENTION: This was auto-generated to add Google Play services to your project for

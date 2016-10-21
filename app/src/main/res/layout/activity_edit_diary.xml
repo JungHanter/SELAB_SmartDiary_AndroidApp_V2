@@ -37,7 +37,6 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:minHeight="220dp"
-                android:maxHeight="400dp"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="6dp"
                 android:layout_marginBottom="12dp"
@@ -70,11 +69,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:minHeight="120dp"
-                    android:maxHeight="400dp"
                     android:inputType="textMultiLine"
-                    android:ems="10"
                     android:gravity="top"
-                    android:hint="Converted text..."
+                    android:hint="Diary Content"
                     android:id="@+id/edtDiaryContent"
                     android:layout_marginTop="16dp"/>
 
@@ -92,7 +89,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="120dp"
-                android:maxHeight="200dp"
                 android:orientation="vertical"
                 android:layout_gravity="center_horizontal"
                 android:paddingTop="6dp"

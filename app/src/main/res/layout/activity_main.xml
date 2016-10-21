@@ -21,6 +21,7 @@
     <ssu.sel.smartdiary.view.DiarySearchToolbar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:id="@+id/searchToolbar"/>
 
     <ScrollView
@@ -54,41 +55,40 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:layout_marginBottom="12dp">
+                android:layout_marginBottom="12dp"
+                android:id="@+id/layoutBtnDiaries">
                 <LinearLayout
                     android:orientation="vertical"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:paddingLeft="46dp"
-                    android:paddingRight="10dp">
-                    <!--<Button-->
-                        <!--android:layout_width="match_parent"-->
-                        <!--android:layout_height="wrap_content"-->
-                        <!--android:background="@drawable/button_new_diary_circle"-->
-                        <!--android:id="@+id/btnNewTextDiary" />-->
-                    <android.support.percent.PercentRelativeLayout
-                        android:layout_width="match_parent"
+                    android:gravity="right">
+
+                    <LinearLayout
+                        android:layout_width="400px"
                         android:layout_height="wrap_content"
-                        android:paddingLeft="36dp"
-                        android:paddingRight="36dp">
+                        android:orientation="horizontal"
+                        android:gravity="center_horizontal"
+                        android:id="@+id/layoutShowAllDiaries">
                         <ImageButton
-                            app:layout_widthPercent="100%"
-                            app:layout_aspectRatio="100%"
-                            android:onClick="onClick"
+                            android:layout_width="200px"
+                            android:layout_height="200px"
                             android:background="@drawable/button_new_diary_circle"
                             android:src="@drawable/iconmonstr_text_indigo_with_padding"
-                            android:scaleType="fitCenter"
-                            android:id="@+id/btnNewTextDiary" />
-                    </android.support.percent.PercentRelativeLayout>
+                            android:scaleType="center"
+                            android:onClick="onClick"
+                            android:id="@+id/btnShowAllDiaries" />
+                    </LinearLayout>
+
                     <TextView
-                        android:layout_width="match_parent"
+                        android:layout_width="400px"
                         android:layout_height="wrap_content"
                         android:gravity="center_horizontal"
                         android:layout_marginTop="8dp"
                         android:textColor="@color/indigo_500"
                         android:textSize="13sp"
-                        android:text="New Text Diary"/>
+                        android:text="See All Diaries"
+                        android:id="@+id/tvShowAllDiaries"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -96,67 +96,34 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="46dp">
-                    <!--<Button-->
-                        <!--android:layout_width="match_parent"-->
-                        <!--android:layout_height="wrap_content"-->
-                        <!--android:id="@+id/btnNewAudioDiary"-->
-                        <!--android:background="@drawable/button_new_diary_circle" />-->
-                    <android.support.percent.PercentRelativeLayout
-                        android:layout_width="match_parent"
+                    android:gravity="left">
+                    <LinearLayout
+                        android:layout_width="400px"
                         android:layout_height="wrap_content"
-                        android:paddingLeft="36dp"
-                        android:paddingRight="36dp">
+                        android:orientation="horizontal"
+                        android:gravity="center_horizontal"
+                        android:id="@+id/layoutNewAudioDiary">
                         <ImageButton
-                            app:layout_widthPercent="100%"
-                            app:layout_aspectRatio="100%"
-                            android:onClick="onClick"
+                            android:layout_width="200px"
+                            android:layout_height="200px"
                             android:background="@drawable/button_new_diary_circle"
                             android:src="@drawable/iconmonstr_audio_indigo_with_padding"
-                            android:scaleType="fitCenter"
+                            android:scaleType="center"
+                            android:onClick="onClick"
                             android:id="@+id/btnNewAudioDiary" />
-                    </android.support.percent.PercentRelativeLayout>
+                    </LinearLayout>
+
                     <TextView
-                        android:layout_width="match_parent"
+                        android:layout_width="400px"
                         android:layout_height="wrap_content"
                         android:gravity="center_horizontal"
                         android:layout_marginTop="8dp"
                         android:textColor="@color/indigo_500"
                         android:textSize="13sp"
-                        android:text="New Audio Diary"/>
+                        android:text="Create New Diary"
+                        android:id="@+id/tvNewAudioDiary"/>
                 </LinearLayout>
             </LinearLayout>
-
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginLeft="3dp"
-                android:layout_marginRight="3dp"
-                android:background="@drawable/button_list_element"
-                android:textSize="14sp"
-                android:textColor="@color/indigo_500"
-                android:text="See All Diaries"
-                android:textAllCaps="true"
-                android:onClick="onClick"
-                android:id="@+id/btnShowAllDiaries"
-                android:layout_gravity="center_horizontal" />
-
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginLeft="3dp"
-                android:layout_marginRight="3dp"
-                android:background="@drawable/button_list_element"
-                android:textSize="14sp"
-                android:textColor="@color/indigo_500"
-                android:text="Semantic Search"
-                android:textAllCaps="true"
-                android:onClick="onClick"
-                android:id="@+id/btnSemanticSearch"
-                android:layout_gravity="center_horizontal" />
 
             <RelativeLayout
                 android:layout_width="match_parent"

@@ -150,9 +150,16 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
                                     nowDiary = Diary.fromJSON(diary, diaryContexts);
                                     setDiary(nowDiary);
 
-                                    //request file download
-                                    downloadConnector.request(UserProfile.getUserProfile().getUserID(),
-                                            nowDiary.getDiaryID());
+                                    if (!GlobalUtils.getAudioDiaryFile(UserProfile.getUserProfile().getUserID(),
+                                            nowDiary.getDiaryID()).exists()) {
+                                        //request file download
+                                        downloadConnector.request(UserProfile.getUserProfile().getUserID(),
+                                                nowDiary.getDiaryID());
+                                    } else {
+                                        audioFile = GlobalUtils.getAudioDiaryFile(UserProfile.getUserProfile().getUserID(),
+                                                nowDiary.getDiaryID());
+                                        setAudioPlayer();
+                                    }
 
                                     //TODO get analytics
 //                                    showAnalyticsProgress(true);

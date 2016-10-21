@@ -14,6 +14,8 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -77,6 +79,26 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         listSearchDiary.setAdapter(searchAdapter);
+
+        //button sizes
+        View layoutBtnDiaries = findViewById(R.id.layoutBtnDiaries);
+        layoutBtnDiaries.measure(LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        Log.d("MainAcitivty", "LayoutDiaryBtns: " + layoutBtnDiaries.getMeasuredWidth() +
+                ", " + layoutBtnDiaries.getMeasuredHeight());
+        int layoutWidth = layoutBtnDiaries.getMeasuredWidth();
+        int btnWidth = layoutWidth / 4;
+        int btnLayoutWidth = btnWidth * 2;
+        findViewById(R.id.layoutShowAllDiaries).setLayoutParams(
+                new LinearLayout.LayoutParams(btnLayoutWidth, LinearLayout.LayoutParams.WRAP_CONTENT));
+        findViewById(R.id.layoutNewAudioDiary).setLayoutParams(
+                new LinearLayout.LayoutParams(btnLayoutWidth, LinearLayout.LayoutParams.WRAP_CONTENT));
+        findViewById(R.id.tvShowAllDiaries).getLayoutParams().width = btnLayoutWidth;
+        findViewById(R.id.tvNewAudioDiary).getLayoutParams().width = btnLayoutWidth;
+        findViewById(R.id.btnShowAllDiaries).setLayoutParams(
+                new LinearLayout.LayoutParams(btnWidth, btnWidth));
+        findViewById(R.id.btnNewAudioDiary).setLayoutParams(
+                new LinearLayout.LayoutParams(btnWidth, btnWidth));
 
         dlgAlert = new AlertDialog.Builder(this).setMessage("Message")
                 .setNeutralButton("OK", new DialogInterface.OnClickListener() {
@@ -187,12 +209,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClick(View v) {
+        Intent intent;
         switch (v.getId()) {
-            case R.id.btnNewTextDiary:
-                Intent intent = new Intent(MainActivity.this, WriteDiaryActivity.class);
-                intent.putExtra("WRITE_DIARY_TYPE", "NEW_TEXT");
-                startActivity(intent);
-                return;
             case R.id.btnNewAudioDiary:
                 intent = new Intent(MainActivity.this, NewAudioDiaryActivity.class);
                 startActivity(intent);
