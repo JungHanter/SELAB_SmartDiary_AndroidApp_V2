@@ -28,6 +28,8 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 
 public class NewAudioDiaryActivity extends AppCompatActivity {
+    private boolean bActivityDestroyed = false;
+
     private Button btnStartRecord = null;
     private Button btnStopRecord = null;
     private TextView tvRecordStatus = null;
@@ -62,6 +64,13 @@ public class NewAudioDiaryActivity extends AppCompatActivity {
     private MSSpeechRecognizer speechRecognizer = null;
     private int recordedPartCount = 0;
     private ArrayList<String> recordedStrings = new ArrayList<>();
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        speechRecognizer.cancelRecognize();
+        bActivityDestroyed = true;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,9 +152,11 @@ public class NewAudioDiaryActivity extends AppCompatActivity {
             @Override
             public void onFail(String message) {
                 Log.d("NewAudioDiaryActivity", "Recognition Failed");
-                openAlertModal(message, "Recognition Failed");
-                showProgress(false);
-                btnRecordNext.setEnabled(false);
+                if (!bActivityDestroyed) {
+                    openAlertModal(message, "Recognition Failed");
+                    showProgress(false);
+                    btnRecordNext.setEnabled(false);
+                }
                 setDiaryAudioPlayer(false);
             }
         };
