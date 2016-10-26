@@ -287,6 +287,7 @@ public class SignupActivity extends AppCompatActivity {
     private boolean isPhoneValid(String phone) { return phone.length() > 8; }
 
     private boolean isEmailValid(String email) {
+        if (email.length() < 3) return false;
         final char[] emailChar = email.toCharArray();
         return (emailChar[0] != '@' && emailChar[emailChar.length-1] != '@'
                 && email.indexOf('@') > 0 && (email.indexOf('@')==email.lastIndexOf('@')));
