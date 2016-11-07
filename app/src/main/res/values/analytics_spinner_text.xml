@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="analytics_lifestyle_things">
+        <item>Food</item>
+        <item>Exercise</item>
+        <item>People</item>
+        <item>Seasons</item>
+        <item>Moods</item>
+        <item>Hobby</item>
+    </string-array>
+
+
+    <string-array name="analytics_lifestyle_type">
+        <item>Most Liked</item>
+        <item>Most Disliked</item>
+    </string-array>
+</resources>

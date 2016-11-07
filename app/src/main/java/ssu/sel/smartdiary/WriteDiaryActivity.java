@@ -275,8 +275,7 @@ public class WriteDiaryActivity extends AppCompatActivity {
 
                                     WriteDiaryActivity.this.finish();
                                 } else {
-                                    dlgAlert.setMessage("Diary Create Failed");
-                                    dlgAlert.show();
+                                    openAlertModal("Diary Create Failed");
                                 }
 
                             } catch (Exception e) {
