@@ -78,7 +78,7 @@
                 android:layout_marginTop="8dp"
                 android:text="@string/action_sign_up"
                 android:textSize="14sp"
-                android:background="@drawable/button_teal"
+                android:background="@drawable/button_pink_a200"
                 android:textColor="@color/white" />
 
         </LinearLayout>

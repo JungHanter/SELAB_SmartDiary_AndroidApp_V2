@@ -1,13 +1,8 @@
 package ssu.sel.smartdiary;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.PorterDuff;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -16,7 +11,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -34,10 +28,8 @@ import ssu.sel.smartdiary.network.JsonRestConnector;
 /**
  * Created by hanter on 16. 10. 7..
  */
-public class ViewDiaryActivity extends WriteDiaryActivity {
+public class ViewDiaryActivity_Backup extends WriteDiaryActivity {
     private Button btnConfirm = null;
-
-    private View layoutAttachment = null;
 
     private int diaryID = -1;
     private Diary nowDiary = null;
@@ -69,8 +61,7 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
     @Override
     protected void initView() {
         ActionBar actionBar = getSupportActionBar();
-//        View actionbarView = getLayoutInflater().inflate(R.layout.action_bar_view_diary_noedit, null);
-        View actionbarView = getLayoutInflater().inflate(R.layout.action_bar_view_diary, null);
+        View actionbarView = getLayoutInflater().inflate(R.layout.action_bar_view_diary_noedit, null);
         actionBar.setCustomView(actionbarView,
                 new ActionBar.LayoutParams(ActionBar.LayoutParams.MATCH_PARENT,
                         ActionBar.LayoutParams.MATCH_PARENT, Gravity.CENTER));
@@ -100,9 +91,6 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
         btnDiaryAudioPause = (Button) findViewById(R.id.btnDiaryAudioPause);
         btnDiaryAudioForward = (Button) findViewById(R.id.btnDiaryAudioForward);
         btnDiaryAudioBackward = (Button) findViewById(R.id.btnDiaryAudioBackward);
-        progressDiaryAudio = (ProgressBar) findViewById(R.id.progressDiaryAudio);
-        layoutAttachment = findViewById(R.id.layoutAttachment);
-        layoutAttachment.setVisibility(View.GONE);
 
         diaryAcitivityType = "VIEW";
         setDiaryViews();
@@ -114,14 +102,9 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
         tvDiaryAudioDownloading.setVisibility(View.VISIBLE);
         btnDiaryAudioPlay.setVisibility(View.GONE);
         btnDiaryAudioPause.setVisibility(View.GONE);
-        progressDiaryAudio.getProgressDrawable().setColorFilter(
-                ContextCompat.getColor(this, R.color.pink_A200), PorterDuff.Mode.SRC_IN);
 
         setModals();
         setJsonConnectors();
-
-        //EXAMPLE
-        findViewById(R.id.exampleAttachment).setVisibility(View.VISIBLE);
     }
 
     // update diary
@@ -262,7 +245,7 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                ViewDiaryActivity.this.finish();
+                ViewDiaryActivity_Backup.this.finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -303,7 +286,7 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
                 .setNeutralButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        ViewDiaryActivity.this.finish();
+                        ViewDiaryActivity_Backup.this.finish();
                     }
                 }).setCancelable(false).create();
     }

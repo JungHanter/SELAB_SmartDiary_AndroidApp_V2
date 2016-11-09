@@ -96,18 +96,25 @@ public class MainActivity extends AppCompatActivity {
         Log.d("MainAcitivty", "LayoutDiaryBtns: " + layoutBtnDiaries.getMeasuredWidth() +
                 ", " + layoutBtnDiaries.getMeasuredHeight());
         int layoutWidth = layoutBtnDiaries.getMeasuredWidth();
-        int btnWidth = layoutWidth / 4;
+        int btnWidth = layoutWidth / 6;
         int btnLayoutWidth = btnWidth * 2;
-        findViewById(R.id.layoutShowAllDiaries).setLayoutParams(
-                new LinearLayout.LayoutParams(btnLayoutWidth, LinearLayout.LayoutParams.WRAP_CONTENT));
+//        findViewById(R.id.layoutShowAllDiaries).setLayoutParams(
+//                new LinearLayout.LayoutParams(btnLayoutWidth, LinearLayout.LayoutParams.WRAP_CONTENT));
+//        findViewById(R.id.layoutNewAudioDiary).setLayoutParams(
+//                new LinearLayout.LayoutParams(btnLayoutWidth, LinearLayout.LayoutParams.WRAP_CONTENT));
+//        findViewById(R.id.tvShowAllDiaries).getLayoutParams().width = btnLayoutWidth;
+//        findViewById(R.id.tvNewAudioDiary).getLayoutParams().width = btnLayoutWidth;
+//        findViewById(R.id.btnShowAllDiaries).setLayoutParams(
+//                new LinearLayout.LayoutParams(btnWidth, btnWidth));
+//        findViewById(R.id.btnNewAudioDiary).setLayoutParams(
+//                new LinearLayout.LayoutParams(btnWidth, btnWidth));
+
         findViewById(R.id.layoutNewAudioDiary).setLayoutParams(
-                new LinearLayout.LayoutParams(btnLayoutWidth, LinearLayout.LayoutParams.WRAP_CONTENT));
-        findViewById(R.id.tvShowAllDiaries).getLayoutParams().width = btnLayoutWidth;
-        findViewById(R.id.tvNewAudioDiary).getLayoutParams().width = btnLayoutWidth;
-        findViewById(R.id.btnShowAllDiaries).setLayoutParams(
-                new LinearLayout.LayoutParams(btnWidth, btnWidth));
-        findViewById(R.id.btnNewAudioDiary).setLayoutParams(
-                new LinearLayout.LayoutParams(btnWidth, btnWidth));
+                new LinearLayout.LayoutParams(btnLayoutWidth, btnLayoutWidth));
+        findViewById(R.id.layoutShowAllDiaries).setLayoutParams(
+                new LinearLayout.LayoutParams(btnLayoutWidth, btnLayoutWidth));
+        findViewById(R.id.layoutAnalytics).setLayoutParams(
+                new LinearLayout.LayoutParams(btnLayoutWidth, btnLayoutWidth));
 
         dlgAlert = new AlertDialog.Builder(this).setMessage("Message")
                 .setNeutralButton("OK", new DialogInterface.OnClickListener() {
@@ -228,7 +235,7 @@ public class MainActivity extends AppCompatActivity {
                 intent = new Intent(MainActivity.this, DiaryListActivity.class);
                 startActivity(intent);
                 return;
-            case R.id.btnViewDetailAnalytics:
+            case R.id.btnAnalytics:
                 intent = new Intent(MainActivity.this, AnalyticsActivity.class);
                 startActivity(intent);
                 return;

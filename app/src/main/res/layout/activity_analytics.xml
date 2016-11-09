@@ -5,242 +5,468 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
     android:background="@color/grey_100"
     tools:context="ssu.sel.smartdiary.AnalyticsActivity">
 
-    <android.support.v7.widget.CardView
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <RelativeLayout
-                android:id="@+id/titleAnalyticsLifeStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="@drawable/background_cardview_clickable"
-                android:padding="16dp">
-                <android.support.v7.widget.AppCompatTextView
-                    android:layout_width="match_parent"
-                    android:layout_height="30dp"
-                    android:gravity="center_vertical"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentStart="true"
-                    android:textColor="@color/indigo_500"
-                    android:textSize="24sp"
-                    android:text="Life Style Analytics"/>
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/activity_vertical_margin">
 
-                <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    app:srcCompat="@drawable/ic_expand_more_black"
-                    android:scaleType="fitXY"
-                    android:id="@+id/ivLifeStyleExpand"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true" />
-            </RelativeLayout>
 
-            <LinearLayout
-                android:id="@+id/layoutAnalyticsLifeStyle"
+            <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:layout_height="wrap_content">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="vertical">
+                    <RelativeLayout
+                        android:id="@+id/titleAnalyticsLifeActivity"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="@drawable/background_cardview_clickable"
+                        android:padding="16dp">
+                        <android.support.v7.widget.AppCompatTextView
+                            android:layout_width="match_parent"
+                            android:layout_height="30dp"
+                            android:gravity="center_vertical"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentStart="true"
+                            android:textColor="@color/grey_700"
+                            android:textSize="24sp"
+                            android:text="Life Activity Pattern"/>
+
+                        <ImageView
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            app:srcCompat="@drawable/ic_expand_more_black"
+                            android:scaleType="fitXY"
+                            android:id="@+id/ivLifeActivityExpand"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true" />
+                    </RelativeLayout>
 
                     <LinearLayout
-                        android:layout_width="0dp"
+                        android:id="@+id/layoutAnalyticsLifeActivity"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:paddingRight="6dp"
-                        android:orientation="horizontal">
-                        <TextView
-                            android:textColor="@color/grey_800"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Things:"/>
-                        <Spinner
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:id="@+id/spnLifeStyleThings"/>
-                    </LinearLayout>
+                        android:orientation="vertical"
+                        android:padding="16dp">
 
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:paddingLeft="6dp"
-                        android:orientation="horizontal">
-                        <TextView
-                            android:textColor="@color/grey_800"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Type:"/>
-                        <Spinner
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:id="@+id/spnLifeStyleType" />
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="32dp"
+                                android:orientation="horizontal">
+                                <TextView
+                                    android:textColor="@color/grey_800"
+                                    android:gravity="center_vertical"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="match_parent"
+                                    android:text="Things:"/>
+                                <Spinner
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:gravity="center_vertical|right"
+                                    android:id="@+id/spnLifeActivityThings"/>
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_marginTop="8dp"
+                                android:layout_height="32dp"
+                                android:orientation="horizontal">
+                                <TextView
+                                    android:textColor="@color/grey_800"
+                                    android:gravity="center_vertical"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="match_parent"
+                                    android:text="Period:"/>
+                                <Spinner
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:gravity="center_vertical|right"
+                                    android:id="@+id/spnLifeActivityPeriod" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <Button
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/button_pink_a200"
+                            android:textColor="@color/white"
+                            android:textSize="14sp"
+                            android:layout_marginTop="8dp"
+                            android:id="@+id/btnLifeActivityAnalyze"
+                            android:onClick="onAnalyzeClick"
+                            android:text="Analyze"/>
+
+                        <!--<ProgressBar-->
+                            <!--style="?android:attr/progressBarStyle"-->
+                            <!--android:layout_width="wrap_content"-->
+                            <!--android:layout_height="wrap_content"-->
+                            <!--android:layout_gravity="center_horizontal"-->
+                            <!--android:layout_marginTop="16dp"-->
+                            <!--android:id="@+id/progressLifeActivity"-->
+                            <!--android:visibility="gone" />-->
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginTop="16dp"
+                            android:id="@+id/tvLifeActivityResult"
+                            android:textColor="@color/grey_700"
+                            android:text="Foods Most Liked:\nPizza, Hamburger, Pasta"
+                            android:textSize="16sp"
+                            android:visibility="visible" />
                     </LinearLayout>
                 </LinearLayout>
 
-                <Button
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/button_pink_a200"
-                    android:textColor="@color/white"
-                    android:textSize="14sp"
-                    android:layout_marginTop="8dp"
-                    android:id="@+id/btnLifeStyleAnalyze"
-                    android:onClick="onAnalyzeClick"
-                    android:text="Analyze"/>
+                    android:orientation="vertical">
+                    <RelativeLayout
+                        android:id="@+id/titleAnalyticsWellness"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="@drawable/background_cardview_clickable"
+                        android:padding="16dp">
+                        <android.support.v7.widget.AppCompatTextView
+                            android:layout_width="match_parent"
+                            android:layout_height="30dp"
+                            android:gravity="center_vertical"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentStart="true"
+                            android:textColor="@color/grey_700"
+                            android:textSize="24sp"
+                            android:text="Wellness"/>
 
-                <ProgressBar
-                    style="?android:attr/progressBarStyle"
-                    android:layout_width="wrap_content"
+                        <ImageView
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            app:srcCompat="@drawable/ic_expand_more_black"
+                            android:id="@+id/ivAnalyticsWellnessExpand"
+                            android:scaleType="fitXY"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true" />
+                    </RelativeLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layoutAnalyticsWellness"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="32dp"
+                                android:orientation="horizontal">
+                                <TextView
+                                    android:textColor="@color/grey_800"
+                                    android:gravity="center_vertical"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="match_parent"
+                                    android:text="Wellness Type:"/>
+                                <Spinner
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:gravity="center_vertical|right"
+                                    android:id="@+id/spnWellnessType"/>
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_marginTop="8dp"
+                                android:layout_height="32dp"
+                                android:orientation="horizontal">
+                                <TextView
+                                    android:textColor="@color/grey_800"
+                                    android:gravity="center_vertical"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="match_parent"
+                                    android:text="Period:"/>
+                                <Spinner
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:gravity="center_vertical|right"
+                                    android:id="@+id/spnWellnessPeriod" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <Button
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/button_pink_a200"
+                            android:textColor="@color/white"
+                            android:textSize="14sp"
+                            android:layout_marginTop="8dp"
+                            android:id="@+id/btnWellnessAnalyze"
+                            android:onClick="onAnalyzeClick"
+                            android:text="Analyze"/>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginTop="16dp"
+                            android:id="@+id/tvWellnessResult"
+                            android:textColor="@color/pink_A200"
+                            android:text="Foods Most Liked:\nPizza, Hamburger, Pasta"
+                            android:textSize="16sp"
+                            android:visibility="visible" />
+                    </LinearLayout>
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="16dp"
-                    android:id="@+id/progressLifeStyle"
-                    android:visibility="gone" />
+                    android:orientation="vertical">
+                    <RelativeLayout
+                        android:id="@+id/titleAnalyticsTendency"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="@drawable/background_cardview_clickable"
+                        android:padding="16dp">
+                        <android.support.v7.widget.AppCompatTextView
+                            android:layout_width="match_parent"
+                            android:layout_height="30dp"
+                            android:gravity="center_vertical"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentStart="true"
+                            android:textColor="@color/grey_700"
+                            android:textSize="24sp"
+                            android:text="Tendency"/>
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginTop="16dp"
-                    android:id="@+id/tvLifeStyleResult"
-                    android:textColor="@color/pink_A200"
-                    android:text="Foods Most Liked:\nPizza, Hamburger, Pasta"
-                    android:textSize="20sp"
-                    android:visibility="gone" />
-            </LinearLayout>
-        </LinearLayout>
+                        <ImageView
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            app:srcCompat="@drawable/ic_expand_more_black"
+                            android:id="@+id/ivAnalyticsTendencyExpand"
+                            android:scaleType="fitXY"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true" />
+                    </RelativeLayout>
 
-    </android.support.v7.widget.CardView>
+                    <LinearLayout
+                        android:id="@+id/layoutAnalyticsTendency"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
 
-    <android.support.v7.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <RelativeLayout
-                android:id="@+id/titleAnalyticsClassification"
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="32dp"
+                                android:orientation="horizontal">
+                                <TextView
+                                    android:textColor="@color/grey_800"
+                                    android:gravity="center_vertical"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="match_parent"
+                                    android:text="Thing/Activity:"/>
+                                <Spinner
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:gravity="center_vertical|right"
+                                    android:id="@+id/spnLifeTendencyThings"/>
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_marginTop="8dp"
+                                android:layout_height="32dp"
+                                android:orientation="horizontal">
+                                <TextView
+                                    android:textColor="@color/grey_800"
+                                    android:gravity="center_vertical"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="match_parent"
+                                    android:text="Tendency Type:"/>
+                                <Spinner
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:gravity="center_vertical|right"
+                                    android:id="@+id/spnTendencyType" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <Button
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/button_pink_a200"
+                            android:textColor="@color/white"
+                            android:textSize="14sp"
+                            android:layout_marginTop="8dp"
+                            android:id="@+id/btnTendencyAnalyze"
+                            android:onClick="onAnalyzeClick"
+                            android:text="Analyze"/>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginTop="16dp"
+                            android:id="@+id/tvTendencyResult"
+                            android:textColor="@color/pink_A200"
+                            android:text="Foods Most Liked:\nPizza, Hamburger, Pasta"
+                            android:textSize="16sp"
+                            android:visibility="visible" />
+                    </LinearLayout>
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="@drawable/background_cardview_clickable"
-                android:padding="16dp">
-                <android.support.v7.widget.AppCompatTextView
+                android:layout_marginTop="8dp">
+
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="30dp"
-                    android:gravity="center_vertical"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentStart="true"
-                    android:textColor="@color/indigo_500"
-                    android:textSize="24sp"
-                    android:text="Diary Classification"/>
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    <RelativeLayout
+                        android:id="@+id/titleAnalyticsCorrelation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="@drawable/background_cardview_clickable"
+                        android:padding="16dp">
+                        <android.support.v7.widget.AppCompatTextView
+                            android:layout_width="match_parent"
+                            android:layout_height="30dp"
+                            android:gravity="center_vertical"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentStart="true"
+                            android:textColor="@color/grey_700"
+                            android:textSize="24sp"
+                            android:text="Regularity Analytics"/>
 
-                <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    app:srcCompat="@drawable/ic_expand_more_black"
-                    android:scaleType="fitXY"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true" />
-            </RelativeLayout>
+                        <ImageView
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            app:srcCompat="@drawable/ic_expand_more_black"
+                            android:id="@+id/ivAnalyticsCorrelationExpand"
+                            android:scaleType="fitXY"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true" />
+                    </RelativeLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layoutAnalyticsCorrelation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="32dp"
+                                android:orientation="horizontal">
+                                <TextView
+                                    android:textColor="@color/grey_800"
+                                    android:gravity="center_vertical"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="match_parent"
+                                    android:text="Things:"/>
+                                <Spinner
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:gravity="center_vertical|right"
+                                    android:id="@+id/spnCorrelationThingX"/>
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_marginTop="8dp"
+                                android:layout_height="32dp"
+                                android:orientation="horizontal">
+                                <TextView
+                                    android:textColor="@color/grey_800"
+                                    android:gravity="center_vertical"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="match_parent"
+                                    android:text="Period:"/>
+                                <Spinner
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:gravity="center_vertical|right"
+                                    android:id="@+id/spnCorrelationThingY" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <Button
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/button_pink_a200"
+                            android:textColor="@color/white"
+                            android:textSize="14sp"
+                            android:layout_marginTop="8dp"
+                            android:id="@+id/btnCorrelationAnalyze"
+                            android:onClick="onAnalyzeClick"
+                            android:text="Analyze"/>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginTop="16dp"
+                            android:id="@+id/tvCorrelationResult"
+                            android:textColor="@color/pink_A200"
+                            android:text="Foods Most Liked:\nPizza, Hamburger, Pasta"
+                            android:textSize="16sp"
+                            android:visibility="visible" />
+                    </LinearLayout>
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
         </LinearLayout>
-    </android.support.v7.widget.CardView>
-
-    <android.support.v7.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <RelativeLayout
-                android:id="@+id/titleAnalyticsCorrelation"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="@drawable/background_cardview_clickable"
-                android:padding="16dp">
-                <android.support.v7.widget.AppCompatTextView
-                    android:layout_width="match_parent"
-                    android:layout_height="30dp"
-                    android:gravity="center_vertical"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentStart="true"
-                    android:textColor="@color/indigo_500"
-                    android:textSize="24sp"
-                    android:text="Correlation Analytics"/>
-
-                <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    app:srcCompat="@drawable/ic_expand_more_black"
-                    android:scaleType="fitXY"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true" />
-            </RelativeLayout>
-        </LinearLayout>
-    </android.support.v7.widget.CardView>
-
-    <android.support.v7.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <RelativeLayout
-                android:id="@+id/titleAnalyticsRegularity"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="@drawable/background_cardview_clickable"
-                android:padding="16dp">
-                <android.support.v7.widget.AppCompatTextView
-                    android:layout_width="match_parent"
-                    android:layout_height="30dp"
-                    android:gravity="center_vertical"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentStart="true"
-                    android:textColor="@color/indigo_500"
-                    android:textSize="24sp"
-                    android:text="Regularity Analytics"/>
-
-                <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    app:srcCompat="@drawable/ic_expand_more_black"
-                    android:scaleType="fitXY"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true" />
-            </RelativeLayout>
-        </LinearLayout>
-    </android.support.v7.widget.CardView>
+    </ScrollView>
 
 </LinearLayout>

@@ -61,7 +61,7 @@ public class SignupActivity extends AppCompatActivity {
         actionBar.setDisplayShowHomeEnabled(false);
         actionBar.setDisplayShowTitleEnabled(false);
         actionBarView = getLayoutInflater().inflate(R.layout.action_bar_center_with_back_button, null);
-        ((TextView)actionBarView.findViewById(R.id.tvActionBarTitle)).setText("Profile");
+        ((TextView)actionBarView.findViewById(R.id.tvActionBarTitle)).setText("Sign Up");
         actionBar.setCustomView(actionBarView,
                 new ActionBar.LayoutParams(ActionBar.LayoutParams.MATCH_PARENT,
                         ActionBar.LayoutParams.MATCH_PARENT, Gravity.CENTER));

@@ -41,15 +41,6 @@
             android:paddingRight="@dimen/activity_horizontal_margin"
             android:paddingTop="@dimen/activity_vertical_margin" >
 
-            <!--<android.support.v7.widget.Toolbar-->
-                <!--android:id="@+id/main_toolbar"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="?attr/actionBarSize"-->
-                <!--android:background="?attr/colorPrimary"-->
-                <!--android:elevation="4dp"-->
-                <!--android:theme="@style/ThemeOverlay.AppCompat.ActionBar"-->
-                <!--app:popupTheme="@style/ThemeOverlay.AppCompat.Light"-->
-                <!--/>-->
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
@@ -57,55 +48,23 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginBottom="12dp"
                 android:id="@+id/layoutBtnDiaries">
-                <LinearLayout
-                    android:orientation="vertical"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="right">
-
-                    <LinearLayout
-                        android:layout_width="400px"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_horizontal"
-                        android:id="@+id/layoutShowAllDiaries">
-                        <ImageButton
-                            android:layout_width="200px"
-                            android:layout_height="200px"
-                            android:background="@drawable/button_new_diary_circle"
-                            android:src="@drawable/iconmonstr_text_indigo_with_padding"
-                            android:scaleType="center"
-                            android:onClick="onClick"
-                            android:id="@+id/btnShowAllDiaries" />
-                    </LinearLayout>
-
-                    <TextView
-                        android:layout_width="400px"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_horizontal"
-                        android:layout_marginTop="8dp"
-                        android:textColor="@color/indigo_500"
-                        android:textSize="13sp"
-                        android:text="See All Diaries"
-                        android:id="@+id/tvShowAllDiaries"/>
-                </LinearLayout>
 
                 <LinearLayout
                     android:orientation="vertical"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:gravity="left">
+                    android:gravity="center_horizontal">
+
                     <LinearLayout
-                        android:layout_width="400px"
-                        android:layout_height="wrap_content"
+                        android:layout_width="200px"
+                        android:layout_height="200px"
                         android:orientation="horizontal"
                         android:gravity="center_horizontal"
                         android:id="@+id/layoutNewAudioDiary">
                         <ImageButton
-                            android:layout_width="200px"
-                            android:layout_height="200px"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
                             android:background="@drawable/button_new_diary_circle"
                             android:src="@drawable/iconmonstr_audio_indigo_with_padding"
                             android:scaleType="center"
@@ -114,42 +73,198 @@
                     </LinearLayout>
 
                     <TextView
-                        android:layout_width="400px"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_horizontal"
                         android:layout_marginTop="8dp"
                         android:textColor="@color/indigo_500"
                         android:textSize="13sp"
-                        android:text="Create New Diary"
+                        android:text="Create Diary"
                         android:id="@+id/tvNewAudioDiary"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center_horizontal">
+
+                    <LinearLayout
+                        android:layout_width="200px"
+                        android:layout_height="200px"
+                        android:orientation="horizontal"
+                        android:gravity="center_horizontal"
+                        android:id="@+id/layoutShowAllDiaries">
+                        <ImageButton
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/button_new_diary_circle"
+                            android:src="@drawable/iconmonstr_text_indigo_with_padding"
+                            android:scaleType="center"
+                            android:onClick="onClick"
+                            android:id="@+id/btnShowAllDiaries" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@color/indigo_500"
+                        android:textSize="13sp"
+                        android:text="Browse Diary"
+                        android:id="@+id/tvShowAllDiaries"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center_horizontal">
+
+                    <LinearLayout
+                        android:layout_width="200px"
+                        android:layout_height="200px"
+                        android:orientation="horizontal"
+                        android:gravity="center_horizontal"
+                        android:id="@+id/layoutAnalytics">
+                        <ImageButton
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/button_new_diary_circle"
+                            android:src="@drawable/iconmonstr_chart_with_padding"
+                            android:scaleType="center"
+                            android:onClick="onClick"
+                            android:id="@+id/btnAnalytics" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@color/indigo_500"
+                        android:textSize="13sp"
+                        android:text="Browse Analytics"
+                        android:id="@+id/tvAnalytics"/>
                 </LinearLayout>
             </LinearLayout>
 
-            <RelativeLayout
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="220dp"
-                android:layout_gravity="center_horizontal"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
                 android:layout_marginTop="16dp"
                 android:layout_marginLeft="3dp"
                 android:layout_marginRight="3dp"
                 android:padding="12dp"
                 android:background="@drawable/background_list_element" >
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentStart="true"
+                        android:textColor="@color/grey_700"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:text="Number of Diary:"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentEnd="true"
+                        android:id="@+id/tvStatisticsDiary"
+                        android:textColor="@color/grey_700"
+                        android:textSize="16sp"
+                        android:text="137"/>
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:id="@+id/btnViewDetailAnalytics"
-                    android:textSize="14sp"
-                    android:textColor="@color/indigo_clickable_text_color"
-                    android:text="See Detail Analytics"
-                    android:onClick="onClick"
-                    android:textAllCaps="true"
-                    android:focusable="true"
-                    android:clickable="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_centerHorizontal="true" />
-            </RelativeLayout>
+                    android:layout_marginTop="12dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentStart="true"
+                        android:textColor="@color/grey_700"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:text="Number of Analytics:"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentEnd="true"
+                        android:id="@+id/tvStatisticsAnalytics"
+                        android:textColor="@color/grey_700"
+                        android:textSize="16sp"
+                        android:text="29"/>
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentStart="true"
+                        android:id="@+id/tvStatisticsWeek"
+                        android:textColor="@color/grey_700"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:text="Diaries per Week:"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentEnd="true"
+                        android:textColor="@color/grey_700"
+                        android:textSize="16sp"
+                        android:text="5"/>
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentStart="true"
+                        android:id="@+id/tvStatisticsTag"
+                        android:textColor="@color/grey_700"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:text="Most used Tag:"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentEnd="true"
+                        android:textColor="@color/grey_700"
+                        android:textSize="16sp"
+                        android:text="food"/>
+                </RelativeLayout>
+            </LinearLayout>
 
             <LinearLayout
                 android:orientation="vertical"

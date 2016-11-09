@@ -22,8 +22,16 @@ import ssu.sel.smartdiary.R;
  * Created by hanter on 16. 10. 5..
  */
 public class DiarySearchToolbar extends LinearLayout {
+    private LinearLayout tabSearchTime = null;
+    private LinearLayout tabSearchText = null;
+    private LinearLayout tabSearchTag = null;
+    private View tabSearchTimeSelected = null;
+    private View tabSearchTextSelected = null;
+    private View tabSearchTagSelected = null;
+
     private LinearLayout layoutSearchTime = null;
     private LinearLayout layoutSearchText = null;
+    private LinearLayout layoutSearchTag = null;
     private TextView tvSearchStartDate = null;
     private TextView tvSearchEndDate = null;
     private EditText edtSearchText = null;
@@ -54,26 +62,57 @@ public class DiarySearchToolbar extends LinearLayout {
         LayoutInflater inflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.view_search_toolbar, this, true);
 
+        tabSearchTime = (LinearLayout)findViewById(R.id.tabSearchTime);
+        tabSearchText = (LinearLayout)findViewById(R.id.tabSearchText);
+        tabSearchTag = (LinearLayout)findViewById(R.id.tabSearchTag);
+
+        tabSearchTimeSelected = findViewById(R.id.tabSearchTimeSelected);
+        tabSearchTextSelected = findViewById(R.id.tabSearchTextSelected);
+        tabSearchTagSelected = findViewById(R.id.tabSearchTagSelected);
+
         layoutSearchTime = (LinearLayout)findViewById(R.id.layoutSearchTime);
         layoutSearchText = (LinearLayout)findViewById(R.id.layoutSearchText);
+        layoutSearchTag = (LinearLayout)findViewById(R.id.layoutSearchTag);
 
         layoutSearchTime.setVisibility(View.VISIBLE);
         layoutSearchText.setVisibility(View.GONE);
+        layoutSearchTag.setVisibility(View.GONE);
 
-        //no support search by text
-//        SwitchCompat switchSearchType = (SwitchCompat)findViewById(R.id.switchSearchType);
-//        switchSearchType.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
-//                if (checked) {
-//                    layoutSearchTime.setVisibility(View.GONE);
-//                    layoutSearchText.setVisibility(View.VISIBLE);
-//                } else {
-//                    layoutSearchTime.setVisibility(View.VISIBLE);
-//                    layoutSearchText.setVisibility(View.GONE);
-//                }
-//            }
-//        });
+        View.OnClickListener onSearchTabClickListener = new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (v.getId()) {
+                    case R.id.tabSearchTime:
+                        tabSearchTimeSelected.setVisibility(View.VISIBLE);
+                        tabSearchTextSelected.setVisibility(View.INVISIBLE);
+                        tabSearchTagSelected.setVisibility(View.INVISIBLE);
+                        layoutSearchTime.setVisibility(View.VISIBLE);
+                        layoutSearchText.setVisibility(View.GONE);
+                        layoutSearchTag.setVisibility(View.GONE);
+                        break;
+                    case R.id.tabSearchText:
+                        tabSearchTimeSelected.setVisibility(View.INVISIBLE);
+                        tabSearchTextSelected.setVisibility(View.VISIBLE);
+                        tabSearchTagSelected.setVisibility(View.INVISIBLE);
+                        layoutSearchTime.setVisibility(View.GONE);
+                        layoutSearchText.setVisibility(View.VISIBLE);
+                        layoutSearchTag.setVisibility(View.GONE);
+                        break;
+                    case R.id.tabSearchTag:
+                        tabSearchTimeSelected.setVisibility(View.INVISIBLE);
+                        tabSearchTextSelected.setVisibility(View.INVISIBLE);
+                        tabSearchTagSelected.setVisibility(View.VISIBLE);
+                        layoutSearchTime.setVisibility(View.GONE);
+                        layoutSearchText.setVisibility(View.GONE);
+                        layoutSearchTag.setVisibility(View.VISIBLE);
+                        break;
+
+                }
+            }
+        };
+        tabSearchTime.setOnClickListener(onSearchTabClickListener);
+        tabSearchText.setOnClickListener(onSearchTabClickListener);
+        tabSearchTag.setOnClickListener(onSearchTabClickListener);
 
         View.OnClickListener onClickListener = new View.OnClickListener() {
             @Override

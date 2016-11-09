@@ -7,6 +7,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -27,13 +28,34 @@ import ssu.sel.smartdiary.network.JsonRestConnector;
 
 public class AnalyticsActivity extends AppCompatActivity {
 
-    private ImageView ivLifeStyleExpand = null;
-    private View titleAnalyticsLifeStyle = null;
-    private View layoutAnalyticsLifeStyle = null;
-    private Spinner spnLifeStyleThings = null;
-    private Spinner spnLifeStyleType = null;
-    private TextView tvLifeStyleResult = null;
-    private View progressLifeStyle = null;
+    private View titleAnalyticsLifeActivity = null;
+    private ImageView ivLifeActivityExpand = null;
+    private View layoutAnalyticsLifeActivity = null;
+    private Spinner spnLifeActivityThings = null;
+    private Spinner spnLifeActivityPeriod = null;
+    private TextView tvLifeActivityResult = null;
+
+    private View titleAnalyticsWellness = null;
+    private ImageView ivAnalyticsWellnessExpand = null;
+    private View layoutAnalyticsWellness = null;
+    private Spinner spnWellnessType = null;
+    private Spinner spnWellnessPeriod = null;
+    private TextView tvWellnessResult = null;
+
+    private View titleAnalyticsTendency = null;
+    private ImageView ivAnalyticsTendencyExpand = null;
+    private View layoutAnalyticsTendency = null;
+    private Spinner spnLifeTendencyThings = null;
+    private Spinner spnTendencyType = null;
+    private TextView tvTendencyResult = null;
+
+    private View titleAnalyticsCorrelation = null;
+    private ImageView ivAnalyticsCorrelationExpand = null;
+    private View layoutAnalyticsCorrelation = null;
+    private Spinner spnCorrelationThingX = null;
+    private Spinner spnCorrelationThingY = null;
+    private TextView tvCorrelationResult = null;
+
 
     protected AlertDialog dlgAlert = null;
 
@@ -48,7 +70,7 @@ public class AnalyticsActivity extends AppCompatActivity {
         actionBar.setDisplayShowHomeEnabled(false);
         actionBar.setDisplayShowTitleEnabled(false);
         View mActionBarView = getLayoutInflater().inflate(R.layout.action_bar_center_with_back_button, null);
-        ((TextView)mActionBarView.findViewById(R.id.tvActionBarTitle)).setText("Analytics");
+        ((TextView)mActionBarView.findViewById(R.id.tvActionBarTitle)).setText("Diary Analytics");
         actionBar.setCustomView(mActionBarView,
                 new ActionBar.LayoutParams(ActionBar.LayoutParams.MATCH_PARENT,
                         ActionBar.LayoutParams.MATCH_PARENT, Gravity.CENTER));
@@ -58,47 +80,134 @@ public class AnalyticsActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_analytics);
 
-        ivLifeStyleExpand = (ImageView)findViewById(R.id.ivLifeStyleExpand);
-        titleAnalyticsLifeStyle = findViewById(R.id.titleAnalyticsLifeStyle);
-        layoutAnalyticsLifeStyle = findViewById(R.id.layoutAnalyticsLifeStyle);
-        spnLifeStyleThings = (Spinner)findViewById(R.id.spnLifeStyleThings);
-        spnLifeStyleType = (Spinner)findViewById(R.id.spnLifeStyleType);
-        tvLifeStyleResult = (TextView)findViewById(R.id.tvLifeStyleResult);
-        progressLifeStyle = findViewById(R.id.progressLifeStyle);
-        layoutAnalyticsLifeStyle.setVisibility(View.GONE);
-        titleAnalyticsLifeStyle.setOnClickListener(new View.OnClickListener() {
+        titleAnalyticsLifeActivity = findViewById(R.id.titleAnalyticsLifeActivity);
+        ivLifeActivityExpand = (ImageView)findViewById(R.id.ivLifeActivityExpand);
+        layoutAnalyticsLifeActivity = findViewById(R.id.layoutAnalyticsLifeActivity);
+        spnLifeActivityThings = (Spinner)findViewById(R.id.spnLifeActivityThings);
+        spnLifeActivityPeriod = (Spinner)findViewById(R.id.spnLifeActivityPeriod);
+        tvLifeActivityResult = (TextView)findViewById(R.id.tvLifeActivityResult);
+        layoutAnalyticsLifeActivity.setVisibility(View.GONE);
+        titleAnalyticsLifeActivity.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (layoutAnalyticsLifeStyle.getVisibility() == View.GONE) {
-                    layoutAnalyticsLifeStyle.setVisibility(View.VISIBLE);
-                    ivLifeStyleExpand.setImageResource(R.drawable.ic_expand_less_black);
-//                    layoutAnalyticsLifeStyle.setAlpha(0.0f);
-//                    layoutAnalyticsLifeStyle.animate()
-//                            .translationY(layoutAnalyticsLifeStyle.getMeasuredHeight())
-//                            .alpha(1.0f);
+                if (layoutAnalyticsLifeActivity.getVisibility() == View.GONE) {
+                    layoutAnalyticsLifeActivity.setVisibility(View.VISIBLE);
+                    ivLifeActivityExpand.setImageResource(R.drawable.ic_expand_less_black);
                 } else {
-                    layoutAnalyticsLifeStyle.setVisibility(View.GONE);
-                    ivLifeStyleExpand.setImageResource(R.drawable.ic_expand_more_black);
-//                    layoutAnalyticsLifeStyle.animate()
-//                            .translationY(0)
-//                            .alpha(0.0f)
-//                            .setListener(new AnimatorListenerAdapter() {
-//                                @Override
-//                                public void onAnimationEnd(Animator animation) {
-//                                    super.onAnimationEnd(animation);
-//                                    layoutAnalyticsLifeStyle.setVisibility(View.GONE);
-//                                }
-//                            });
+                    layoutAnalyticsLifeActivity.setVisibility(View.GONE);
+                    ivLifeActivityExpand.setImageResource(R.drawable.ic_expand_more_black);
+
                 }
             }
         });
-        ArrayAdapter<CharSequence> thingAdapter = ArrayAdapter.createFromResource(this,
+
+        titleAnalyticsWellness = findViewById(R.id.titleAnalyticsWellness);
+        ivAnalyticsWellnessExpand = (ImageView)findViewById(R.id.ivAnalyticsWellnessExpand);
+        layoutAnalyticsWellness = findViewById(R.id.layoutAnalyticsWellness);
+        spnWellnessType = (Spinner)findViewById(R.id.spnWellnessType);
+        spnWellnessPeriod = (Spinner)findViewById(R.id.spnWellnessPeriod);
+        tvWellnessResult = (TextView)findViewById(R.id.tvWellnessResult);
+        layoutAnalyticsWellness.setVisibility(View.GONE);
+        titleAnalyticsWellness.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if (layoutAnalyticsWellness.getVisibility() == View.GONE) {
+                    layoutAnalyticsWellness.setVisibility(View.VISIBLE);
+                    ivAnalyticsWellnessExpand.setImageResource(R.drawable.ic_expand_less_black);
+                } else {
+                    layoutAnalyticsWellness.setVisibility(View.GONE);
+                    ivAnalyticsWellnessExpand.setImageResource(R.drawable.ic_expand_more_black);
+
+                }
+            }
+        });
+
+        titleAnalyticsTendency = findViewById(R.id.titleAnalyticsTendency);
+        ivAnalyticsTendencyExpand = (ImageView)findViewById(R.id.ivAnalyticsTendencyExpand);
+        layoutAnalyticsTendency = findViewById(R.id.layoutAnalyticsTendency);
+        spnLifeTendencyThings = (Spinner)findViewById(R.id.spnLifeTendencyThings);
+        spnTendencyType = (Spinner)findViewById(R.id.spnTendencyType);
+        tvTendencyResult = (TextView)findViewById(R.id.tvTendencyResult);
+        layoutAnalyticsTendency.setVisibility(View.GONE);
+        titleAnalyticsTendency.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if (layoutAnalyticsTendency.getVisibility() == View.GONE) {
+                    layoutAnalyticsTendency.setVisibility(View.VISIBLE);
+                    ivAnalyticsTendencyExpand.setImageResource(R.drawable.ic_expand_less_black);
+                } else {
+                    layoutAnalyticsTendency.setVisibility(View.GONE);
+                    ivAnalyticsTendencyExpand.setImageResource(R.drawable.ic_expand_more_black);
+
+                }
+            }
+        });
+
+        titleAnalyticsCorrelation = findViewById(R.id.titleAnalyticsCorrelation);
+        ivAnalyticsCorrelationExpand = (ImageView)findViewById(R.id.ivAnalyticsCorrelationExpand);
+        layoutAnalyticsCorrelation = findViewById(R.id.layoutAnalyticsCorrelation);
+        spnCorrelationThingX = (Spinner)findViewById(R.id.spnCorrelationThingX);
+        spnCorrelationThingY = (Spinner)findViewById(R.id.spnCorrelationThingY);
+        tvCorrelationResult = (TextView)findViewById(R.id.tvCorrelationResult);
+        layoutAnalyticsCorrelation.setVisibility(View.GONE);
+        titleAnalyticsCorrelation.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if (layoutAnalyticsCorrelation.getVisibility() == View.GONE) {
+                    layoutAnalyticsCorrelation.setVisibility(View.VISIBLE);
+                    ivAnalyticsCorrelationExpand.setImageResource(R.drawable.ic_expand_less_black);
+                } else {
+                    layoutAnalyticsCorrelation.setVisibility(View.GONE);
+                    ivAnalyticsCorrelationExpand.setImageResource(R.drawable.ic_expand_more_black);
+
+                }
+            }
+        });
+
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.analytics_lifestyle_things, android.R.layout.simple_spinner_item);
-        thingAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spnLifeStyleThings.setAdapter(thingAdapter);
-        ArrayAdapter<CharSequence> typeAdapter = ArrayAdapter.createFromResource(this,
-                R.array.analytics_lifestyle_type, android.R.layout.simple_spinner_item);
-        typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spnLifeStyleType.setAdapter(typeAdapter);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spnLifeActivityThings.setAdapter(adapter);
+
+        adapter = ArrayAdapter.createFromResource(this,
+                R.array.analytics_period, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spnLifeActivityPeriod.setAdapter(adapter);
+
+        adapter = ArrayAdapter.createFromResource(this,
+                R.array.analytics_wellness_type, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spnWellnessType.setAdapter(adapter);
+
+        adapter = ArrayAdapter.createFromResource(this,
+                R.array.analytics_period, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spnWellnessPeriod.setAdapter(adapter);
+
+        adapter = ArrayAdapter.createFromResource(this,
+                R.array.analytics_things, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spnLifeTendencyThings.setAdapter(adapter);
+
+        adapter = ArrayAdapter.createFromResource(this,
+                R.array.analytics_tendency_type, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spnTendencyType.setAdapter(adapter);
+
+        adapter = ArrayAdapter.createFromResource(this,
+                R.array.analytics_things, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spnCorrelationThingX.setAdapter(adapter);
+
+        adapter = ArrayAdapter.createFromResource(this,
+                R.array.analytics_things, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spnCorrelationThingY.setAdapter(adapter);
+
+        tvLifeActivityResult.setText(Html.fromHtml("<font color='#3F51B5'>Activity Pattern in the past year</font><br/>" +
+                "<font color='#ff4081'>exercise</font><br/>" +
+                "You have exercised every morning in the past year.<br/>" +
+                "<font color='#ff4081'>cook</font><br/>" +
+                "You have usually cooked for the Saturday dinner."));
+        tvWellnessResult.setVisibility(View.GONE);
+        tvTendencyResult.setVisibility(View.GONE);
+        tvCorrelationResult.setVisibility(View.GONE);
 
 
         dlgAlert = new AlertDialog.Builder(this).setMessage("Message")
@@ -108,59 +217,20 @@ public class AnalyticsActivity extends AppCompatActivity {
                         dialogInterface.dismiss();
                     }
                 }).create();
-
-
-        analyzeLifeStyleConnector = new JsonRestConnector("analyze/lifestyle", "GET",
-                new JsonRestConnector.OnConnectListener() {
-                    @Override
-                    public void onDone(JSONObject resJson) {
-                        if (resJson == null) {
-                            Log.d("Main - Json", "No response");
-                            openAlertModal("No response.", "Error");
-                        } else {
-                            try {
-                                boolean success = resJson.getBoolean("lifestyle");
-                                if (success) {
-                                    JSONArray result = resJson.getJSONArray("result");
-                                    Log.d("Analytics Activity", result.toString());
-
-                                    String resultString = "Foods Most Liked: \n";
-                                    for (int i=0; i<result.length(); i++) {
-                                        String thing = result.getString(i);
-                                        if (i>0) resultString += ", ";
-                                        resultString += thing;
-                                    }
-
-                                    tvLifeStyleResult.setText(resultString);
-                                    tvLifeStyleResult.setVisibility(View.VISIBLE);
-                                } else {
-                                    openAlertModal("Analyze Failed");
-                                    tvLifeStyleResult.setVisibility(View.GONE);
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                                Log.d("Main - Json", "Json parsing error");
-                                openAlertModal("Json parsing error.", "Error");
-                                tvLifeStyleResult.setVisibility(View.GONE);
-                            }
-                        }
-                        progressLifeStyle.setVisibility(View.GONE);
-                    }
-                });
     }
 
     public void onAnalyzeClick(View v) {
         switch (v.getId()) {
-            case R.id.btnLifeStyleAnalyze:
-                JSONObject reqJson = new JSONObject();
-                try {
-                    reqJson.put("user_id", UserProfile.getUserProfile().getUserID());
-                    reqJson.put("thing_type", "food");
-                    reqJson.put("option", "like");
-                } catch (Exception e) {}
-                progressLifeStyle.setVisibility(View.VISIBLE);
-                analyzeLifeStyleConnector.request(reqJson);
-                return;
+//            case R.id.btnLifeStyleAnalyze:
+//                JSONObject reqJson = new JSONObject();
+//                try {
+//                    reqJson.put("user_id", UserProfile.getUserProfile().getUserID());
+//                    reqJson.put("thing_type", "food");
+//                    reqJson.put("option", "like");
+//                } catch (Exception e) {}
+//                progressLifeStyle.setVisibility(View.VISIBLE);
+//                analyzeLifeStyleConnector.request(reqJson);
+//                return;
         }
     }
 

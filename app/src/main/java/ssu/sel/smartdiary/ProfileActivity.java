@@ -30,14 +30,16 @@ import ssu.sel.smartdiary.network.JsonRestConnector;
 import static ssu.sel.smartdiary.MainActivity.rootMainActivity;
 
 public class ProfileActivity extends SignupActivity {
+    private View layoutBtnMore;
     private Button btnLogout;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        layoutBtnMore = findViewById(R.id.layoutBtnProfileMore);
+        layoutBtnMore.setVisibility(View.VISIBLE);
         btnLogout = (Button)findViewById(R.id.btnProfileCancel);
-        btnLogout.setVisibility(View.VISIBLE);
         btnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -6,11 +6,14 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Build;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -22,6 +25,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
@@ -62,7 +66,9 @@ public class WriteDiaryActivity extends AppCompatActivity {
     protected TextView tvDiaryAudioDownloading = null;
     protected Button btnDiaryAudioPlay = null;
     protected Button btnDiaryAudioPause = null;
-    protected Button btnDiaryAudioStop = null;
+    protected Button btnDiaryAudioForward = null;
+    protected Button btnDiaryAudioBackward = null;
+    protected ProgressBar progressDiaryAudio = null;
 
     protected AlertDialog dlgAlert = null;
     protected AlertDialog dlgCancel = null;
@@ -128,7 +134,9 @@ public class WriteDiaryActivity extends AppCompatActivity {
         tvDiaryAudioDownloading = (TextView) findViewById(R.id.tvDiaryAudioDownloading);
         btnDiaryAudioPlay = (Button) findViewById(R.id.btnDiaryAudioPlay);
         btnDiaryAudioPause = (Button) findViewById(R.id.btnDiaryAudioPause);
-        btnDiaryAudioStop = (Button) findViewById(R.id.btnDiaryAudioStop);
+        btnDiaryAudioForward = (Button) findViewById(R.id.btnDiaryAudioForward);
+        btnDiaryAudioBackward = (Button) findViewById(R.id.btnDiaryAudioBackward);
+        progressDiaryAudio = (ProgressBar) findViewById(R.id.progressDiaryAudio);
 
         Drawable edtTitleBGDrawble = edtTitle.getBackground();
         edtTitleBGDrawble.mutate().setColorFilter(getResources().getColor(R.color.indigo_500),
@@ -137,6 +145,9 @@ public class WriteDiaryActivity extends AppCompatActivity {
 
         tvDiaryAudioDownloading.setVisibility(View.GONE);
         btnDiaryAudioPause.setVisibility(View.VISIBLE);
+        progressDiaryAudio.getProgressDrawable().setColorFilter(
+                ContextCompat.getColor(this, R.color.pink_A200), PorterDuff.Mode.SRC_IN);
+
 
         if (diaryAcitivityType.equals("NEW_AUDIO")) {
 //            edtTitle.setText(intent.getStringExtra("DIARY_TITLE"));
@@ -175,7 +186,6 @@ public class WriteDiaryActivity extends AppCompatActivity {
         }
 
         btnDiaryAudioPlay.setVisibility(View.VISIBLE);
-        btnDiaryAudioStop.setVisibility(View.VISIBLE);
         btnDiaryAudioPause.setVisibility(View.GONE);
         tvDiaryAudioDownloading.setVisibility(View.GONE);
     }
@@ -431,20 +441,13 @@ public class WriteDiaryActivity extends AppCompatActivity {
         switch (v.getId()) {
             case R.id.btnDiaryAudioPlay:
                 mediaPlayer.start();
-                btnDiaryAudioPlay.setVisibility(View.GONE);
+                btnDiaryAudioPlay.setVisibility(View.INVISIBLE);
                 btnDiaryAudioPause.setVisibility(View.VISIBLE);
                 return;
 
             case R.id.btnDiaryAudioPause:
                 if(mediaPlayer.isPlaying())
                     mediaPlayer.pause();
-                btnDiaryAudioPause.setVisibility(View.GONE);
-                btnDiaryAudioPlay.setVisibility(View.VISIBLE);
-                return;
-
-            case R.id.btnDiaryAudioStop:
-                if (mediaPlayer.isPlaying()) mediaPlayer.pause();
-                mediaPlayer.seekTo(0);
                 btnDiaryAudioPause.setVisibility(View.GONE);
                 btnDiaryAudioPlay.setVisibility(View.VISIBLE);
                 return;
