@@ -226,6 +226,8 @@
                     android:layout_height="72dp"
                     android:background="@drawable/button_list_element"
                     android:layout_marginRight="5dp"
+                    android:id="@+id/btnAttachPicture"
+                    android:onClick="onAttachButtonClick"
                     android:src="@drawable/iconmonstr_attachment_picture"/>
                 <ImageButton
                     android:layout_width="0dp"
@@ -234,6 +236,8 @@
                     android:background="@drawable/button_list_element"
                     android:layout_marginLeft="5dp"
                     android:layout_marginRight="5dp"
+                    android:id="@+id/btnAttachCamera"
+                    android:onClick="onAttachButtonClick"
                     android:src="@drawable/iconmonstr_attachment_camera"/>
                 <ImageButton
                     android:layout_width="0dp"
@@ -242,6 +246,8 @@
                     android:background="@drawable/button_list_element"
                     android:layout_marginLeft="5dp"
                     android:layout_marginRight="5dp"
+                    android:id="@+id/btnAttachVideo"
+                    android:onClick="onAttachButtonClick"
                     android:src="@drawable/iconmonstr_attachment_video"/>
                 <ImageButton
                     android:layout_width="0dp"
@@ -249,6 +255,8 @@
                     android:layout_height="72dp"
                     android:background="@drawable/button_list_element"
                     android:layout_marginLeft="5dp"
+                    android:id="@+id/btnAttachMusic"
+                    android:onClick="onAttachButtonClick"
                     android:src="@drawable/iconmonstr_attachment_music"/>
 
             </LinearLayout>

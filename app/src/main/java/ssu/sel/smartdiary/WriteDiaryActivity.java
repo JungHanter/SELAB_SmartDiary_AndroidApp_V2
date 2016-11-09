@@ -2,17 +2,21 @@ package ssu.sel.smartdiary;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -37,6 +41,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.net.URI;
 import java.util.Calendar;
 
 import ssu.sel.smartdiary.model.DiaryContext;
@@ -45,6 +50,10 @@ import ssu.sel.smartdiary.network.MultipartRestConnector;
 import ssu.sel.smartdiary.speech.WavRecorder;
 
 public class WriteDiaryActivity extends AppCompatActivity {
+    protected static final int ACTIVITY_REQ_CODE_PICTURE = 100;
+    protected static final int ACTIVITY_REQ_CODE_CAMERA = 101;
+    protected static final int ACTIVITY_REQ_CODE_VIDEO = 102;
+    protected static final int ACTIVITY_REQ_CODE_MUSIC = 103;
 
     protected String diaryAcitivityType = null;
 
@@ -574,6 +583,95 @@ public class WriteDiaryActivity extends AppCompatActivity {
                 }
                 return;
         }
+    }
+
+    public void onAttachButtonClick(View v) {
+        switch (v.getId()) {
+            case R.id.btnAttachPicture:
+                Intent pickImage = new Intent(Intent.ACTION_PICK,
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                pickImage.setType("image/*");
+                startActivityForResult(pickImage, ACTIVITY_REQ_CODE_PICTURE);
+                return;
+            case R.id.btnAttachCamera:
+                Intent takeImage = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivityForResult(takeImage, ACTIVITY_REQ_CODE_CAMERA);
+                return;
+            case R.id.btnAttachVideo:
+                Intent pickVideo = new Intent(Intent.ACTION_PICK,
+                        MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+                pickVideo.setType("video/*");
+                startActivityForResult(pickVideo, ACTIVITY_REQ_CODE_VIDEO);
+                return;
+            case R.id.btnAttachMusic:
+                Intent pickAudio = new Intent(Intent.ACTION_PICK,
+                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
+//                Intent pickAudio = new Intent(Intent.ACTION_GET_CONTENT);
+//                pickAudio.setType("audio/*");
+                try {
+                    startActivityForResult(pickAudio, ACTIVITY_REQ_CODE_MUSIC);
+                } catch (ActivityNotFoundException anfe) {
+                    anfe.printStackTrace();
+                }
+                return;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == Activity.RESULT_OK) {
+            switch (requestCode) {
+                case ACTIVITY_REQ_CODE_CAMERA:
+                    if ((data != null) && (data.getData() != null)) {
+                        Uri selectedImageUri = data.getData();
+                        String imageFilePath = selectedImageUri.getPath();
+                        Log.d("WriteDiaryActivity", "Camera: " + imageFilePath);
+                        try {
+                            File file = new File(new URI(imageFilePath));
+                            Log.d("WriteDiaryActivity", "FilePath: " + file.getAbsolutePath());
+                        } catch(Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    return;
+                case ACTIVITY_REQ_CODE_PICTURE:
+                    if ((data != null) && (data.getData() != null)) {
+                        Uri selectedImageUri = data.getData();
+                        String imageFilePath = selectedImageUri.getPath();
+                        Log.d("WriteDiaryActivity", "Image: " + imageFilePath);
+                        try {
+                            File file = new File(new URI(imageFilePath));
+                            Log.d("WriteDiaryActivity", "FilePath: " + file.getAbsolutePath());
+                        } catch(Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    return;
+                case ACTIVITY_REQ_CODE_VIDEO:
+                    if ((data != null) && (data.getData() != null)) {
+                        Uri selectedVideoUri = data.getData();
+                        String videoFilePath = selectedVideoUri.getPath();
+                        Log.d("WriteDiaryActivity", "Video: " + videoFilePath);
+                        try {
+                            File file = new File(new URI(videoFilePath));
+                            Log.d("WriteDiaryActivity", "FilePath: " + file.getAbsolutePath());
+                        } catch(Exception e) {}
+                    }
+                    return;
+                case ACTIVITY_REQ_CODE_MUSIC:
+                    if ((data != null) && (data.getData() != null)) {
+                        Uri selectedAudioUri = data.getData();
+                        String audioFilePath = selectedAudioUri.getPath();
+                        Log.d("WriteDiaryActivity", "Music: " + audioFilePath);
+                        try {
+                            File file = new File(new URI(audioFilePath));
+                            Log.d("WriteDiaryActivity", "FilePath: " + file.getAbsolutePath());
+                        } catch(Exception e) {}
+                    }
+                    return;
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     protected DatePickerDialog.OnDateSetListener datePickerListener =
