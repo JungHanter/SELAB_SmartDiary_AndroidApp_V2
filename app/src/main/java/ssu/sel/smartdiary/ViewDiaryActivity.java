@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -100,7 +101,7 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
         btnDiaryAudioPause = (Button) findViewById(R.id.btnDiaryAudioPause);
         btnDiaryAudioForward = (Button) findViewById(R.id.btnDiaryAudioForward);
         btnDiaryAudioBackward = (Button) findViewById(R.id.btnDiaryAudioBackward);
-        progressDiaryAudio = (ProgressBar) findViewById(R.id.progressDiaryAudio);
+        progressDiaryAudio = (SeekBar) findViewById(R.id.progressDiaryAudio);
         layoutAttachment = findViewById(R.id.layoutAttachment);
         layoutAttachment.setVisibility(View.GONE);
 

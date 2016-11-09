@@ -6,13 +6,13 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -25,7 +25,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
@@ -37,10 +37,8 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.util.Calendar;
 
-import ssu.sel.smartdiary.model.Diary;
 import ssu.sel.smartdiary.model.DiaryContext;
 import ssu.sel.smartdiary.model.UserProfile;
 import ssu.sel.smartdiary.network.MultipartRestConnector;
@@ -64,11 +62,14 @@ public class WriteDiaryActivity extends AppCompatActivity {
     protected View viewProgress = null;
 
     protected TextView tvDiaryAudioDownloading = null;
+    protected View layoutDiaryAudioPlayer = null;
     protected Button btnDiaryAudioPlay = null;
     protected Button btnDiaryAudioPause = null;
     protected Button btnDiaryAudioForward = null;
     protected Button btnDiaryAudioBackward = null;
-    protected ProgressBar progressDiaryAudio = null;
+    protected SeekBar progressDiaryAudio = null;
+    protected TextView tvDiaryAudioNowLength = null;
+    protected TextView tvDiaryAudioMaxLength = null;
 
     protected AlertDialog dlgAlert = null;
     protected AlertDialog dlgCancel = null;
@@ -132,22 +133,19 @@ public class WriteDiaryActivity extends AppCompatActivity {
         viewWriteDiaryLayout = findViewById(R.id.viewWriteDiaryForm);
         viewProgress = findViewById(R.id.progressLayout);
         tvDiaryAudioDownloading = (TextView) findViewById(R.id.tvDiaryAudioDownloading);
+        layoutDiaryAudioPlayer = findViewById(R.id.layoutDiaryAudioPlayer);
         btnDiaryAudioPlay = (Button) findViewById(R.id.btnDiaryAudioPlay);
         btnDiaryAudioPause = (Button) findViewById(R.id.btnDiaryAudioPause);
         btnDiaryAudioForward = (Button) findViewById(R.id.btnDiaryAudioForward);
         btnDiaryAudioBackward = (Button) findViewById(R.id.btnDiaryAudioBackward);
-        progressDiaryAudio = (ProgressBar) findViewById(R.id.progressDiaryAudio);
+        progressDiaryAudio = (SeekBar) findViewById(R.id.progressDiaryAudio);
+        tvDiaryAudioNowLength = (TextView) findViewById(R.id.tvDiaryAudioNowLength);
+        tvDiaryAudioMaxLength = (TextView) findViewById(R.id.tvDiaryAudioMaxLength);
 
         Drawable edtTitleBGDrawble = edtTitle.getBackground();
         edtTitleBGDrawble.mutate().setColorFilter(getResources().getColor(R.color.indigo_500),
                 PorterDuff.Mode.SRC_ATOP);
         edtTitle.setBackground(edtTitleBGDrawble);
-
-        tvDiaryAudioDownloading.setVisibility(View.GONE);
-        btnDiaryAudioPause.setVisibility(View.VISIBLE);
-        progressDiaryAudio.getProgressDrawable().setColorFilter(
-                ContextCompat.getColor(this, R.color.pink_A200), PorterDuff.Mode.SRC_IN);
-
 
         if (diaryAcitivityType.equals("NEW_AUDIO")) {
 //            edtTitle.setText(intent.getStringExtra("DIARY_TITLE"));
@@ -163,9 +161,32 @@ public class WriteDiaryActivity extends AppCompatActivity {
 
         if (audioFile != null)
             setAudioPlayer();
+        else {
+            tvDiaryAudioDownloading.setText("Audio File Load Failed.");
+            tvDiaryAudioDownloading.setVisibility(View.VISIBLE);
+            layoutDiaryAudioPlayer.setVisibility(View.GONE);
+        }
     }
 
+    protected Thread audioCheckThread = null;
+    protected Handler audioCheckHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case 0:
+                    if(mediaPlayer != null) {
+                        progressDiaryAudio.setProgress(msg.arg1);
+                        setAudioPlayerNowLengthText(msg.arg1);
+                    }
+            }
+        }
+    };
     protected void setAudioPlayer() {
+        progressDiaryAudio.getProgressDrawable().setColorFilter(
+            ContextCompat.getColor(this, R.color.pink_A200), PorterDuff.Mode.SRC_IN);
+        progressDiaryAudio.setProgress(0);
+        progressDiaryAudio.setMax(1);
+
         try {
             FileInputStream fis = new FileInputStream(audioFile);
             mediaPlayer = new MediaPlayer();
@@ -175,19 +196,87 @@ public class WriteDiaryActivity extends AppCompatActivity {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
                     mp.seekTo(0);
-                    btnDiaryAudioPause.setVisibility(View.GONE);
+                    progressDiaryAudio.setProgress(0);
+                    setAudioPlayerNowLengthText(0);
+                    btnDiaryAudioPause.setVisibility(View.INVISIBLE);
                     btnDiaryAudioPlay.setVisibility(View.VISIBLE);
                 }
             });
             mediaPlayer.prepare();
+
+            int duration = mediaPlayer.getDuration();
+            if (duration < 1000) {
+                tvDiaryAudioMaxLength.setText("00:01");
+            } else {
+                int sec = duration / 1000;
+                int minute = sec / 60;
+                sec = sec % 60;
+                tvDiaryAudioMaxLength.setText(String.format("%02d:%02d", minute, sec));
+            }
+            progressDiaryAudio.setMax(mediaPlayer.getDuration());
+            progressDiaryAudio.setProgress(0);
+            setAudioPlayerNowLengthText(0);
+
+            progressDiaryAudio.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    if (fromUser && mediaPlayer != null) {
+                        mediaPlayer.seekTo(progress);
+                        setAudioPlayerNowLengthText(progress);
+                    }
+                }
+                public void onStartTrackingTouch(SeekBar seekBar) {}
+                public void onStopTrackingTouch(SeekBar seekBar) {}
+            });
+
+            audioCheckThread = new Thread() {
+                @Override
+                public void run() {
+                    while(true) {
+                        if (mediaPlayer == null) break;
+                        if (mediaPlayer.isPlaying()) {
+                            Message msg = Message.obtain(audioCheckHandler);
+                            msg.what = 0;
+                            msg.arg1 = mediaPlayer.getCurrentPosition();
+                            audioCheckHandler.sendMessage(msg);
+                        }
+                        try {
+                            Thread.sleep(200);
+                        } catch (InterruptedException ie) {}
+                    }
+                }
+            };
+            audioCheckThread.start();
+
+            Log.d("WriteDiaryActivity", "Duration: " + mediaPlayer.getDuration());
+            Log.d("WriteDiaryActivity", "Position: " + mediaPlayer.getCurrentPosition());
         } catch (Exception e) {
             e.printStackTrace();
             openAlertModal("The file colud not play...");
         }
 
         btnDiaryAudioPlay.setVisibility(View.VISIBLE);
-        btnDiaryAudioPause.setVisibility(View.GONE);
+        btnDiaryAudioPause.setVisibility(View.INVISIBLE);
         tvDiaryAudioDownloading.setVisibility(View.GONE);
+        layoutDiaryAudioPlayer.setVisibility(View.VISIBLE);
+    }
+
+    protected void setAudioPlayerSeek(int progress) {
+        if (mediaPlayer != null) {
+            int duration = mediaPlayer.getDuration();
+            if (progress >= duration) progress = duration - 1;
+            else if (progress < 0) progress = 0;
+            mediaPlayer.seekTo(progress);
+            progressDiaryAudio.setProgress(progress);
+            setAudioPlayerNowLengthText(progress);
+        }
+    }
+
+    protected void setAudioPlayerNowLengthText(int progress) {
+        int sec = progress / 1000;
+        int minute = sec / 60;
+        sec = sec % 60;
+        tvDiaryAudioNowLength.setText(String.format("%02d:%02d", minute, sec));
     }
 
     protected void setModals() {
@@ -418,7 +507,7 @@ public class WriteDiaryActivity extends AppCompatActivity {
         switch (v.getId()) {
             case R.id.btnActionBarCancel:
                 dlgCancel.show();
-                ((TextView) v.findViewById(R.id.tvOfBtnActionBarCancel)).setText("Edit");
+//                ((TextView) v.findViewById(R.id.tvOfBtnActionBarCancel)).setText("Edit");
                 return;
         }
     }
@@ -446,10 +535,43 @@ public class WriteDiaryActivity extends AppCompatActivity {
                 return;
 
             case R.id.btnDiaryAudioPause:
-                if(mediaPlayer.isPlaying())
+                if(mediaPlayer.isPlaying()) {
                     mediaPlayer.pause();
+                    progressDiaryAudio.setProgress(mediaPlayer.getCurrentPosition());
+                    setAudioPlayerNowLengthText(mediaPlayer.getCurrentPosition());
+                }
                 btnDiaryAudioPause.setVisibility(View.GONE);
                 btnDiaryAudioPlay.setVisibility(View.VISIBLE);
+                return;
+
+            case R.id.btnDiaryAudioForward:
+                if(mediaPlayer != null) {
+                    int duration = mediaPlayer.getDuration();
+                    if (duration < 10000) {
+                        setAudioPlayerSeek(mediaPlayer.getCurrentPosition() + 1000);
+                    } else if (duration < 30000) {
+                        setAudioPlayerSeek(mediaPlayer.getCurrentPosition() + 3000);
+                    } else if (duration < 60000) {
+                        setAudioPlayerSeek(mediaPlayer.getCurrentPosition() + 5000);
+                    } else {
+                        setAudioPlayerSeek(mediaPlayer.getCurrentPosition() + 10000);
+                    }
+                }
+                return;
+
+            case R.id.btnDiaryAudioBackward:
+                if(mediaPlayer != null) {
+                    int duration = mediaPlayer.getDuration();
+                    if (duration < 10000) {
+                        setAudioPlayerSeek(mediaPlayer.getCurrentPosition() - 1000);
+                    } else if (duration < 30000) {
+                        setAudioPlayerSeek(mediaPlayer.getCurrentPosition() - 3000);
+                    } else if (duration < 60000) {
+                        setAudioPlayerSeek(mediaPlayer.getCurrentPosition() - 5000);
+                    } else {
+                        setAudioPlayerSeek(mediaPlayer.getCurrentPosition() - 10000);
+                    }
+                }
                 return;
         }
     }
