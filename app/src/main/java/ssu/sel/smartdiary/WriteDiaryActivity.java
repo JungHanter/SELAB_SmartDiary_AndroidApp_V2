@@ -9,17 +9,11 @@ import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Matrix;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Message;
 import android.provider.MediaStore;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -28,6 +22,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -56,6 +51,7 @@ import ssu.sel.smartdiary.model.MediaContext;
 import ssu.sel.smartdiary.model.UserProfile;
 import ssu.sel.smartdiary.network.MultipartRestConnector;
 import ssu.sel.smartdiary.speech.WavRecorder;
+import ssu.sel.smartdiary.view.AudioPlayerView;
 
 public class WriteDiaryActivity extends AppCompatActivity {
     protected static final int ACTIVITY_REQ_CODE_PICTURE = 100;
@@ -78,15 +74,8 @@ public class WriteDiaryActivity extends AppCompatActivity {
     protected ScrollView viewWriteDiaryLayout = null;
     protected View viewProgress = null;
 
-    protected TextView tvDiaryAudioDownloading = null;
-    protected View layoutDiaryAudioPlayer = null;
-    protected Button btnDiaryAudioPlay = null;
-    protected Button btnDiaryAudioPause = null;
-    protected Button btnDiaryAudioForward = null;
-    protected Button btnDiaryAudioBackward = null;
-    protected SeekBar progressDiaryAudio = null;
-    protected TextView tvDiaryAudioNowLength = null;
-    protected TextView tvDiaryAudioMaxLength = null;
+    protected File diaryAudioFile = null;
+    protected AudioPlayerView diaryRecordAudioPlayer = null;
 
     protected LinearLayout layoutAttachmentFiles = null;
 
@@ -97,8 +86,6 @@ public class WriteDiaryActivity extends AppCompatActivity {
     protected DatePickerDialog dlgDatePicker = null;
     protected TimePickerDialog dlgTimePicker = null;
 
-    protected File audioFile = null;
-    protected MediaPlayer mediaPlayer = null;
 
     protected ArrayList<MediaContext> mediaContextList = null;
     protected MultipartRestConnector saveDiaryConnector = null;
@@ -112,10 +99,9 @@ public class WriteDiaryActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mediaPlayer != null) {
-            if (mediaPlayer.isPlaying()) mediaPlayer.stop();
-            mediaPlayer.release();
-            mediaPlayer = null;
+        if (diaryRecordAudioPlayer != null) {
+            diaryRecordAudioPlayer.remove();
+            diaryRecordAudioPlayer = null;
         }
     }
 
@@ -132,7 +118,7 @@ public class WriteDiaryActivity extends AppCompatActivity {
             ((TextView) mActionBarView.findViewById(R.id.tvActionBarTitle)).setText("New Text Diary");
         else if (diaryAcitivityType.equals("NEW_AUDIO")) {
             ((TextView) mActionBarView.findViewById(R.id.tvActionBarTitle)).setText("New Audio Diary");
-            audioFile = (File)intent.getSerializableExtra("DIARY_AUDIO");
+            diaryAudioFile = (File)intent.getSerializableExtra("DIARY_AUDIO");
         }
         else
             throw new NullPointerException("No Intent for WriteDiaryType!");
@@ -152,15 +138,7 @@ public class WriteDiaryActivity extends AppCompatActivity {
         edtEnvEvents = (EditText) findViewById(R.id.edtEnvEvents);
         viewWriteDiaryLayout = (ScrollView) findViewById(R.id.viewWriteDiaryForm);
         viewProgress = findViewById(R.id.progressLayout);
-        tvDiaryAudioDownloading = (TextView) findViewById(R.id.tvDiaryAudioDownloading);
-        layoutDiaryAudioPlayer = findViewById(R.id.layoutDiaryAudioPlayer);
-        btnDiaryAudioPlay = (Button) findViewById(R.id.btnDiaryAudioPlay);
-        btnDiaryAudioPause = (Button) findViewById(R.id.btnDiaryAudioPause);
-        btnDiaryAudioForward = (Button) findViewById(R.id.btnDiaryAudioForward);
-        btnDiaryAudioBackward = (Button) findViewById(R.id.btnDiaryAudioBackward);
-        progressDiaryAudio = (SeekBar) findViewById(R.id.progressDiaryAudio);
-        tvDiaryAudioNowLength = (TextView) findViewById(R.id.tvDiaryAudioNowLength);
-        tvDiaryAudioMaxLength = (TextView) findViewById(R.id.tvDiaryAudioMaxLength);
+        diaryRecordAudioPlayer = (AudioPlayerView) findViewById(R.id.audioPlayerDiaryRecord);
         layoutAttachmentFiles = (LinearLayout) findViewById(R.id.layoutAttachmentFiles);
 
         Drawable edtTitleBGDrawble = edtTitle.getBackground();
@@ -181,124 +159,18 @@ public class WriteDiaryActivity extends AppCompatActivity {
         mediaContextList = new ArrayList<>();
         setJsonConnectors();
 
-        if (audioFile != null)
-            setAudioPlayer();
-        else {
-            tvDiaryAudioDownloading.setText("Audio File Load Failed.");
-            tvDiaryAudioDownloading.setVisibility(View.VISIBLE);
-            layoutDiaryAudioPlayer.setVisibility(View.GONE);
-        }
-    }
+        diaryRecordAudioPlayer.setDiaryAudioName(this);
+        boolean diaryAudioSet = diaryRecordAudioPlayer.setAudio(
+                "Recorded Diary Audio", diaryAudioFile,
+                new AudioPlayerView.OnLoadedListener() {
+            @Override
+            public void onLoaded() {
 
-    protected Thread audioCheckThread = null;
-    protected Handler audioCheckHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case 0:
-                    if(mediaPlayer != null) {
-                        progressDiaryAudio.setProgress(msg.arg1);
-                        setAudioPlayerNowLengthText(msg.arg1);
-                    }
             }
+        });
+        if (!diaryAudioSet) {
+            openAlertModal("Diary Record Audio File load Failed.");
         }
-    };
-    protected void setAudioPlayer() {
-        progressDiaryAudio.getProgressDrawable().setColorFilter(
-            ContextCompat.getColor(this, R.color.pink_A200), PorterDuff.Mode.SRC_IN);
-        progressDiaryAudio.setProgress(0);
-        progressDiaryAudio.setMax(1);
-
-        try {
-            FileInputStream fis = new FileInputStream(audioFile);
-            mediaPlayer = new MediaPlayer();
-            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mediaPlayer.setDataSource(fis.getFD());
-            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mp) {
-                    mp.seekTo(0);
-                    progressDiaryAudio.setProgress(0);
-                    setAudioPlayerNowLengthText(0);
-                    btnDiaryAudioPause.setVisibility(View.INVISIBLE);
-                    btnDiaryAudioPlay.setVisibility(View.VISIBLE);
-                }
-            });
-            mediaPlayer.prepare();
-
-            int duration = mediaPlayer.getDuration();
-            if (duration < 1000) {
-                tvDiaryAudioMaxLength.setText("00:01");
-            } else {
-                int sec = duration / 1000;
-                int minute = sec / 60;
-                sec = sec % 60;
-                tvDiaryAudioMaxLength.setText(String.format("%02d:%02d", minute, sec));
-            }
-            progressDiaryAudio.setMax(mediaPlayer.getDuration());
-            progressDiaryAudio.setProgress(0);
-            setAudioPlayerNowLengthText(0);
-
-            progressDiaryAudio.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                @Override
-                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    if (fromUser && mediaPlayer != null) {
-                        mediaPlayer.seekTo(progress);
-                        setAudioPlayerNowLengthText(progress);
-                    }
-                }
-                public void onStartTrackingTouch(SeekBar seekBar) {}
-                public void onStopTrackingTouch(SeekBar seekBar) {}
-            });
-
-            audioCheckThread = new Thread() {
-                @Override
-                public void run() {
-                    while(true) {
-                        if (mediaPlayer == null) break;
-                        if (mediaPlayer.isPlaying()) {
-                            Message msg = Message.obtain(audioCheckHandler);
-                            msg.what = 0;
-                            msg.arg1 = mediaPlayer.getCurrentPosition();
-                            audioCheckHandler.sendMessage(msg);
-                        }
-                        try {
-                            Thread.sleep(200);
-                        } catch (InterruptedException ie) {}
-                    }
-                }
-            };
-            audioCheckThread.start();
-
-            Log.d("WriteDiaryActivity", "Duration: " + mediaPlayer.getDuration());
-            Log.d("WriteDiaryActivity", "Position: " + mediaPlayer.getCurrentPosition());
-        } catch (Exception e) {
-            e.printStackTrace();
-            openAlertModal("The file colud not play...");
-        }
-
-        btnDiaryAudioPlay.setVisibility(View.VISIBLE);
-        btnDiaryAudioPause.setVisibility(View.INVISIBLE);
-        tvDiaryAudioDownloading.setVisibility(View.GONE);
-        layoutDiaryAudioPlayer.setVisibility(View.VISIBLE);
-    }
-
-    protected void setAudioPlayerSeek(int progress) {
-        if (mediaPlayer != null) {
-            int duration = mediaPlayer.getDuration();
-            if (progress >= duration) progress = duration - 1;
-            else if (progress < 0) progress = 0;
-            mediaPlayer.seekTo(progress);
-            progressDiaryAudio.setProgress(progress);
-            setAudioPlayerNowLengthText(progress);
-        }
-    }
-
-    protected void setAudioPlayerNowLengthText(int progress) {
-        int sec = progress / 1000;
-        int minute = sec / 60;
-        sec = sec % 60;
-        tvDiaryAudioNowLength.setText(String.format("%02d:%02d", minute, sec));
     }
 
     protected void setModals() {
@@ -368,9 +240,9 @@ public class WriteDiaryActivity extends AppCompatActivity {
                                     }
 
                                     //Copy the temp file to diary audio cache file
-                                    if(audioFile != null) {
+                                    if(diaryAudioFile != null) {
                                         try {
-                                            BufferedInputStream bis = new BufferedInputStream(new FileInputStream(audioFile));
+                                            BufferedInputStream bis = new BufferedInputStream(new FileInputStream(diaryAudioFile));
                                             BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(
                                                     GlobalUtils.getAudioDiaryFile(
                                                             UserProfile.getUserProfile().getUserID(), diaryId)));
@@ -548,56 +420,6 @@ public class WriteDiaryActivity extends AppCompatActivity {
         }
     }
 
-    public void onAudioControlClick(View v) {
-        switch (v.getId()) {
-            case R.id.btnDiaryAudioPlay:
-                mediaPlayer.start();
-                btnDiaryAudioPlay.setVisibility(View.INVISIBLE);
-                btnDiaryAudioPause.setVisibility(View.VISIBLE);
-                return;
-
-            case R.id.btnDiaryAudioPause:
-                if(mediaPlayer.isPlaying()) {
-                    mediaPlayer.pause();
-                    progressDiaryAudio.setProgress(mediaPlayer.getCurrentPosition());
-                    setAudioPlayerNowLengthText(mediaPlayer.getCurrentPosition());
-                }
-                btnDiaryAudioPause.setVisibility(View.GONE);
-                btnDiaryAudioPlay.setVisibility(View.VISIBLE);
-                return;
-
-            case R.id.btnDiaryAudioForward:
-                if(mediaPlayer != null) {
-                    int duration = mediaPlayer.getDuration();
-                    if (duration < 10000) {
-                        setAudioPlayerSeek(mediaPlayer.getCurrentPosition() + 1000);
-                    } else if (duration < 30000) {
-                        setAudioPlayerSeek(mediaPlayer.getCurrentPosition() + 3000);
-                    } else if (duration < 60000) {
-                        setAudioPlayerSeek(mediaPlayer.getCurrentPosition() + 5000);
-                    } else {
-                        setAudioPlayerSeek(mediaPlayer.getCurrentPosition() + 10000);
-                    }
-                }
-                return;
-
-            case R.id.btnDiaryAudioBackward:
-                if(mediaPlayer != null) {
-                    int duration = mediaPlayer.getDuration();
-                    if (duration < 10000) {
-                        setAudioPlayerSeek(mediaPlayer.getCurrentPosition() - 1000);
-                    } else if (duration < 30000) {
-                        setAudioPlayerSeek(mediaPlayer.getCurrentPosition() - 3000);
-                    } else if (duration < 60000) {
-                        setAudioPlayerSeek(mediaPlayer.getCurrentPosition() - 5000);
-                    } else {
-                        setAudioPlayerSeek(mediaPlayer.getCurrentPosition() - 10000);
-                    }
-                }
-                return;
-        }
-    }
-
     public void onAttachButtonClick(View v) {
         switch (v.getId()) {
             case R.id.btnAttachPicture:
@@ -640,8 +462,8 @@ public class WriteDiaryActivity extends AppCompatActivity {
                         String imageFilePath = selectedImageUri.getPath();
                         Log.d("WriteDiaryActivity", "Camera: " + imageFilePath);
 
-                        MediaContext attachImage = new MediaContext(selectedImageUri,
-                                MediaContext.MEDIA_TYPE_IMAGE);
+                        MediaContext attachImage = new MediaContext(this,
+                                selectedImageUri, MediaContext.MEDIA_TYPE_IMAGE);
                         addMediaContext(attachImage);
                     }
                     return;
@@ -651,8 +473,8 @@ public class WriteDiaryActivity extends AppCompatActivity {
                         String imageFilePath = selectedImageUri.getPath();
                         Log.d("WriteDiaryActivity", "Image: " + imageFilePath);
 
-                        MediaContext attachImage = new MediaContext(selectedImageUri,
-                                MediaContext.MEDIA_TYPE_IMAGE);
+                        MediaContext attachImage = new MediaContext(this,
+                                selectedImageUri, MediaContext.MEDIA_TYPE_IMAGE);
                         addMediaContext(attachImage);
                     }
                     return;
@@ -672,10 +494,10 @@ public class WriteDiaryActivity extends AppCompatActivity {
                         Uri selectedAudioUri = data.getData();
                         String audioFilePath = selectedAudioUri.getPath();
                         Log.d("WriteDiaryActivity", "Music: " + audioFilePath);
-                        try {
-                            File file = new File(new URI(audioFilePath));
-                            Log.d("WriteDiaryActivity", "FilePath: " + file.getAbsolutePath());
-                        } catch(Exception e) {}
+
+                        MediaContext attachImage = new MediaContext(this,
+                                selectedAudioUri, MediaContext.MEDIA_TYPE_AUDIO);
+                        addMediaContext(attachImage);
                     }
                     return;
             }
@@ -721,6 +543,19 @@ public class WriteDiaryActivity extends AppCompatActivity {
                 return;
 
             case MediaContext.MEDIA_TYPE_AUDIO:
+                AudioPlayerView audioPlayerView = new AudioPlayerView(this);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                );
+                lp.setMargins(0, 0, 0, (int)GlobalUtils.dpToPixel(this, 10));
+                layoutAttachmentFiles.addView(audioPlayerView, lp);
+                viewWriteDiaryLayout.scrollTo(0,viewWriteDiaryLayout.getScrollY()
+                        + (int)GlobalUtils.dpToPixel(this, 116+10));
+
+                File audioFile = mediaContext.getFile();
+                audioPlayerView.setAudio(audioFile.getName(), audioFile);
+                mediaContextList.add(mediaContext);
                 return;
 
             case MediaContext.MEDIA_TYPE_VIDEO:

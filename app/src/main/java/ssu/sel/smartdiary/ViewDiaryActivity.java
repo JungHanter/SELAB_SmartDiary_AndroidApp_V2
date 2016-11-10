@@ -28,6 +28,7 @@ import ssu.sel.smartdiary.model.DiaryContext;
 import ssu.sel.smartdiary.model.UserProfile;
 import ssu.sel.smartdiary.network.AudioDownloadConnector;
 import ssu.sel.smartdiary.network.JsonRestConnector;
+import ssu.sel.smartdiary.view.AudioPlayerView;
 
 /**
  * Created by hanter on 16. 10. 7..
@@ -93,12 +94,7 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
         btnConfirm = (Button)findViewById(R.id.btnDiaryConfirm);
         viewWriteDiaryLayout = (ScrollView) findViewById(R.id.viewWriteDiaryForm);
         viewProgress = findViewById(R.id.progressLayout);
-        tvDiaryAudioDownloading = (TextView) findViewById(R.id.tvDiaryAudioDownloading);
-        btnDiaryAudioPlay = (Button) findViewById(R.id.btnDiaryAudioPlay);
-        btnDiaryAudioPause = (Button) findViewById(R.id.btnDiaryAudioPause);
-        btnDiaryAudioForward = (Button) findViewById(R.id.btnDiaryAudioForward);
-        btnDiaryAudioBackward = (Button) findViewById(R.id.btnDiaryAudioBackward);
-        progressDiaryAudio = (SeekBar) findViewById(R.id.progressDiaryAudio);
+        diaryRecordAudioPlayer = (AudioPlayerView) findViewById(R.id.audioPlayerDiaryRecord);
         layoutAttachment = findViewById(R.id.layoutAttachmentBtns);
         layoutAttachment.setVisibility(View.GONE);
 
@@ -109,14 +105,10 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
         edtContent.setText("");
         selectedDate = Calendar.getInstance();
 
-        tvDiaryAudioDownloading.setVisibility(View.VISIBLE);
-        btnDiaryAudioPlay.setVisibility(View.GONE);
-        btnDiaryAudioPause.setVisibility(View.GONE);
-        progressDiaryAudio.getProgressDrawable().setColorFilter(
-                ContextCompat.getColor(this, R.color.pink_A200), PorterDuff.Mode.SRC_IN);
-
         setModals();
         setJsonConnectors();
+
+        diaryRecordAudioPlayer.setDiaryAudioName(this);
 
         //EXAMPLE
         findViewById(R.id.exampleAttachment).setVisibility(View.VISIBLE);
@@ -155,9 +147,14 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
                                         downloadConnector.request(UserProfile.getUserProfile().getUserID(),
                                                 nowDiary.getDiaryID());
                                     } else {
-                                        audioFile = GlobalUtils.getAudioDiaryFile(UserProfile.getUserProfile().getUserID(),
+                                        diaryAudioFile = GlobalUtils.getAudioDiaryFile(UserProfile.getUserProfile().getUserID(),
                                                 nowDiary.getDiaryID());
-                                        setAudioPlayer();
+
+                                        boolean diaryAudioSet = diaryRecordAudioPlayer.setAudio(
+                                                "Recorded Diary Audio", diaryAudioFile);
+                                        if (!diaryAudioSet) {
+                                            openAlertModal("Diary Record Audio File load Failed.");
+                                        }
                                     }
 
                                     //TODO get analytics
@@ -185,13 +182,19 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
                     @Override
                     public void onDone(Boolean success) {
                         if (success) {
-                            audioFile = GlobalUtils.getAudioDiaryFile(UserProfile.getUserProfile().getUserID(),
+                            diaryAudioFile = GlobalUtils.getAudioDiaryFile(UserProfile.getUserProfile().getUserID(),
                                     nowDiary.getDiaryID());
-                            setAudioPlayer();
+
+                            boolean diaryAudioSet = diaryRecordAudioPlayer.setAudio(
+                                    "Recorded Diary Audio", diaryAudioFile);
+                            if (!diaryAudioSet) {
+                                openAlertModal("Diary Record Audio File load Failed.");
+                            }
+
                             Log.d("ViewDiaryActivity", "File downloaded");
                         } else  {
                             openAlertModal("Downloading audio file is failed.");
-                            tvDiaryAudioDownloading.setText("Downloading Audio Failed");
+                            diaryRecordAudioPlayer.setAudioFail("Downloading Audio Failed");
                         }
                     }
                 });
@@ -207,14 +210,11 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
                             try {
                                 if (resJson.getBoolean("delete_diary")) {
                                     try {
-                                        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-                                            mediaPlayer.stop();
-                                            mediaPlayer.release();
-                                        }
+                                        diaryRecordAudioPlayer.remove();
                                         GlobalUtils.getAudioDiaryFile(UserProfile.getUserProfile().getUserID(),
                                                 nowDiary.getDiaryID()).delete();
                                     } catch (Exception e) {}
-                                    mediaPlayer = null;
+                                    diaryRecordAudioPlayer = null;
                                     nowDiary = null;
 
                                     dlgDeleteDone.show();
@@ -283,9 +283,7 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
                         }
 
                         // STOP
-                        if (mediaPlayer!=null && mediaPlayer.isPlaying()) mediaPlayer.pause();
-                        btnDiaryAudioPause.setVisibility(View.GONE);
-                        btnDiaryAudioPlay.setVisibility(View.VISIBLE);
+                        diaryRecordAudioPlayer.pause();
 
                         showProgress(true);
                         deleteDiaryConnector.request(json);

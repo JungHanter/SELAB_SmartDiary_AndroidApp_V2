@@ -110,108 +110,11 @@
                     android:layout_marginTop="6dp"/>
             </LinearLayout>
 
-            <RelativeLayout
+            <ssu.sel.smartdiary.view.AudioPlayerView
                 android:layout_width="match_parent"
-                android:layout_height="96dp"
-                android:padding="8dp"
-                android:layout_marginBottom="10dp"
-                android:background="@drawable/background_list_element">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="34dp"
-                    android:layout_centerInParent="true"
-                    android:gravity="center"
-                    android:textSize="16sp"
-                    android:textColor="@color/pink_A200"
-                    android:text="Waiting to Download Audio ..."
-                    android:id="@+id/tvDiaryAudioDownloading"
-                    android:visibility="gone"  />
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:id="@+id/layoutDiaryAudioPlayer"
-                    android:visibility="visible">
-
-                    <Button
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:onClick="onAudioControlClick"
-                        android:background="@drawable/button_audio_control_play"
-                        android:id="@+id/btnDiaryAudioPlay"
-                        android:layout_marginTop="8dp"
-                        android:layout_centerHorizontal="true"
-                        android:layout_alignParentTop="true"/>
-                    <Button
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:onClick="onAudioControlClick"
-                        android:background="@drawable/button_audio_control_pause"
-                        android:id="@+id/btnDiaryAudioPause"
-                        android:layout_marginTop="8dp"
-                        android:layout_centerHorizontal="true"
-                        android:layout_alignParentTop="true"
-                        android:visibility="invisible"/>
-                    <Button
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:onClick="onAudioControlClick"
-                        android:background="@drawable/button_audio_control_backward"
-                        android:id="@+id/btnDiaryAudioBackward"
-                        android:layout_toStartOf="@id/btnDiaryAudioPlay"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginRight="48dp"
-                        android:layout_alignParentTop="true"/>
-                    <Button
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:onClick="onAudioControlClick"
-                        android:background="@drawable/button_audio_control_forward"
-                        android:id="@+id/btnDiaryAudioForward"
-                        android:layout_toEndOf="@id/btnDiaryAudioPlay"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginLeft="48dp"
-                        android:layout_alignParentTop="true"/>
-
-                    <SeekBar
-                        style="?android:attr/progressBarStyleHorizontal"
-                        android:layout_width="200dp"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentBottom="true"
-                        android:layout_centerHorizontal="true"
-                        android:progressTint="@color/pink_A200"
-                        android:id="@+id/progressDiaryAudio"
-                        android:max="100"
-                        android:progress="0" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="13sp"
-                        android:textColor="@color/grey_700"
-                        android:text="00:00"
-                        android:gravity="center_vertical"
-                        android:id="@+id/tvDiaryAudioNowLength"
-                        android:layout_alignTop="@+id/progressDiaryAudio"
-                        android:layout_alignBottom="@+id/progressDiaryAudio"
-                        android:layout_toStartOf="@+id/progressDiaryAudio"
-                        android:layout_marginRight="12dp"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="13sp"
-                        android:textColor="@color/grey_700"
-                        android:text="01:00"
-                        android:id="@+id/tvDiaryAudioMaxLength"
-                        android:gravity="center_vertical"
-                        android:layout_alignTop="@+id/progressDiaryAudio"
-                        android:layout_alignBottom="@+id/progressDiaryAudio"
-                        android:layout_toEndOf="@+id/progressDiaryAudio"
-                        android:layout_marginLeft="12dp"/>
-
-                </RelativeLayout>
-            </RelativeLayout>
+                android:layout_height="wrap_content"
+                android:id="@+id/audioPlayerDiaryRecord"
+                android:layout_marginBottom="10dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
