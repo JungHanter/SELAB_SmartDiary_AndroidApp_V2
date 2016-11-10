@@ -111,7 +111,7 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
         diaryRecordAudioPlayer.setDiaryAudioName(this);
 
         //EXAMPLE
-        findViewById(R.id.exampleAttachment).setVisibility(View.VISIBLE);
+//        findViewById(R.id.exampleAttachment).setVisibility(View.VISIBLE);
     }
 
     // update diary

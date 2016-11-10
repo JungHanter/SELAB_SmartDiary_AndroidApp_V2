@@ -121,7 +121,6 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:id="@+id/layoutAttachmentFiles">
-
             </LinearLayout>
 
             <LinearLayout
@@ -172,25 +171,25 @@
 
             </LinearLayout>
 
-            <android.support.v7.widget.CardView
-                android:id="@+id/exampleAttachment"
-                android:visibility="gone"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                card_view:cardCornerRadius="0dp">
-                <!--<LinearLayout-->
+            <!--<android.support.v7.widget.CardView-->
+                <!--android:id="@+id/exampleAttachment"-->
+                <!--android:visibility="gone"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_marginBottom="10dp"-->
+                <!--card_view:cardCornerRadius="0dp">-->
+                <!--&lt;!&ndash;<LinearLayout&ndash;&gt;-->
+                    <!--&lt;!&ndash;android:layout_width="match_parent"&ndash;&gt;-->
+                    <!--&lt;!&ndash;android:layout_height="wrap_content"&ndash;&gt;-->
+                    <!--&lt;!&ndash;android:orientation="vertical">&ndash;&gt;-->
+                <!--&lt;!&ndash;</LinearLayout>&ndash;&gt;-->
+                <!--<ImageView-->
+                    <!--android:padding="0dp"-->
                     <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:orientation="vertical">-->
-                <!--</LinearLayout>-->
-                <ImageView
-                    android:padding="0dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="280dp"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/sample_image_family_dinner"/>
-            </android.support.v7.widget.CardView>
+                    <!--android:layout_height="280dp"-->
+                    <!--android:scaleType="centerCrop"-->
+                    <!--android:src="@drawable/sample_image_family_dinner"/>-->
+            <!--</android.support.v7.widget.CardView>-->
 
             <LinearLayout
                 android:layout_width="match_parent"
