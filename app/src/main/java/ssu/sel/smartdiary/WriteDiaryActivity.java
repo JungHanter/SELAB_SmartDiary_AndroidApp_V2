@@ -9,6 +9,7 @@ import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -54,6 +55,7 @@ import java.util.Calendar;
 import ssu.sel.smartdiary.model.DiaryContext;
 import ssu.sel.smartdiary.model.MediaContext;
 import ssu.sel.smartdiary.model.UserProfile;
+import ssu.sel.smartdiary.network.DiaryUploadRestConnector;
 import ssu.sel.smartdiary.network.MultipartRestConnector;
 import ssu.sel.smartdiary.speech.WavRecorder;
 import ssu.sel.smartdiary.view.AudioPlayerView;
@@ -91,10 +93,11 @@ public class WriteDiaryActivity extends AppCompatActivity {
     protected DatePickerDialog dlgDatePicker = null;
     protected TimePickerDialog dlgTimePicker = null;
 
-    protected ArrayList<MediaController> mediaControllerList = new ArrayList<>();
-    protected ArrayList<MediaContext> mediaContextList = new ArrayList<>();;
+//    protected ArrayList<MediaController> mediaControllerList = new ArrayList<>();
+    protected ArrayList<AudioPlayerView> audioPlayerViewList = new ArrayList<>();
+    protected ArrayList<MediaContext> mediaContextList = new ArrayList<>();
 
-    protected MultipartRestConnector saveDiaryConnector = null;
+    protected DiaryUploadRestConnector saveDiaryConnector = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,6 +111,10 @@ public class WriteDiaryActivity extends AppCompatActivity {
         if (diaryRecordAudioPlayer != null) {
             diaryRecordAudioPlayer.remove();
             diaryRecordAudioPlayer = null;
+        }
+
+        for (AudioPlayerView audioPlayerView : audioPlayerViewList) {
+            audioPlayerView.remove();
         }
     }
 
@@ -230,8 +237,8 @@ public class WriteDiaryActivity extends AppCompatActivity {
     }
 
     protected void setJsonConnectors() {
-        saveDiaryConnector = new MultipartRestConnector("diary", "POST",
-                new MultipartRestConnector.OnConnectListener() {
+        saveDiaryConnector = new DiaryUploadRestConnector("diary", "POST",
+                new DiaryUploadRestConnector.OnConnectListener() {
                     @Override
                     public void onDone(JSONObject resJson) {
                         if (resJson != null) {
@@ -249,7 +256,7 @@ public class WriteDiaryActivity extends AppCompatActivity {
                                         try {
                                             BufferedInputStream bis = new BufferedInputStream(new FileInputStream(diaryAudioFile));
                                             BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(
-                                                    GlobalUtils.getAudioDiaryFile(
+                                                    GlobalUtils.getDiaryFile(
                                                             UserProfile.getUserProfile().getUserID(), diaryId)));
 
                                             byte[] buf = new byte [1024*10];
@@ -264,10 +271,36 @@ public class WriteDiaryActivity extends AppCompatActivity {
                                             e.printStackTrace();
                                             Log.d("WriteDiaryAcitivity", "Audio Copy Failed");
                                             try {
-                                                GlobalUtils.getAudioDiaryFile(
+                                                GlobalUtils.getDiaryFile(
                                                         UserProfile.getUserProfile().getUserID(), diaryId)
                                                                 .delete();
                                             } catch (Exception e2) {}
+                                        }
+                                    }
+
+                                    if(mediaContextList.size() > 0) {
+                                        for (MediaContext mediaContext : mediaContextList) {
+                                            File mediaFile = mediaContext.getFile();
+                                            try {
+                                                BufferedInputStream bis = new BufferedInputStream(new FileInputStream(mediaFile));
+                                                BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(
+                                                        GlobalUtils.getDiaryMediaContext(
+                                                                UserProfile.getUserProfile().getUserID(), diaryId, mediaFile.getName())));
+
+                                                byte[] buf = new byte [1024*100];
+                                                int byteLen;
+                                                while ((byteLen = bis.read(buf)) > 0) {
+                                                    bos.write(buf, 0 ,byteLen);
+                                                }
+                                                bis.close();
+                                                bos.close();
+                                            } catch (Exception e) {
+                                                try {
+                                                    GlobalUtils.getDiaryMediaContext(
+                                                            UserProfile.getUserProfile().getUserID(), diaryId, mediaFile.getName())
+                                                            .delete();
+                                                } catch (Exception e2) {}
+                                            }
                                         }
                                     }
 
@@ -341,23 +374,26 @@ public class WriteDiaryActivity extends AppCompatActivity {
                 json.put("title", title);
                 json.put("content", content);
 
+//                JSONArray arrTags = new JSONArray();
+//                if (!TextUtils.isEmpty(annotation)) {
+//                    JSONObject jsonAnnotation = new JSONObject();
+//                    jsonAnnotation.put("type", DiaryContext.CONTEXT_TYPE_ANNOTATION);
+//                    jsonAnnotation.put("subtype", "");
+//                    jsonAnnotation.put("value", annotation);
+//                    jsonAnnotation.put("date_added", createdTime);
+//                    arrTags.put(jsonAnnotation);
+//                }
+//                json.put("environmental _context", arrTags);
+
                 JSONArray arrContexts = new JSONArray();
-                if (!TextUtils.isEmpty(annotation)) {
-                    JSONObject jsonAnnotation = new JSONObject();
-                    jsonAnnotation.put("type", DiaryContext.CONTEXT_TYPE_ANNOTATION);
-                    jsonAnnotation.put("subtype", "");
-                    jsonAnnotation.put("value", annotation);
-                    jsonAnnotation.put("date_added", createdTime);
-                    arrContexts.put(jsonAnnotation);
-                }
                 if (!TextUtils.isEmpty(envPlace)) {
                     String[] places = envPlace.split(",");
                     for (String place : places) {
                         JSONObject jsonPlace = new JSONObject();
-                        jsonPlace.put("type", DiaryContext.CONTEXT_TYPE_ENVIRONMENT);
-                        jsonPlace.put("subtype", DiaryContext.SUB_TYPE_ENV_PLACE);
+                        jsonPlace.put("type", DiaryContext.SUB_TYPE_ENV_PLACE);
+//                        jsonPlace.put("subtype", DiaryContext.SUB_TYPE_ENV_PLACE);
                         jsonPlace.put("value", place.trim());
-                        jsonPlace.put("date_added", createdTime);
+//                        jsonPlace.put("date_added", createdTime);
                         arrContexts.put(jsonPlace);
                     }
                 }
@@ -365,10 +401,10 @@ public class WriteDiaryActivity extends AppCompatActivity {
                     String[] weathers = envWeather.split(",");
                     for (String weather : weathers) {
                         JSONObject jsonWeather = new JSONObject();
-                        jsonWeather.put("type", DiaryContext.CONTEXT_TYPE_ENVIRONMENT);
-                        jsonWeather.put("subtype", DiaryContext.SUB_TYPE_ENV_WEATHER);
+                        jsonWeather.put("type", DiaryContext.SUB_TYPE_ENV_WEATHER);
+//                        jsonWeather.put("subtype", DiaryContext.SUB_TYPE_ENV_WEATHER);
                         jsonWeather.put("value", weather.trim());
-                        jsonWeather.put("date_added", createdTime);
+//                        jsonWeather.put("date_added", createdTime);
                         arrContexts.put(jsonWeather);
                     }
                 }
@@ -376,14 +412,14 @@ public class WriteDiaryActivity extends AppCompatActivity {
                     String[] events = envEvents.split(",");
                     for (String event : events) {
                         JSONObject jsonEvent = new JSONObject();
-                        jsonEvent.put("type", DiaryContext.CONTEXT_TYPE_ENVIRONMENT);
-                        jsonEvent.put("subtype", DiaryContext.SUB_TYPE_ENV_EVENT);
+                        jsonEvent.put("type", DiaryContext.SUB_TYPE_ENV_EVENT);
+//                        jsonEvent.put("subtype", DiaryContext.SUB_TYPE_ENV_EVENT);
                         jsonEvent.put("value", event.trim());
-                        jsonEvent.put("date_added", createdTime);
+//                        jsonEvent.put("date_added", createdTime);
                         arrContexts.put(jsonEvent);
                     }
                 }
-                json.put("diary_context", arrContexts);
+                json.put("environmental _context", arrContexts);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -395,7 +431,7 @@ public class WriteDiaryActivity extends AppCompatActivity {
             showProgress(true);
             if (diaryAcitivityType.equals("NEW_AUDIO")) {
                 File recordedFile = (File) getIntent().getSerializableExtra("DIARY_AUDIO");
-                saveDiaryConnector.request(recordedFile, json);
+                saveDiaryConnector.request(recordedFile, mediaContextList, json);
             } else {
 //                saveDiaryConnector.request(null, json);
             }
@@ -511,6 +547,10 @@ public class WriteDiaryActivity extends AppCompatActivity {
     }
 
     protected void addMediaContext(final MediaContext mediaContext) {
+        Log.d("MediaContext", ""+mediaContext.getFile().exists());
+        Log.d("MediaContext", mediaContext.getFile().toString());
+        Log.d("MediaContext", mediaContext.getUri().toString());
+
         switch(mediaContext.getMediaType()) {
             case MediaContext.MEDIA_TYPE_IMAGE:
                 ImageView ivMedia = new ImageView(this);
@@ -523,11 +563,16 @@ public class WriteDiaryActivity extends AppCompatActivity {
                             mediaContext.getUri());
                     ivMedia.setImageBitmap(bitmap);
 
+                    if (bitmap == null) {
+                        bitmap = BitmapFactory.decodeFile(mediaContext.getFile().getAbsolutePath());
+                    }
+
                     int bitmapWidth = bitmap.getWidth();
                     int bitmapHeight = bitmap.getHeight();
                     float bitmapRatio = (float)bitmapHeight / bitmapWidth;
 
                     int layoutWidth = layoutAttachmentFiles.getMeasuredWidth();
+                    layoutWidth = 800 - (int)GlobalUtils.dpToPixel(this, 32);
                     int newIvHeight = (int)(layoutWidth * bitmapRatio);
 
                     LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
@@ -537,7 +582,7 @@ public class WriteDiaryActivity extends AppCompatActivity {
                     );
                     lp.setMargins(0, 0, 0, (int)GlobalUtils.dpToPixel(this, 10));
                     layoutAttachmentFiles.addView(ivMedia, lp);
-                    viewWriteDiaryLayout.scrollTo(0,viewWriteDiaryLayout.getScrollY() + newIvHeight);
+                    viewWriteDiaryLayout.scrollTo(0, viewWriteDiaryLayout.getScrollY() + newIvHeight);
 
                     mediaContextList.add(mediaContext);
 
@@ -549,6 +594,7 @@ public class WriteDiaryActivity extends AppCompatActivity {
 
             case MediaContext.MEDIA_TYPE_AUDIO:
                 AudioPlayerView audioPlayerView = new AudioPlayerView(this);
+                audioPlayerViewList.add(audioPlayerView);
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT

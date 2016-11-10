@@ -95,8 +95,8 @@ public class LoginActivity extends AppCompatActivity {
         viewLoginProgress = findViewById(R.id.login_progress);
 
         //for testing
-        edtID.setText("lhs");
-        edtPassword.setText("1234");
+//        edtID.setText("lhs");
+//        edtPassword.setText("1234");
 
         loginConnector = new JsonRestConnector("user/login", "POST",
                 new JsonRestConnector.OnConnectListener() {

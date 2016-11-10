@@ -2,9 +2,7 @@ package ssu.sel.smartdiary;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -13,21 +11,26 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ScrollView;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 
 import ssu.sel.smartdiary.model.Diary;
 import ssu.sel.smartdiary.model.DiaryContext;
+import ssu.sel.smartdiary.model.MediaContext;
 import ssu.sel.smartdiary.model.UserProfile;
 import ssu.sel.smartdiary.network.AudioDownloadConnector;
+import ssu.sel.smartdiary.network.DiaryAudioDownloadConnector;
 import ssu.sel.smartdiary.network.JsonRestConnector;
+import ssu.sel.smartdiary.network.MediaContextDownloadConnector;
 import ssu.sel.smartdiary.view.AudioPlayerView;
 
 /**
@@ -46,7 +49,7 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
 
     private JsonRestConnector getDiaryInfoConnector = null;
     private JsonRestConnector deleteDiaryConnector = null;
-    private AudioDownloadConnector downloadConnector = null;
+    private DiaryAudioDownloadConnector diaryAudioDownloadConnector = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +100,7 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
         diaryRecordAudioPlayer = (AudioPlayerView) findViewById(R.id.audioPlayerDiaryRecord);
         layoutAttachment = findViewById(R.id.layoutAttachmentBtns);
         layoutAttachment.setVisibility(View.GONE);
+        layoutAttachmentFiles = (LinearLayout) findViewById(R.id.layoutAttachmentFiles);
 
         diaryAcitivityType = "VIEW";
         setDiaryViews();
@@ -130,6 +134,7 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
                             Log.d("Main - Json", "No response");
                             openAlertModal("No response.", "Error");
                         } else {
+                            Log.d("ViewDiaryActivity", resJson.toString());
                             try {
                                 if (resJson.has("result_detail") && resJson.getBoolean("retrieve_diary")) {
                                     JSONObject diary = resJson.getJSONObject("result_detail");
@@ -141,13 +146,13 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
                                     nowDiary = Diary.fromJSON(diary, diaryContexts);
                                     setDiary(nowDiary);
 
-                                    if (!GlobalUtils.getAudioDiaryFile(UserProfile.getUserProfile().getUserID(),
+                                    if (!GlobalUtils.getDiaryFile(UserProfile.getUserProfile().getUserID(),
                                             nowDiary.getDiaryID()).exists()) {
                                         //request file download
-                                        downloadConnector.request(UserProfile.getUserProfile().getUserID(),
+                                        diaryAudioDownloadConnector.request(UserProfile.getUserProfile().getUserID(),
                                                 nowDiary.getDiaryID());
                                     } else {
-                                        diaryAudioFile = GlobalUtils.getAudioDiaryFile(UserProfile.getUserProfile().getUserID(),
+                                        diaryAudioFile = GlobalUtils.getDiaryFile(UserProfile.getUserProfile().getUserID(),
                                                 nowDiary.getDiaryID());
 
                                         boolean diaryAudioSet = diaryRecordAudioPlayer.setAudio(
@@ -157,11 +162,100 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
                                         }
                                     }
 
-                                    //TODO get analytics
-//                                    showAnalyticsProgress(true);
-//                                    JSONObject analyticsJson = new JSONObject();
-//                                    analyticsJson.put("diary_id", diaryID);
-//                                    analyzeDiaryConnector.request(analyticsJson);
+                                    //diary media context
+                                    if (resJson.has("result_media_context_list")) {
+                                        JSONArray mediaContextJsonArray = resJson.getJSONArray("result_media_context_list");
+                                        for(int i=0; i<mediaContextJsonArray.length(); i++) {
+                                            final JSONObject mediaContextJson = mediaContextJsonArray.getJSONObject(i);
+                                            final int mediaContextId = mediaContextJson.getInt("media_context_id");
+                                            final String mediaContextType = mediaContextJson.getString("type");
+                                            final String mediaContextName = mediaContextJson.getString("file_name");
+
+                                            File mediaContextFile = GlobalUtils.getDiaryMediaContext(
+                                                    UserProfile.getUserProfile().getUserID(),
+                                                    nowDiary.getDiaryID(), mediaContextName);
+
+                                            if (!mediaContextFile.exists()) {
+                                                Log.d("ViewDiaryAcitivty", "No file! Download: " + mediaContextName);
+                                                MediaContextDownloadConnector conn = new MediaContextDownloadConnector("download", "POST",
+                                                        new MediaContextDownloadConnector.OnConnectListener() {
+                                                            @Override
+                                                            public void onDone(Boolean success, String fileName, String type) {
+                                                                if (success) {
+
+                                                                    File mediaContextFile = GlobalUtils.getDiaryMediaContext(
+                                                                            UserProfile.getUserProfile().getUserID(),
+                                                                            nowDiary.getDiaryID(), fileName);
+                                                                    MediaContext mediaContext = null;
+                                                                    switch (mediaContextType) {
+                                                                        case "picture":
+                                                                            mediaContext = new MediaContext(
+                                                                                    ViewDiaryActivity.this,
+                                                                                    mediaContextFile,
+                                                                                    MediaContext.MEDIA_TYPE_IMAGE
+                                                                            );
+                                                                            break;
+                                                                        case "music":
+                                                                            mediaContext = new MediaContext(
+                                                                                    ViewDiaryActivity.this,
+                                                                                    mediaContextFile,
+                                                                                    MediaContext.MEDIA_TYPE_AUDIO
+                                                                            );
+                                                                            break;
+                                                                        case "video":
+                                                                            mediaContext = new MediaContext(
+                                                                                    ViewDiaryActivity.this,
+                                                                                    mediaContextFile,
+                                                                                    MediaContext.MEDIA_TYPE_VIDEO
+                                                                            );
+                                                                            break;
+                                                                    }
+
+                                                                    if (mediaContext != null) {
+                                                                        addMediaContext(mediaContext);
+                                                                    } else {
+                                                                        Log.d("ViewDiaryActivity", "Download Failed: " + mediaContextJson.toString());
+                                                                    }
+                                                                } else {
+                                                                    Log.d("ViewDiaryActivity", "Download Failed: " + mediaContextJson.toString());
+                                                                }
+                                                            }
+                                                        });
+                                                conn.request(UserProfile.getUserProfile().getUserID(), nowDiary.getDiaryID(),
+                                                        mediaContextId, mediaContextName, mediaContextType);
+                                            } else {
+                                                Log.d("ViewDiaryAcitivty", "File existed: " + mediaContextFile.toString());
+
+                                                MediaContext mediaContext = null;
+                                                switch (mediaContextType) {
+                                                    case "picture":
+                                                        mediaContext = new MediaContext(
+                                                                ViewDiaryActivity.this,
+                                                                mediaContextFile,
+                                                                MediaContext.MEDIA_TYPE_IMAGE
+                                                        );
+                                                        break;
+                                                    case "music":
+                                                        mediaContext = new MediaContext(
+                                                                ViewDiaryActivity.this,
+                                                                mediaContextFile,
+                                                                MediaContext.MEDIA_TYPE_AUDIO
+                                                        );
+                                                        break;
+                                                    case "video":
+                                                        mediaContext = new MediaContext(
+                                                                ViewDiaryActivity.this,
+                                                                mediaContextFile,
+                                                                MediaContext.MEDIA_TYPE_VIDEO
+                                                        );
+                                                        break;
+                                                }
+                                                addMediaContext(mediaContext);
+                                            }
+
+                                        }
+                                    }
+
                                 } else {
                                     nowDiary = null;
                                     Log.d("Main - Json", "Retrieve diary failed");
@@ -177,12 +271,12 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
                     }
                 });
 
-        downloadConnector = new AudioDownloadConnector("download", "POST",
-                new AudioDownloadConnector.OnConnectListener() {
+        diaryAudioDownloadConnector = new DiaryAudioDownloadConnector("download", "POST",
+                new DiaryAudioDownloadConnector.OnConnectListener() {
                     @Override
                     public void onDone(Boolean success) {
                         if (success) {
-                            diaryAudioFile = GlobalUtils.getAudioDiaryFile(UserProfile.getUserProfile().getUserID(),
+                            diaryAudioFile = GlobalUtils.getDiaryFile(UserProfile.getUserProfile().getUserID(),
                                     nowDiary.getDiaryID());
 
                             boolean diaryAudioSet = diaryRecordAudioPlayer.setAudio(
@@ -211,7 +305,7 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
                                 if (resJson.getBoolean("delete_diary")) {
                                     try {
                                         diaryRecordAudioPlayer.remove();
-                                        GlobalUtils.getAudioDiaryFile(UserProfile.getUserProfile().getUserID(),
+                                        GlobalUtils.getDiaryFile(UserProfile.getUserProfile().getUserID(),
                                                 nowDiary.getDiaryID()).delete();
                                     } catch (Exception e) {}
                                     diaryRecordAudioPlayer = null;

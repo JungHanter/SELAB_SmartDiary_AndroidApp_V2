@@ -45,6 +45,25 @@ public class GlobalUtils {
         return audioFile.exists();
     }
 
+    public static final File DIARY_DIR =
+            new File (Environment.getExternalStorageDirectory().getPath() + "/smartdiary/.diary/");
+
+    public static File getDiaryFolder(String userId, int audioDiaryId) {
+        File diaryFolder = new File( DIARY_DIR.getPath() + "/" + userId + "/" + audioDiaryId + "/");
+        if (!diaryFolder.exists()) diaryFolder.mkdirs();
+        return diaryFolder;
+    }
+
+    public static File getDiaryFile(String userId, int audioDiaryId) {
+        File diaryFolder = getDiaryFolder(userId, audioDiaryId);
+        return new File( diaryFolder.getPath() + "/" + "record.wav");
+    }
+
+    public static File getDiaryMediaContext(String userId, int audioDiaryId, String fileName) {
+        File diaryFolder = getDiaryFolder(userId, audioDiaryId);
+        return new File( diaryFolder.getPath() + "/" + fileName);
+    }
+
 //    public static void removeTempFiles() {
 //        String[] fileList = RECORDED_TEMP_FILE_DIR.list();
 //        if (fileList != null) {

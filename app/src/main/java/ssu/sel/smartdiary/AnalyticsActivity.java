@@ -1,7 +1,5 @@
 package ssu.sel.smartdiary;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.content.DialogInterface;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -13,13 +11,13 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.util.Iterator;
 
@@ -48,6 +46,7 @@ public class AnalyticsActivity extends AppCompatActivity {
     private Spinner spnLifeTendencyThings = null;
     private Spinner spnTendencyType = null;
     private TextView tvTendencyResult = null;
+    private ProgressBar progressTendency = null;
 
     private View titleAnalyticsCorrelation = null;
     private ImageView ivAnalyticsCorrelationExpand = null;
@@ -59,7 +58,7 @@ public class AnalyticsActivity extends AppCompatActivity {
 
     protected AlertDialog dlgAlert = null;
 
-    private JsonRestConnector analyzeLifeStyleConnector = null;
+    private JsonRestConnector analyzeTendencyConnector = null;
 
 
     @Override
@@ -139,6 +138,7 @@ public class AnalyticsActivity extends AppCompatActivity {
                 }
             }
         });
+        progressTendency = (ProgressBar)findViewById(R.id.progressTendency);
 
         titleAnalyticsCorrelation = findViewById(R.id.titleAnalyticsCorrelation);
         ivAnalyticsCorrelationExpand = (ImageView)findViewById(R.id.ivAnalyticsCorrelationExpand);
@@ -200,11 +200,12 @@ public class AnalyticsActivity extends AppCompatActivity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spnCorrelationThingY.setAdapter(adapter);
 
-        tvLifeActivityResult.setText(Html.fromHtml("<font color='#3F51B5'>Activity Pattern in the past year</font><br/>" +
-                "<font color='#ff4081'>exercise</font><br/>" +
-                "You have exercised every morning in the past year.<br/>" +
-                "<font color='#ff4081'>cook</font><br/>" +
-                "You have usually cooked for the Saturday dinner."));
+//        tvLifeActivityResult.setText(Html.fromHtml("<font color='#3F51B5'>Activity Pattern in the past year</font><br/>" +
+//                "<font color='#ff4081'>exercise</font><br/>" +
+//                "You have exercised every morning in the past year.<br/>" +
+//                "<font color='#ff4081'>cook</font><br/>" +
+//                "You have usually cooked for the Saturday dinner."));
+        tvLifeActivityResult.setVisibility(View.GONE);
         tvWellnessResult.setVisibility(View.GONE);
         tvTendencyResult.setVisibility(View.GONE);
         tvCorrelationResult.setVisibility(View.GONE);
@@ -217,20 +218,63 @@ public class AnalyticsActivity extends AppCompatActivity {
                         dialogInterface.dismiss();
                     }
                 }).create();
+
+
+        analyzeTendencyConnector = new JsonRestConnector("analyze/lifestyle", "GET",
+                new JsonRestConnector.OnConnectListener() {
+                    @Override
+                    public void onDone(JSONObject resJson) {
+                        if (resJson == null) {
+                            Log.d("Main - Json", "No response");
+                            openAlertModal("No response.", "Error");
+                        } else {
+                            try {
+                                boolean success = resJson.getBoolean("lifestyle");
+                                if (success) {
+                                    JSONArray result = resJson.getJSONArray("result");
+                                    Log.d("Analytics Activity", result.toString());
+
+                                    String resultHtmlString = "<font color='#3F51B5'>Food Most Liked</font>";
+                                    for (int i=0; i<result.length(); i++) {
+                                        JSONObject elem = result.getJSONObject(i);
+                                        resultHtmlString += "<br/>";
+                                        String thing = elem.getString("thing");
+                                        float value = (float)elem.getDouble("value");
+                                        String msg = elem.getString("message");
+                                        resultHtmlString += "<font color='#ff4081'>" + thing + "</font>"
+                                                + " (" + msg + "; " + String.format("%.1f", value) + ")";
+                                    }
+                                    tvTendencyResult.setText(Html.fromHtml(resultHtmlString));
+
+                                    tvTendencyResult.setVisibility(View.VISIBLE);
+                                } else {
+                                    openAlertModal("Analyze Failed");
+                                    tvTendencyResult.setVisibility(View.GONE);
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                                Log.d("Main - Json", "Json parsing error");
+                                openAlertModal("Json parsing error.", "Error");
+                                tvTendencyResult.setVisibility(View.GONE);
+                            }
+                        }
+                        progressTendency.setVisibility(View.GONE);
+                    }
+                });
     }
 
     public void onAnalyzeClick(View v) {
         switch (v.getId()) {
-//            case R.id.btnLifeStyleAnalyze:
-//                JSONObject reqJson = new JSONObject();
-//                try {
-//                    reqJson.put("user_id", UserProfile.getUserProfile().getUserID());
-//                    reqJson.put("thing_type", "food");
-//                    reqJson.put("option", "like");
-//                } catch (Exception e) {}
-//                progressLifeStyle.setVisibility(View.VISIBLE);
-//                analyzeLifeStyleConnector.request(reqJson);
-//                return;
+            case R.id.btnTendencyAnalyze:
+                JSONObject reqJson = new JSONObject();
+                try {
+                    reqJson.put("user_id", UserProfile.getUserProfile().getUserID());
+                    reqJson.put("thing_type", "food");
+                    reqJson.put("option", "like");
+                } catch (Exception e) {}
+                progressTendency.setVisibility(View.VISIBLE);
+                analyzeTendencyConnector.request(reqJson);
+                return;
         }
     }
 
