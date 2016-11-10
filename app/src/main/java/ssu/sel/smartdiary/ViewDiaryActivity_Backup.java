@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -84,7 +85,7 @@ public class ViewDiaryActivity_Backup extends WriteDiaryActivity {
         edtEnvWeather = (EditText) findViewById(R.id.edtEnvWeather);
         edtEnvEvents = (EditText) findViewById(R.id.edtEnvEvents);
         btnConfirm = (Button)findViewById(R.id.btnDiaryConfirm);
-        viewWriteDiaryLayout = findViewById(R.id.viewWriteDiaryForm);
+        viewWriteDiaryLayout = (ScrollView) findViewById(R.id.viewWriteDiaryForm);
         viewProgress = findViewById(R.id.progressLayout);
         tvDiaryAudioDownloading = (TextView) findViewById(R.id.tvDiaryAudioDownloading);
         btnDiaryAudioPlay = (Button) findViewById(R.id.btnDiaryAudioPlay);

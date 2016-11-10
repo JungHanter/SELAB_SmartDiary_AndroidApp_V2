@@ -1,6 +1,9 @@
 package ssu.sel.smartdiary;
 
+import android.content.Context;
 import android.os.Environment;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
 
 import java.io.File;
 import java.text.DateFormat;
@@ -53,4 +56,14 @@ public class GlobalUtils {
 //            }
 //        }
 //    }
+
+    public static float pixelToDp(Context context, int px) {
+        return px / ((float)context.getResources().getDisplayMetrics().densityDpi
+                / DisplayMetrics.DENSITY_DEFAULT);
+    }
+
+    public static float dpToPixel(Context context, int dp) {
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                dp, context.getResources().getDisplayMetrics());
+    }
 }

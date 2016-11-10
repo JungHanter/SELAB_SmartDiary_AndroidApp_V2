@@ -1,11 +1,8 @@
 package ssu.sel.smartdiary;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PorterDuff;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
@@ -16,7 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -94,7 +91,7 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
         edtEnvWeather = (EditText) findViewById(R.id.edtEnvWeather);
         edtEnvEvents = (EditText) findViewById(R.id.edtEnvEvents);
         btnConfirm = (Button)findViewById(R.id.btnDiaryConfirm);
-        viewWriteDiaryLayout = findViewById(R.id.viewWriteDiaryForm);
+        viewWriteDiaryLayout = (ScrollView) findViewById(R.id.viewWriteDiaryForm);
         viewProgress = findViewById(R.id.progressLayout);
         tvDiaryAudioDownloading = (TextView) findViewById(R.id.tvDiaryAudioDownloading);
         btnDiaryAudioPlay = (Button) findViewById(R.id.btnDiaryAudioPlay);
@@ -102,7 +99,7 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
         btnDiaryAudioForward = (Button) findViewById(R.id.btnDiaryAudioForward);
         btnDiaryAudioBackward = (Button) findViewById(R.id.btnDiaryAudioBackward);
         progressDiaryAudio = (SeekBar) findViewById(R.id.progressDiaryAudio);
-        layoutAttachment = findViewById(R.id.layoutAttachment);
+        layoutAttachment = findViewById(R.id.layoutAttachmentBtns);
         layoutAttachment.setVisibility(View.GONE);
 
         diaryAcitivityType = "VIEW";

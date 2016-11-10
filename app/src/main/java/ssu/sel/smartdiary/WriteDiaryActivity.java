@@ -8,6 +8,8 @@ import android.app.TimePickerDialog;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
@@ -29,6 +31,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -41,10 +46,13 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import ssu.sel.smartdiary.model.DiaryContext;
+import ssu.sel.smartdiary.model.MediaContext;
 import ssu.sel.smartdiary.model.UserProfile;
 import ssu.sel.smartdiary.network.MultipartRestConnector;
 import ssu.sel.smartdiary.speech.WavRecorder;
@@ -67,7 +75,7 @@ public class WriteDiaryActivity extends AppCompatActivity {
     protected EditText edtEnvWeather = null;
     protected EditText edtEnvEvents = null;
 
-    protected View viewWriteDiaryLayout = null;
+    protected ScrollView viewWriteDiaryLayout = null;
     protected View viewProgress = null;
 
     protected TextView tvDiaryAudioDownloading = null;
@@ -80,6 +88,8 @@ public class WriteDiaryActivity extends AppCompatActivity {
     protected TextView tvDiaryAudioNowLength = null;
     protected TextView tvDiaryAudioMaxLength = null;
 
+    protected LinearLayout layoutAttachmentFiles = null;
+
     protected AlertDialog dlgAlert = null;
     protected AlertDialog dlgCancel = null;
     protected AlertDialog dlgConfirm = null;
@@ -90,6 +100,7 @@ public class WriteDiaryActivity extends AppCompatActivity {
     protected File audioFile = null;
     protected MediaPlayer mediaPlayer = null;
 
+    protected ArrayList<MediaContext> mediaContextList = null;
     protected MultipartRestConnector saveDiaryConnector = null;
 
     @Override
@@ -139,7 +150,7 @@ public class WriteDiaryActivity extends AppCompatActivity {
         edtEnvPlace = (EditText) findViewById(R.id.edtEnvPlace);
         edtEnvWeather = (EditText) findViewById(R.id.edtEnvWeather);
         edtEnvEvents = (EditText) findViewById(R.id.edtEnvEvents);
-        viewWriteDiaryLayout = findViewById(R.id.viewWriteDiaryForm);
+        viewWriteDiaryLayout = (ScrollView) findViewById(R.id.viewWriteDiaryForm);
         viewProgress = findViewById(R.id.progressLayout);
         tvDiaryAudioDownloading = (TextView) findViewById(R.id.tvDiaryAudioDownloading);
         layoutDiaryAudioPlayer = findViewById(R.id.layoutDiaryAudioPlayer);
@@ -150,6 +161,7 @@ public class WriteDiaryActivity extends AppCompatActivity {
         progressDiaryAudio = (SeekBar) findViewById(R.id.progressDiaryAudio);
         tvDiaryAudioNowLength = (TextView) findViewById(R.id.tvDiaryAudioNowLength);
         tvDiaryAudioMaxLength = (TextView) findViewById(R.id.tvDiaryAudioMaxLength);
+        layoutAttachmentFiles = (LinearLayout) findViewById(R.id.layoutAttachmentFiles);
 
         Drawable edtTitleBGDrawble = edtTitle.getBackground();
         edtTitleBGDrawble.mutate().setColorFilter(getResources().getColor(R.color.indigo_500),
@@ -166,6 +178,7 @@ public class WriteDiaryActivity extends AppCompatActivity {
         }
         setModals();
 
+        mediaContextList = new ArrayList<>();
         setJsonConnectors();
 
         if (audioFile != null)
@@ -626,12 +639,10 @@ public class WriteDiaryActivity extends AppCompatActivity {
                         Uri selectedImageUri = data.getData();
                         String imageFilePath = selectedImageUri.getPath();
                         Log.d("WriteDiaryActivity", "Camera: " + imageFilePath);
-                        try {
-                            File file = new File(new URI(imageFilePath));
-                            Log.d("WriteDiaryActivity", "FilePath: " + file.getAbsolutePath());
-                        } catch(Exception e) {
-                            e.printStackTrace();
-                        }
+
+                        MediaContext attachImage = new MediaContext(selectedImageUri,
+                                MediaContext.MEDIA_TYPE_IMAGE);
+                        addMediaContext(attachImage);
                     }
                     return;
                 case ACTIVITY_REQ_CODE_PICTURE:
@@ -639,12 +650,10 @@ public class WriteDiaryActivity extends AppCompatActivity {
                         Uri selectedImageUri = data.getData();
                         String imageFilePath = selectedImageUri.getPath();
                         Log.d("WriteDiaryActivity", "Image: " + imageFilePath);
-                        try {
-                            File file = new File(new URI(imageFilePath));
-                            Log.d("WriteDiaryActivity", "FilePath: " + file.getAbsolutePath());
-                        } catch(Exception e) {
-                            e.printStackTrace();
-                        }
+
+                        MediaContext attachImage = new MediaContext(selectedImageUri,
+                                MediaContext.MEDIA_TYPE_IMAGE);
+                        addMediaContext(attachImage);
                     }
                     return;
                 case ACTIVITY_REQ_CODE_VIDEO:
@@ -672,6 +681,51 @@ public class WriteDiaryActivity extends AppCompatActivity {
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    protected void addMediaContext(MediaContext mediaContext) {
+        switch(mediaContext.getMediaType()) {
+            case MediaContext.MEDIA_TYPE_IMAGE:
+                ImageView ivMedia = new ImageView(this);
+//                ivMedia.setImageURI(mediaContext.getUri());
+                ivMedia.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                ivMedia.setBackgroundResource(R.drawable.background_list_element_no_corner_radius);
+
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(),
+                            mediaContext.getUri());
+                    ivMedia.setImageBitmap(bitmap);
+
+                    int bitmapWidth = bitmap.getWidth();
+                    int bitmapHeight = bitmap.getHeight();
+                    float bitmapRatio = (float)bitmapHeight / bitmapWidth;
+
+                    int layoutWidth = layoutAttachmentFiles.getMeasuredWidth();
+                    int newIvHeight = (int)(layoutWidth * bitmapRatio);
+
+                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+//                            LinearLayout.LayoutParams.MATCH_PARENT,
+//                            LinearLayout.LayoutParams.WRAP_CONTENT
+                            layoutWidth, newIvHeight
+                    );
+                    lp.setMargins(0, 0, 0, (int)GlobalUtils.dpToPixel(this, 10));
+                    layoutAttachmentFiles.addView(ivMedia, lp);
+                    viewWriteDiaryLayout.scrollTo(0,viewWriteDiaryLayout.getScrollY()+newIvHeight);
+
+                    mediaContextList.add(mediaContext);
+
+                } catch (IOException ie) {
+                    ie.printStackTrace();
+                    openAlertModal("The image cannot be shown");
+                }
+                return;
+
+            case MediaContext.MEDIA_TYPE_AUDIO:
+                return;
+
+            case MediaContext.MEDIA_TYPE_VIDEO:
+                return;
+        }
     }
 
     protected DatePickerDialog.OnDateSetListener datePickerListener =
