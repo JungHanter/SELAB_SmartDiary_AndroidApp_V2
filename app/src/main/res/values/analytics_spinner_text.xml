@@ -2,12 +2,10 @@
 <resources>
     <string-array name="analytics_lifestyle_things">
         <item>Food</item>
-        <item>Exercise</item>
+        <item>Weather</item>
         <item>People</item>
         <item>Seasons</item>
-        <item>Moods</item>
-        <item>Hobby</item>
-    </string-array>
+        <item>Moods</item>    </string-array>
 
 
     <string-array name="analytics_lifestyle_type">
@@ -26,22 +24,42 @@
     </string-array>
 
     <string-array name="analytics_activity">
+        <item>All</item>
         <item>Exercise</item>
+        <item>Sport</item>
         <item>Hobby</item>
     </string-array>
 
     <string-array name="analytics_period">
+        <item>All</item>
+        <item>10 years</item>
+        <item>5 years</item>
         <item>The past year</item>
-        <item>Last Week</item>
+        <item>The past month</item>
     </string-array>
 
     <string-array name="analytics_wellness_type">
         <item>Feelings</item>
+        <item>Mental wellness</item>
+        <item>Physical wellness</item>
     </string-array>
 
     <string-array name="analytics_tendency_type">
         <item>Most Preferred</item>
         <item>Most Disliked</item>
+    </string-array>
+
+    <string-array name="analytics_correlation_aspects">
+        <item>Food</item>
+        <item>Weather</item>
+        <item>People</item>
+        <item>Seasons</item>
+        <item>Moods</item>
+        <item>All Activities</item>
+        <item>Sport</item>
+        <item>Exercise</item>
+        <item>Hobby</item>
+        <item>Day of week</item>
     </string-array>
 
 </resources>

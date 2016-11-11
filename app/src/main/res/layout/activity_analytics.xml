@@ -79,7 +79,7 @@
                                     android:gravity="center_vertical"
                                     android:layout_width="wrap_content"
                                     android:layout_height="match_parent"
-                                    android:text="Things:"/>
+                                    android:text="Thing:"/>
                                 <Spinner
                                     android:layout_width="match_parent"
                                     android:layout_height="match_parent"
@@ -242,7 +242,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
                             android:layout_marginTop="16dp"
-                            android:id="@+id/progressTendency"
+                            android:id="@+id/progressWellness"
                             android:visibility="gone" />
 
                         <TextView
@@ -354,6 +354,15 @@
                             android:onClick="onAnalyzeClick"
                             android:text="Analyze"/>
 
+                        <ProgressBar
+                            style="?android:attr/progressBarStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginTop="16dp"
+                            android:id="@+id/progressTendency"
+                            android:visibility="gone" />
+
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
@@ -392,7 +401,7 @@
                             android:layout_alignParentStart="true"
                             android:textColor="@color/grey_700"
                             android:textSize="24sp"
-                            android:text="Regularity Analytics"/>
+                            android:text="Correlation"/>
 
                         <ImageView
                             android:layout_width="30dp"
@@ -425,7 +434,7 @@
                                     android:gravity="center_vertical"
                                     android:layout_width="wrap_content"
                                     android:layout_height="match_parent"
-                                    android:text="Things:"/>
+                                    android:text="Aspect X:"/>
                                 <Spinner
                                     android:layout_width="match_parent"
                                     android:layout_height="match_parent"
@@ -443,7 +452,7 @@
                                     android:gravity="center_vertical"
                                     android:layout_width="wrap_content"
                                     android:layout_height="match_parent"
-                                    android:text="Period:"/>
+                                    android:text="Aspect Y:"/>
                                 <Spinner
                                     android:layout_width="match_parent"
                                     android:layout_height="match_parent"

@@ -27,14 +27,12 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.MediaController;
 import android.widget.ScrollView;
-import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.VideoView;
@@ -48,7 +46,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -56,9 +53,9 @@ import ssu.sel.smartdiary.model.DiaryContext;
 import ssu.sel.smartdiary.model.MediaContext;
 import ssu.sel.smartdiary.model.UserProfile;
 import ssu.sel.smartdiary.network.DiaryUploadRestConnector;
-import ssu.sel.smartdiary.network.MultipartRestConnector;
 import ssu.sel.smartdiary.speech.WavRecorder;
 import ssu.sel.smartdiary.view.AudioPlayerView;
+import ssu.sel.smartdiary.view.RemovableView;
 
 public class WriteDiaryActivity extends AppCompatActivity {
     protected static final int ACTIVITY_REQ_CODE_PICTURE = 100;
@@ -94,7 +91,7 @@ public class WriteDiaryActivity extends AppCompatActivity {
     protected TimePickerDialog dlgTimePicker = null;
 
 //    protected ArrayList<MediaController> mediaControllerList = new ArrayList<>();
-    protected ArrayList<AudioPlayerView> audioPlayerViewList = new ArrayList<>();
+    protected ArrayList<RemovableView> removableViewList = new ArrayList<>();
     protected ArrayList<MediaContext> mediaContextList = new ArrayList<>();
 
     protected DiaryUploadRestConnector saveDiaryConnector = null;
@@ -113,8 +110,8 @@ public class WriteDiaryActivity extends AppCompatActivity {
             diaryRecordAudioPlayer = null;
         }
 
-        for (AudioPlayerView audioPlayerView : audioPlayerViewList) {
-            audioPlayerView.remove();
+        for (RemovableView removableView : removableViewList) {
+            removableView.remove();
         }
     }
 
@@ -245,8 +242,8 @@ public class WriteDiaryActivity extends AppCompatActivity {
                             Log.d("WriteDiary - Json", resJson.toString());
                             try {
                                 boolean success = resJson.getBoolean("create_diary");
-                                int diaryId = resJson.getInt("audio_diary_id");
                                 if (success) {
+                                    int diaryId = resJson.getInt("audio_diary_id");
                                     if (diaryAcitivityType.equals("NEW_AUDIO")) {
                                         WavRecorder.removeRecordedTempFiles();
                                     }
@@ -306,7 +303,7 @@ public class WriteDiaryActivity extends AppCompatActivity {
 
                                     WriteDiaryActivity.this.finish();
                                 } else {
-                                    openAlertModal("Diary Create Failed");
+                                    openAlertModal("Diary Create Failed.\n Please Retry Again.");
                                 }
 
                             } catch (Exception e) {
@@ -547,14 +544,19 @@ public class WriteDiaryActivity extends AppCompatActivity {
     }
 
     protected void addMediaContext(final MediaContext mediaContext) {
-        Log.d("MediaContext", ""+mediaContext.getFile().exists());
-        Log.d("MediaContext", mediaContext.getFile().toString());
-        Log.d("MediaContext", mediaContext.getUri().toString());
+//        Log.d("MediaContext", ""+mediaContext.getFile().exists());
+//        Log.d("MediaContext", mediaContext.getFile().toString());
+//        Log.d("MediaContext", mediaContext.getUri().toString());
 
+        int height = addMediaContextView(mediaContext, layoutAttachmentFiles);
+        viewWriteDiaryLayout.scrollTo(0, viewWriteDiaryLayout.getScrollY() + height);
+        mediaContextList.add(mediaContext);
+    }
+
+    protected int addMediaContextView(final MediaContext mediaContext, ViewGroup parent) {
         switch(mediaContext.getMediaType()) {
             case MediaContext.MEDIA_TYPE_IMAGE:
                 ImageView ivMedia = new ImageView(this);
-//                ivMedia.setImageURI(mediaContext.getUri());
                 ivMedia.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 ivMedia.setBackgroundResource(R.drawable.background_list_element_no_corner_radius);
 
@@ -569,45 +571,42 @@ public class WriteDiaryActivity extends AppCompatActivity {
 
                     int bitmapWidth = bitmap.getWidth();
                     int bitmapHeight = bitmap.getHeight();
-                    float bitmapRatio = (float)bitmapHeight / bitmapWidth;
+                    float bitmapRatio = (float) bitmapHeight / bitmapWidth;
 
                     int layoutWidth = layoutAttachmentFiles.getMeasuredWidth();
-                    layoutWidth = 800 - (int)GlobalUtils.dpToPixel(this, 32);
-                    int newIvHeight = (int)(layoutWidth * bitmapRatio);
+                    if (layoutWidth == 0) {
+                        layoutWidth = getResources().getDisplayMetrics().widthPixels
+                                - (int) getResources().getDimension(R.dimen.activity_horizontal_margin);
+                    }
+                    int newIvHeight = (int) (layoutWidth * bitmapRatio);
 
                     LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-//                            LinearLayout.LayoutParams.MATCH_PARENT,
-//                            LinearLayout.LayoutParams.WRAP_CONTENT
                             layoutWidth, newIvHeight
                     );
-                    lp.setMargins(0, 0, 0, (int)GlobalUtils.dpToPixel(this, 10));
-                    layoutAttachmentFiles.addView(ivMedia, lp);
-                    viewWriteDiaryLayout.scrollTo(0, viewWriteDiaryLayout.getScrollY() + newIvHeight);
+                    lp.setMargins(0, 0, 0, (int) GlobalUtils.dpToPixel(this, 10));
 
-                    mediaContextList.add(mediaContext);
-
+                    parent.addView(ivMedia, lp);
+                    return newIvHeight;
                 } catch (IOException ie) {
                     ie.printStackTrace();
                     openAlertModal("The image cannot be shown");
+                    return 0;
                 }
-                return;
 
             case MediaContext.MEDIA_TYPE_AUDIO:
                 AudioPlayerView audioPlayerView = new AudioPlayerView(this);
-                audioPlayerViewList.add(audioPlayerView);
+                removableViewList.add(audioPlayerView);
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT
                 );
-                lp.setMargins(0, 0, 0, (int)GlobalUtils.dpToPixel(this, 10));
-                layoutAttachmentFiles.addView(audioPlayerView, lp);
-                viewWriteDiaryLayout.scrollTo(0,viewWriteDiaryLayout.getScrollY()
-                        + (int)GlobalUtils.dpToPixel(this, 116+10));
+                lp.setMargins(0, 0, 0, (int) GlobalUtils.dpToPixel(this, 10));
 
                 File audioFile = mediaContext.getFile();
                 audioPlayerView.setAudio(audioFile.getName(), audioFile);
-                mediaContextList.add(mediaContext);
-                return;
+
+                parent.addView(audioPlayerView, lp);
+                return (int)GlobalUtils.dpToPixel(this, 116+10);
 
             case MediaContext.MEDIA_TYPE_VIDEO:
                 LinearLayout videoLinearLayout = new LinearLayout(this);
@@ -618,16 +617,11 @@ public class WriteDiaryActivity extends AppCompatActivity {
                                 LinearLayout.LayoutParams.MATCH_PARENT,
                                 LinearLayout.LayoutParams.WRAP_CONTENT
                         );
-                videoLinearLayoutParam.setMargins(0, 0, 0, (int)GlobalUtils.dpToPixel(this, 10));
-                layoutAttachmentFiles.addView(videoLinearLayout, videoLinearLayoutParam);
+                videoLinearLayoutParam.setMargins(0, 0, 0, (int) GlobalUtils.dpToPixel(this, 10));
+                parent.addView(videoLinearLayout, videoLinearLayoutParam);
 
                 //Video View
                 final VideoView vvVideo = new VideoView(this);
-//                lp = new LinearLayout.LayoutParams(
-//                        LinearLayout.LayoutParams.MATCH_PARENT,
-//                        LinearLayout.LayoutParams.WRAP_CONTENT
-//                );
-
                 vvVideo.setVideoURI(mediaContext.getUri());
 
                 Bitmap thumbnail = ThumbnailUtils.createVideoThumbnail(
@@ -638,16 +632,19 @@ public class WriteDiaryActivity extends AppCompatActivity {
 
                 int bitmapWidth = thumbnail.getWidth();
                 int bitmapHeight = thumbnail.getHeight();
-                float bitmapRatio = (float)bitmapHeight / bitmapWidth;
+                float bitmapRatio = (float) bitmapHeight / bitmapWidth;
 
                 int layoutWidth = layoutAttachmentFiles.getMeasuredWidth();
-                int newVvHeight = (int)(layoutWidth * bitmapRatio);
+                if (layoutWidth == 0) {
+                    layoutWidth = getResources().getDisplayMetrics().widthPixels
+                            - (int) getResources().getDimension(R.dimen.activity_horizontal_margin);
+                }
+                int newVvHeight = (int) (layoutWidth * bitmapRatio);
                 lp = new LinearLayout.LayoutParams(
                         layoutWidth, newVvHeight
                 );
 
                 videoLinearLayout.addView(vvVideo, lp);
-                viewWriteDiaryLayout.scrollTo(0,viewWriteDiaryLayout.getScrollY() + newVvHeight);
 
                 //Media Controller
                 final MediaController mediaController = new MediaController(this);
@@ -658,23 +655,20 @@ public class WriteDiaryActivity extends AppCompatActivity {
                             @Override
                             public void onScrollChanged() {
                                 if (mediaController.isShowing()) {
-//                                    mediaController.setAnchorView(vvVideo);
                                     mediaController.hide();
                                 }
                             }
                         }
                 );
-
                 vvVideo.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         vvVideo.seekTo(100);
                     }
                 }, 100);
-
-                mediaContextList.add(mediaContext);
-                return;
+                return newVvHeight;
         }
+        return 0;
     }
 
     protected DatePickerDialog.OnDateSetListener datePickerListener =

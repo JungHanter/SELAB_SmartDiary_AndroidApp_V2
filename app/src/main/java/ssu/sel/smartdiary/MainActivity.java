@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d("MainAcitivty", "LayoutDiaryBtns: " + layoutBtnDiaries.getMeasuredWidth() +
                 ", " + layoutBtnDiaries.getMeasuredHeight());
         int layoutWidth = layoutBtnDiaries.getMeasuredWidth();
-        int btnWidth = layoutWidth / 6;
+        int btnWidth = layoutWidth / 8;
         int btnLayoutWidth = btnWidth * 2;
 //        findViewById(R.id.layoutShowAllDiaries).setLayoutParams(
 //                new LinearLayout.LayoutParams(btnLayoutWidth, LinearLayout.LayoutParams.WRAP_CONTENT));

@@ -76,7 +76,7 @@ public class AudioPlayerView extends RelativeLayout implements RemovableView {
         progressAudioPlayer.setProgress(0);
         progressAudioPlayer.setMax(1);
 
-        tvAudioPlayerDownloading.setText("Audio File is Loading");
+        tvAudioPlayerDownloading.setText("Loading Audio File...");
         tvAudioPlayerDownloading.setVisibility(View.VISIBLE);
         layoutDiaryAudioPlayer.setVisibility(View.GONE);
     }
@@ -277,6 +277,10 @@ public class AudioPlayerView extends RelativeLayout implements RemovableView {
         tvAudioPlayerDownloading.setText(msg);
         tvAudioPlayerDownloading.setVisibility(View.VISIBLE);
         layoutDiaryAudioPlayer.setVisibility(View.GONE);
+    }
+
+    public void setAudioLoadMessage(String msg) {
+        tvAudioPlayerDownloading.setText(msg);
     }
 
     public interface OnLoadedListener {

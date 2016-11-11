@@ -161,7 +161,7 @@ public class AnalyticsActivity extends AppCompatActivity {
         });
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.analytics_lifestyle_things, android.R.layout.simple_spinner_item);
+                R.array.analytics_things, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spnLifeActivityThings.setAdapter(adapter);
 
@@ -191,12 +191,12 @@ public class AnalyticsActivity extends AppCompatActivity {
         spnTendencyType.setAdapter(adapter);
 
         adapter = ArrayAdapter.createFromResource(this,
-                R.array.analytics_things, android.R.layout.simple_spinner_item);
+                R.array.analytics_correlation_aspects, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spnCorrelationThingX.setAdapter(adapter);
 
         adapter = ArrayAdapter.createFromResource(this,
-                R.array.analytics_things, android.R.layout.simple_spinner_item);
+                R.array.analytics_correlation_aspects, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spnCorrelationThingY.setAdapter(adapter);
 
