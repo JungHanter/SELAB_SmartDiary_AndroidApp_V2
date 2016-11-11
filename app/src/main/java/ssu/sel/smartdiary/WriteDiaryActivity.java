@@ -561,13 +561,15 @@ public class WriteDiaryActivity extends AppCompatActivity {
                 ivMedia.setBackgroundResource(R.drawable.background_list_element_no_corner_radius);
 
                 try {
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(),
-                            mediaContext.getUri());
+//                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(),
+//                            mediaContext.getUri());
+                    Bitmap bitmap = BitmapFactory.decodeFile(mediaContext.getFile().getAbsolutePath());
+
                     ivMedia.setImageBitmap(bitmap);
 
-                    if (bitmap == null) {
-                        bitmap = BitmapFactory.decodeFile(mediaContext.getFile().getAbsolutePath());
-                    }
+//                    if (bitmap == null) {
+//                        bitmap = BitmapFactory.decodeFile(mediaContext.getFile().getAbsolutePath());
+//                    }
 
                     int bitmapWidth = bitmap.getWidth();
                     int bitmapHeight = bitmap.getHeight();
@@ -587,8 +589,8 @@ public class WriteDiaryActivity extends AppCompatActivity {
 
                     parent.addView(ivMedia, lp);
                     return newIvHeight;
-                } catch (IOException ie) {
-                    ie.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
                     openAlertModal("The image cannot be shown");
                     return 0;
                 }

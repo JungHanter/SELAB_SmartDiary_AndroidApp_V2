@@ -290,12 +290,12 @@ public class AudioPlayerView extends RelativeLayout implements RemovableView {
     @Override
     public void remove() {
         if (mediaPlayer != null) {
-            if (mediaPlayer.isPlaying()) mediaPlayer.stop();
+            mediaPlayer.stop();
             mediaPlayer.release();
             mediaPlayer = null;
         }
 
-        tvAudioPlayerDownloading.setText("Audio file is removed");
+        tvAudioPlayerDownloading.setText("Audio file is removed on memory");
         tvAudioPlayerDownloading.setVisibility(View.VISIBLE);
         layoutDiaryAudioPlayer.setVisibility(View.GONE);
     }

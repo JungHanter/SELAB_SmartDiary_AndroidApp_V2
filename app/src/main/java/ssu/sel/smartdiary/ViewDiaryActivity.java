@@ -9,9 +9,9 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -22,12 +22,12 @@ import org.json.JSONObject;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.LinkedList;
 
 import ssu.sel.smartdiary.model.Diary;
 import ssu.sel.smartdiary.model.DiaryContext;
 import ssu.sel.smartdiary.model.MediaContext;
 import ssu.sel.smartdiary.model.UserProfile;
-import ssu.sel.smartdiary.network.AudioDownloadConnector;
 import ssu.sel.smartdiary.network.DiaryAudioDownloadConnector;
 import ssu.sel.smartdiary.network.JsonRestConnector;
 import ssu.sel.smartdiary.network.MediaContextDownloadConnector;
@@ -147,6 +147,7 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
                                     nowDiary = Diary.fromJSON(diary, diaryContexts);
                                     setDiary(nowDiary);
 
+                                    boolean bIsDiaryAudioExists = false;
                                     if (!GlobalUtils.getDiaryFile(UserProfile.getUserProfile().getUserID(),
                                             nowDiary.getDiaryID()).exists()) {
                                         //request file download
@@ -154,6 +155,7 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
                                         diaryAudioDownloadConnector.request(UserProfile.getUserProfile().getUserID(),
                                                 nowDiary.getDiaryID());
                                     } else {
+                                        bIsDiaryAudioExists = true;
                                         diaryAudioFile = GlobalUtils.getDiaryFile(UserProfile.getUserProfile().getUserID(),
                                                 nowDiary.getDiaryID());
 
@@ -174,7 +176,13 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
                                             final String mediaContextName = mediaContextJson.getString("file_name");
                                             final String mediaContextType = mediaContextJson.getString("type");
 
-                                            addMediaContext(mediaContextId, mediaContextName, mediaContextType);
+//                                            addMediaContext(mediaContextId, mediaContextName, mediaContextType);
+                                            mediaContextWaitQueue.add(new MediaContextWait(mediaContextId,
+                                                    mediaContextName, mediaContextType));
+                                        }
+                                        setDownloadMediaContext();
+                                        if(bIsDiaryAudioExists) {
+                                            nextDownloadMediaContext();
                                         }
                                     }
 
@@ -211,6 +219,8 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
                             openAlertModal("Downloading audio file is failed.");
                             diaryRecordAudioPlayer.setAudioFail("Downloading Diary Record Audio Failed");
                         }
+
+                        nextDownloadMediaContext();
                     }
                 });
 
@@ -249,8 +259,125 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
                 });
     }
 
+    private LinkedList<MediaContextWait> mediaContextWaitQueue = new LinkedList<>();
+    private class MediaContextWait {
+        int mediaContextId;
+        String mediaContextName;
+        String mediaContextType;
+
+        ViewGroup layoutContainer = null;
+        MediaContextLoadingView loadingView = null;
+
+        public MediaContextWait(int mediaContextId, String mediaContextName, String mediaContextType) {
+            this.mediaContextId = mediaContextId;
+            this.mediaContextName = mediaContextName;
+            this.mediaContextType = mediaContextType;
+        }
+    }
+
+    private void setDownloadMediaContext() {
+        if (mediaContextWaitQueue.size() > 0) {
+            for (MediaContextWait mediaContextWait : mediaContextWaitQueue) {
+                addMediaContextLoading(mediaContextWait);
+            }
+        }
+    }
+
+    private void nextDownloadMediaContext() {
+        if (mediaContextWaitQueue.size() > 0) {
+            //start Downloading by queue
+            addMediaContextByQueue(mediaContextWaitQueue.pollFirst());
+        }
+    }
+
+    private void addMediaContextLoading(MediaContextWait mediaContextWait) {
+        final LinearLayout layoutContainer = new LinearLayout(this);
+        layoutContainer.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams containerParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+
+        final MediaContextLoadingView loadingView = new MediaContextLoadingView(this);
+        loadingView.setLoadingMessage("Waiting to Download " + mediaContextWait.mediaContextName);
+        LinearLayout.LayoutParams loadingViewParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        loadingViewParams.setMargins(0, 0, 0, (int)GlobalUtils.dpToPixel(this, 10));
+
+        layoutAttachmentFiles.addView(layoutContainer, containerParams);
+        layoutContainer.addView(loadingView, loadingViewParams);
+
+        mediaContextWait.layoutContainer = layoutContainer;
+        mediaContextWait.loadingView = loadingView;
+    }
+
+    private void addMediaContextByQueue(final MediaContextWait mediaContextWait) {
+        if (mediaContextWait == null) return;
+
+        final File mediaContextFile = GlobalUtils.getDiaryMediaContext(
+                UserProfile.getUserProfile().getUserID(),
+                nowDiary.getDiaryID(), mediaContextWait.mediaContextName);
+        int mediaType = -1;
+        switch (mediaContextWait.mediaContextType) {
+            case "picture":
+                mediaType = MediaContext.MEDIA_TYPE_IMAGE; break;
+            case "music":
+                mediaType = MediaContext.MEDIA_TYPE_AUDIO; break;
+            case "video":
+                mediaType = MediaContext.MEDIA_TYPE_VIDEO; break;
+        }
+        final MediaContext mediaContext = new MediaContext(ViewDiaryActivity.this,
+                mediaContextFile, mediaType);
+
+        if (mediaContextFile.exists()) {
+            Log.d("ViewDiaryActivity", "File existed: " + mediaContextFile.toString());
+            addMediaContextView(mediaContext, mediaContextWait.layoutContainer);
+            mediaContextWait.layoutContainer.removeView(mediaContextWait.loadingView);
+            mediaContextList.add(mediaContext);
+
+            //download next
+            nextDownloadMediaContext();
+        } else {    //download
+            Log.d("ViewDiaryActivity", "No file! Download: " + mediaContextWait.mediaContextName);
+            mediaContextWait.loadingView.setLoadingMessage("Downloading " + mediaContextWait.mediaContextName);
+
+            MediaContextDownloadConnector conn = new MediaContextDownloadConnector("download", "POST",
+                    new MediaContextDownloadConnector.OnConnectListener() {
+                        @Override
+                        public void onDone(Boolean success, String fileName, String type) {
+                            if (success) {
+                                addMediaContextView(mediaContext, mediaContextWait.layoutContainer);
+                                mediaContextWait.layoutContainer.removeView(mediaContextWait.loadingView);
+                                mediaContextList.add(mediaContext);
+                            } else {
+                                Log.d("ViewDiaryActivity", "Download Failed: " + fileName);
+                                mediaContextWait.loadingView.setLoadingMessage("Download Failed:" + fileName);
+                            }
+
+                            //download next
+                            nextDownloadMediaContext();
+                        }
+
+                        @Override
+                        public void onCancelled() {
+                            try {
+                                if(mediaContextFile.exists()) {
+                                    mediaContextFile.delete();
+                                }
+                            } catch (Exception e){}
+                        }
+                    });
+            conn.request(UserProfile.getUserProfile().getUserID(), nowDiary.getDiaryID(),
+                    mediaContextWait.mediaContextId, mediaContextWait.mediaContextName,
+                    mediaContextWait.mediaContextType);
+        }
+    }
+
+    @Deprecated
     private void addMediaContext(final int mediaContextId, final String mediaContextName,
-                                   final String mediaContextType) {
+                                 final String mediaContextType) {
         File mediaContextFile = GlobalUtils.getDiaryMediaContext(
                 UserProfile.getUserProfile().getUserID(),
                 nowDiary.getDiaryID(), mediaContextName);
@@ -267,7 +394,7 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
                 mediaContextFile, mediaType);
 
         if (mediaContextFile.exists()) {
-            Log.d("ViewDiaryAcitivty", "File existed: " + mediaContextFile.toString());
+            Log.d("ViewDiaryActivity", "File existed: " + mediaContextFile.toString());
             addMediaContextView(mediaContext, layoutAttachmentFiles);
             mediaContextList.add(mediaContext);
         } else {    //download
@@ -290,7 +417,7 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
             layoutContainer.addView(loadingView, loadingViewParams);
 
             //start download
-            Log.d("ViewDiaryAcitivty", "No file! Download: " + mediaContextName);
+            Log.d("ViewDiaryActivity", "No file! Download: " + mediaContextName);
             MediaContextDownloadConnector conn = new MediaContextDownloadConnector("download", "POST",
                     new MediaContextDownloadConnector.OnConnectListener() {
                         @Override
