@@ -5,12 +5,12 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.microsoft.bing.speech.SpeechClientStatus;
-import com.microsoft.projectoxford.speechrecognition.DataRecognitionClient;
-import com.microsoft.projectoxford.speechrecognition.ISpeechRecognitionServerEvents;
-import com.microsoft.projectoxford.speechrecognition.RecognitionResult;
-import com.microsoft.projectoxford.speechrecognition.RecognitionStatus;
-import com.microsoft.projectoxford.speechrecognition.SpeechRecognitionMode;
-import com.microsoft.projectoxford.speechrecognition.SpeechRecognitionServiceFactory;
+import com.microsoft.cognitiveservices.speechrecognition.DataRecognitionClient;
+import com.microsoft.cognitiveservices.speechrecognition.ISpeechRecognitionServerEvents;
+import com.microsoft.cognitiveservices.speechrecognition.RecognitionResult;
+import com.microsoft.cognitiveservices.speechrecognition.RecognitionStatus;
+import com.microsoft.cognitiveservices.speechrecognition.SpeechRecognitionMode;
+import com.microsoft.cognitiveservices.speechrecognition.SpeechRecognitionServiceFactory;
 
 import java.io.File;
 import java.io.FileInputStream;

@@ -189,11 +189,20 @@ public class AudioPlayerView extends RelativeLayout implements RemovableView {
                         public void run() {
                             while(true) {
                                 if (mediaPlayer == null) break;
-                                if (mediaPlayer.isPlaying()) {
-                                    Message msg = Message.obtain(audioCheckHandler);
-                                    msg.what = 0;
-                                    msg.arg1 = mediaPlayer.getCurrentPosition();
-                                    audioCheckHandler.sendMessage(msg);
+                                try {
+                                    if (mediaPlayer.isPlaying()) {
+                                        Message msg = Message.obtain(audioCheckHandler);
+                                        msg.what = 0;
+                                        msg.arg1 = mediaPlayer.getCurrentPosition();
+                                        audioCheckHandler.sendMessage(msg);
+                                    }
+                                } catch (IllegalStateException ise) {
+                                    ise.printStackTrace();
+                                    try {
+                                        mediaPlayer.stop();
+                                        mediaPlayer.release();
+                                    } catch (Exception e) {}
+                                    mediaPlayer = null;
                                 }
                                 try {
                                     Thread.sleep(200);

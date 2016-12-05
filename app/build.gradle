@@ -15,7 +15,7 @@ android {
     productFlavors {
         x86 {
             ndk {
-                abiFilter "x86"
+                abiFilters "x86"
             }
         }
         arm {
@@ -47,8 +47,7 @@ android {
 
     sourceSets.main {
         jni.srcDirs = []
-        assets.srcDirs = ['assets']
-        jniLibs.srcDir '../SpeechSDK/libs'
+        jniLibs.srcDir 'src/main/jniLibs'
     }
 
     lintOptions {
@@ -63,7 +62,6 @@ dependencies {
     }
     //    compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
-    compile 'com.microsoft.projectoxford:speechrecognition:0.6.0'
     compile 'com.android.support:appcompat-v7:24.1.1'
     compile 'com.android.support:design:24.1.1'
     compile 'com.android.support:cardview-v7:24.1.1'
@@ -80,5 +78,5 @@ dependencies {
     compile files('libs/httpcore-4.4.4.jar')
     compile files('libs/jna-4.1.0.jar')
     compile files('libs/jna-platform-4.1.0.jar')
-    compile 'com.google.android.gms:play-services-appindexing:8.4.0'
+    compile 'com.microsoft.projectoxford:speechrecognition:1.1.0'
 }
