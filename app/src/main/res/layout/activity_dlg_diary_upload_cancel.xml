@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="@color/white"
+    tools:context=".service.UploadCancelDialogActivity">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:textSize="24sp"
+        android:textColor="@color/indigo_500"
+        android:text="Confirm to Cancel Uploading" />
+
+    <TextView
+        android:id="@+id/tvDiaryUploadCancel"
+        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:textSize="16sp"
+        android:textColor="@color/grey_700"
+        android:text="Are you sure to cancel diary 'aaa'?" />
+
+    <LinearLayout
+        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/btnDiaryUploadCancelYes"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:textSize="18sp"
+            android:textColor="@color/pink_a_clickable_text_color"
+            android:text="Yes"
+            android:focusable="true"
+            android:clickable="true"
+            android:onClick="onClick"/>
+        <TextView
+            android:id="@+id/btnDiaryUploadCancelNo"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:textSize="18sp"
+            android:textColor="@color/pink_a_clickable_text_color"
+            android:text="No"
+            android:focusable="true"
+            android:clickable="true"
+            android:onClick="onClick"/>
+
+    </LinearLayout>
+</LinearLayout>

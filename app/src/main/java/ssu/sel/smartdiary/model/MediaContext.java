@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 
 import java.io.File;
+import java.io.Serializable;
 
 import ssu.sel.smartdiary.GlobalUtils;
 
@@ -11,7 +12,7 @@ import ssu.sel.smartdiary.GlobalUtils;
  * Created by hanter on 2016. 11. 10..
  */
 
-public class MediaContext {
+public class MediaContext implements Serializable {
     public static final int MEDIA_TYPE_IMAGE = 0;
     public static final int MEDIA_TYPE_VIDEO = 1;
     public static final int MEDIA_TYPE_AUDIO = 2;

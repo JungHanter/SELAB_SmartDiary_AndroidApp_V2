@@ -77,6 +77,14 @@
             android:screenOrientation="portrait"
             android:label="Profile"
             android:parentActivityName=".MainActivity" />
+
+        <service android:name=".service.DiaryUploadService" />
+        <activity android:name=".service.UploadCancelDialogActivity"
+            android:theme="@android:style/Theme.Holo.Dialog.NoActionBar.MinWidth">
+            <intent-filter>
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

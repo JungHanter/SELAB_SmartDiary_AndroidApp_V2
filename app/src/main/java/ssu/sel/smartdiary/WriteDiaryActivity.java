@@ -53,6 +53,7 @@ import ssu.sel.smartdiary.model.DiaryContext;
 import ssu.sel.smartdiary.model.MediaContext;
 import ssu.sel.smartdiary.model.UserProfile;
 import ssu.sel.smartdiary.network.DiaryUploadRestConnector;
+import ssu.sel.smartdiary.service.DiaryUploadService;
 import ssu.sel.smartdiary.speech.WavRecorder;
 import ssu.sel.smartdiary.view.AudioPlayerView;
 import ssu.sel.smartdiary.view.RemovableView;
@@ -332,6 +333,7 @@ public class WriteDiaryActivity extends AppCompatActivity {
     }
 
     protected void saveDiary() {
+
         String title = edtTitle.getText().toString();
         String content = edtContent.getText().toString();
 
@@ -428,7 +430,16 @@ public class WriteDiaryActivity extends AppCompatActivity {
             showProgress(true);
             if (diaryAcitivityType.equals("NEW_AUDIO")) {
                 File recordedFile = (File) getIntent().getSerializableExtra("DIARY_AUDIO");
-                saveDiaryConnector.request(recordedFile, mediaContextList, json);
+
+                Intent i = new Intent(getApplicationContext(), DiaryUploadService.class);
+                i.putExtra(DiaryUploadService.EXTRA_NAME_DIARY_TITLE, title);
+                i.putExtra(DiaryUploadService.EXTRA_NAME_RECORDED_FILE, recordedFile);
+                i.putExtra(DiaryUploadService.EXTRA_NAME_RECORDED_TEMP_FILE, diaryAudioFile);
+                i.putExtra(DiaryUploadService.EXTRA_NAME_MEDIA_CONTEXTS, mediaContextList);
+                i.putExtra(DiaryUploadService.EXTRA_NAME_REQUEST_JSON, json.toString());
+                startService(i);
+
+//                saveDiaryConnector.request(recordedFile, mediaContextList, json);
             } else {
 //                saveDiaryConnector.request(null, json);
             }
