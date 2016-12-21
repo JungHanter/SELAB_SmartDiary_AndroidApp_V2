@@ -159,6 +159,30 @@ public class WriteDiaryActivity extends AppCompatActivity {
         edtTitleBGDrawble.mutate().setColorFilter(getResources().getColor(R.color.indigo_500),
                 PorterDuff.Mode.SRC_ATOP);
         edtTitle.setBackground(edtTitleBGDrawble);
+        edtTitle.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    edtTitle.setError(null);
+                    String title = edtTitle.getText().toString();
+
+                    if (TextUtils.isEmpty(title)) {
+                        edtTitle.setError(getString(R.string.error_field_required));
+                    }
+                }
+            }
+        });
+        edtContent.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    edtContent.setError(null);
+                    String content = edtContent.getText().toString();
+
+                    if (TextUtils.isEmpty(content)) {
+                        edtContent.setError(getString(R.string.error_field_required));
+                    }
+                }
+            }
+        });
 
         if (diaryAcitivityType.equals("NEW_AUDIO")) {
 //            edtTitle.setText(intent.getStringExtra("DIARY_TITLE"));
@@ -336,7 +360,6 @@ public class WriteDiaryActivity extends AppCompatActivity {
     }
 
     protected void saveDiary() {
-
         String title = edtTitle.getText().toString();
         String content = edtContent.getText().toString();
 
@@ -344,17 +367,13 @@ public class WriteDiaryActivity extends AppCompatActivity {
         View focusView = null;
 
         if (TextUtils.isEmpty(content)) {
-            edtContent.setError("Content is empty");
+            edtContent.setError(getString(R.string.error_field_required));
             focusView = edtContent;
             cancel = true;
         }
 
         if (TextUtils.isEmpty(title)) {
-            edtTitle.setError("Title is empty");
-            focusView = edtTitle;
-            cancel = true;
-        } else if (title.length() < 4) {
-            edtTitle.setError("Title is too short");
+            edtTitle.setError(getString(R.string.error_field_required));
             focusView = edtTitle;
             cancel = true;
         }

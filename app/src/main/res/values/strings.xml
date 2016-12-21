@@ -7,8 +7,8 @@
     <string name="action_sign_in">Sign in or register</string>
     <string name="action_sign_in_short">Sign in</string>
     <string name="action_sign_up">Sign up</string>
-    <string name="error_invalid_id">This user ID is invalid</string>
-    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_invalid_id">ID is more than 3 letter</string>
+    <string name="error_invalid_password">Password is more than 4 letter</string>
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email

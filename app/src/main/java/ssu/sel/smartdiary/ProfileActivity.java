@@ -33,6 +33,7 @@ public class ProfileActivity extends SignupActivity {
     private View layoutBtnMore;
     private Button btnLogout;
 
+    protected AlertDialog updateSuccessAlert = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +88,17 @@ public class ProfileActivity extends SignupActivity {
             }
         }, birthdayCal.get(Calendar.YEAR), birthdayCal.get(Calendar.MONTH),
                 birthdayCal.get(Calendar.DAY_OF_MONTH));
+
+        updateSuccessAlert = new AlertDialog.Builder(this)
+                .setCancelable(false)
+                .setTitle("Update Profile").setMessage("Profile is successfully updated.")
+                .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        updateSuccessAlert.dismiss();
+                        ProfileActivity.this.finish();
+                    }
+                }).create();
     }
 
     @Override
@@ -109,7 +121,7 @@ public class ProfileActivity extends SignupActivity {
                                             birthdayCal, selGender,
                                             edtEmail.getText().toString(),
                                             edtPhone.getText().toString());
-                                    openAlertModal("Profile is successfully updated.");
+                                    updateSuccessAlert.show();
                                 } else {
                                     openAlertModal("Profile is not updated.");
                                 }
@@ -119,7 +131,7 @@ public class ProfileActivity extends SignupActivity {
                             }
                         } else {
                             Log.d("Signup - Json", "No response");
-                            openAlertModal("There is no repsonse...");
+                            openAlertModal("There is no response...");
                         }
                     }
 

@@ -86,6 +86,36 @@ public class SignupActivity extends AppCompatActivity {
 
         setModals();
         setConnector();
+
+        edtUserId.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    edtUserId.setError(null);
+                    String userId = edtUserId.getText().toString();
+
+                    if (TextUtils.isEmpty(userId)) {
+                        edtUserId.setError(getString(R.string.error_field_required));
+                    } else if (!isUserIdValid(userId)) {
+                        edtUserId.setError(getString(R.string.error_invalid_id));
+                    }
+                }
+            }
+        });
+
+        edtUserName.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    edtUserName.setError(null);
+                    String userName = edtUserName.getText().toString();
+
+                    if (TextUtils.isEmpty(userName)) {
+                        edtUserName.setError(getString(R.string.error_field_required));
+                    } else if (!isUserNameValid(userName)) {
+                        edtUserName.setError("Name is more than 2 letter");
+                    }
+                }
+            }
+        });
     }
 
     protected void setModals() {
@@ -122,6 +152,12 @@ public class SignupActivity extends AppCompatActivity {
         dlgAlert.show();
     }
 
+    protected void openAlertModal(CharSequence msg, CharSequence title) {
+        dlgAlert.setTitle(title);
+        dlgAlert.setMessage(msg);
+        dlgAlert.show();
+    }
+
     protected void setConnector() {
         profileConnector = new JsonRestConnector("user", "POST",
                 new JsonRestConnector.OnConnectListener() {
@@ -144,7 +180,7 @@ public class SignupActivity extends AppCompatActivity {
                             }
                         } else {
                             Log.d("Signup - Json", "No response");
-                            openAlertModal("There is no reponse...");
+                            openAlertModal("There is no response...");
                         }
                     }
 
@@ -177,7 +213,7 @@ public class SignupActivity extends AppCompatActivity {
         View focusView = btnConfirm;
 
         if (!isEmailValid(email)) {
-            edtEmail.setError("This is not email forma");
+            edtEmail.setError("This is not email format");
             focusView = edtEmail;
             cancel = true;
         }
@@ -198,7 +234,7 @@ public class SignupActivity extends AppCompatActivity {
             focusView = edtUserName;
             cancel = true;
         } else if (!isUserNameValid(userName)) {
-            edtUserName.setError("The name is too short");
+            edtUserName.setError("Name is more than 2 letter");
             focusView = edtUserName;
             cancel = true;
         }
@@ -276,7 +312,7 @@ public class SignupActivity extends AppCompatActivity {
     }
 
     private boolean isUserNameValid(String userName) {
-        return userName.length() >= 4;
+        return userName.length() >= 2;
     }
 
     private boolean isBirthdayValid(long birthday) {
