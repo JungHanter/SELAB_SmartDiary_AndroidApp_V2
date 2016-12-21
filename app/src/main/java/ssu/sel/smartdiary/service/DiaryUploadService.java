@@ -37,6 +37,8 @@ public class DiaryUploadService extends IntentService {
     public static String EXTRA_NAME_RECORDED_FILE = "RECORDED_FILE";
     public static String EXTRA_NAME_RECORDED_TEMP_FILE = "TEMP_FILE";
     public static String EXTRA_NAME_MEDIA_CONTEXTS = "MEDIA_CONTEXTS";
+    public static String EXTRA_NAME_MEDIA_CONTEXTS_TYPES = "MEDIA_CONTEXTS_TYPES";
+    public static String EXTRA_NAME_MEDIA_CONTEXTS_FILES = "MEDIA_CONTEXTS_FILES";
     public static String EXTRA_NAME_REQUEST_JSON = "REQUEST_JSON";
 
     private static int notificationID = 1;
@@ -56,7 +58,14 @@ public class DiaryUploadService extends IntentService {
         final String diaryTitle = (String)intent.getSerializableExtra(EXTRA_NAME_DIARY_TITLE);
         final File recordedFile = (File)intent.getSerializableExtra(EXTRA_NAME_RECORDED_FILE);
         final File tempFile = (File)intent.getSerializableExtra(EXTRA_NAME_RECORDED_TEMP_FILE);
-        final ArrayList<MediaContext> mediaContextList = (ArrayList<MediaContext>)intent.getSerializableExtra(EXTRA_NAME_MEDIA_CONTEXTS);
+//        final ArrayList<MediaContext> mediaContextList = (ArrayList<MediaContext>)intent.getSerializableExtra(EXTRA_NAME_MEDIA_CONTEXTS);
+        final ArrayList<Integer> mediaTypeList = (ArrayList<Integer>)intent.getSerializableExtra(EXTRA_NAME_MEDIA_CONTEXTS_TYPES);
+        final ArrayList<File> fileList = (ArrayList<File>)intent.getSerializableExtra(EXTRA_NAME_MEDIA_CONTEXTS_FILES);
+        final ArrayList<MediaContext> mediaContextList = new ArrayList<>(mediaTypeList.size());
+        for (int i=0; i<mediaTypeList.size(); i++) {
+            mediaContextList.add(new MediaContext(this.getApplicationContext(),
+                    fileList.get(i), mediaTypeList.get(i)));
+        }
         final String jsonString = (String)intent.getSerializableExtra(EXTRA_NAME_REQUEST_JSON);
 
         Log.d("DiaryUploadService", "onHandleIntent!");
@@ -88,6 +97,8 @@ public class DiaryUploadService extends IntentService {
         builder.setContentIntent(pendingIntent);
 
         //upload diary to server
+        final StringBuilder errorMessageBuilder = new StringBuilder();
+
         saveDiaryConnector = new DiaryUploadRestConnector("diary", "POST",
                 new DiaryUploadRestConnector.OnConnectListener() {
                     @Override
@@ -103,8 +114,10 @@ public class DiaryUploadService extends IntentService {
                                     //Copy the temp file to diary audio cache file
                                     if(tempFile != null) {
                                         try {
-                                            BufferedInputStream bis = new BufferedInputStream(new FileInputStream(diaryAudioFile));
-                                            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(
+                                            BufferedInputStream bis = new BufferedInputStream(
+                                                    new FileInputStream(tempFile));
+                                            BufferedOutputStream bos = new BufferedOutputStream(
+                                                    new FileOutputStream(
                                                     GlobalUtils.getDiaryFile(
                                                             UserProfile.getUserProfile().getUserID(), diaryId)));
 
@@ -118,7 +131,9 @@ public class DiaryUploadService extends IntentService {
 
                                         } catch (Exception e) {
                                             e.printStackTrace();
-                                            Log.d("WriteDiaryAcitivity", "Audio Copy Failed");
+                                            Log.d("UploadingDiary", "Audio Copy Failed");
+                                            isCanceled = isFailed = true;
+
                                             try {
                                                 GlobalUtils.getDiaryFile(
                                                         UserProfile.getUserProfile().getUserID(), diaryId)
@@ -153,24 +168,32 @@ public class DiaryUploadService extends IntentService {
                                         }
                                     }
 
-                                    WriteDiaryActivity.this.finish();
                                 } else {
-                                    openAlertModal("Diary Create Failed.\n Please Retry Again.");
+                                    Log.d("UploadingDiary", "Diary Create Failed");
+                                    errorMessageBuilder.append("Diary create failed. Please retry again.");
+                                    isCanceled = isFailed = true;
                                 }
 
                             } catch (Exception e) {
                                 e.printStackTrace();
-                                Log.d("Main - Json", "Json parsing error");
-                                openAlertModal("Json parsing error.", "Error");
+                                Log.d("UploadingDiary", "Json parsing error");
+                                errorMessageBuilder.append("Json parsing error.");
+                                isCanceled = isFailed = true;
                             }
                         } else {
-                            Log.d("WriteDiary - Json", "No response");
-                            openAlertModal("There is no reponse...");
+                            Log.d("UploadingDiary", "No response");
+                            errorMessageBuilder.append("There is no response...");
+                            isCanceled = isFailed = true;
                         }
 
-                        showProgress(false);
+                        isUploading = false;
                     }
                 });
+        JSONObject json = null;
+        try {
+            json = new JSONObject(jsonString);
+        } catch (Exception e) {}
+        saveDiaryConnector.request(recordedFile, mediaContextList, json);
 
         //notify the notification
         Notification notification = builder.build();
@@ -190,10 +213,10 @@ public class DiaryUploadService extends IntentService {
         if (isCanceled) {
             if (isFailed) {
                 builder.setContentTitle("Diary \"" + diaryTitle + "\"")
-                        .setContentText("Uploading diary is canceled.");
+                        .setContentText("Uploading diary is failed. " + errorMessageBuilder.toString());
             } else {
                 builder.setContentTitle("Diary \"" + diaryTitle + "\"")
-                        .setContentText("Uploading diary is failed.");
+                        .setContentText("Uploading diary is canceled.");
             }
         } else {
             builder.setContentTitle("Diary \"" + diaryTitle + "\"")

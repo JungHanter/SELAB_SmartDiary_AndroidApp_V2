@@ -16,6 +16,7 @@ public class DiaryContext {
     public static final String CONTEXT_TYPE_ENVIRONMENT = "environment";
     public static final String SUB_TYPE_ENV_PLACE = "place";
     public static final String SUB_TYPE_ENV_WEATHER = "weather";
+    public static final String SUB_TYPE_ENV_HOLIDAY = "holiday";
     public static final String SUB_TYPE_ENV_EVENT = "event";
 
     private final long contextId;

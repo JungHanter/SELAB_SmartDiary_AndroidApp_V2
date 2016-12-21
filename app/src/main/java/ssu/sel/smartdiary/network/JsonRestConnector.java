@@ -31,12 +31,13 @@ import ssu.sel.smartdiary.GlobalUtils;
  */
 public class JsonRestConnector {
     public static final String SERVER_URL = GlobalUtils.SERVER_URL;
-    public static int CONNECTION_TIME_OUT = 3000;
-    public static int READ_TIME_OUT = 10000;
+    public static final int CONNECTION_TIME_OUT = 3000;
+    public static final int READ_TIME_OUT = 10000;
 
     private String apiUrl = "";
     private String method = "";
     private OnConnectListener listener = null;
+    private int readTimeOut = READ_TIME_OUT;
 
     public JsonRestConnector(String apiUrl, String method, OnConnectListener l) {
         this.apiUrl = apiUrl;
@@ -98,7 +99,7 @@ public class JsonRestConnector {
 
                         conn.setDoInput(true);
                         conn.setConnectTimeout(CONNECTION_TIME_OUT);
-                        conn.setReadTimeout(READ_TIME_OUT);
+                        conn.setReadTimeout(readTimeOut);
                     } else {
                         url = new URL(SERVER_URL + apiUrl);
                         conn = (HttpURLConnection)url.openConnection();
@@ -110,7 +111,7 @@ public class JsonRestConnector {
                         conn.setDoInput(true);
                         conn.setDoOutput(true);
                         conn.setConnectTimeout(CONNECTION_TIME_OUT);
-                        conn.setReadTimeout(READ_TIME_OUT);
+                        conn.setReadTimeout(readTimeOut);
 
                         Log.d("JsonConnector", "request json: " + json.toString());
 
@@ -177,6 +178,10 @@ public class JsonRestConnector {
         };
 
         reqTask.execute((Void) null);
+    }
+
+    public void setReadTimeOut(int readTimeOut) {
+        this.readTimeOut = readTimeOut;
     }
 
     public static abstract class OnConnectListener {

@@ -72,23 +72,6 @@
 
                             <LinearLayout
                                 android:layout_width="match_parent"
-                                android:layout_height="32dp"
-                                android:orientation="horizontal">
-                                <TextView
-                                    android:textColor="@color/grey_800"
-                                    android:gravity="center_vertical"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="match_parent"
-                                    android:text="Thing:"/>
-                                <Spinner
-                                    android:layout_width="match_parent"
-                                    android:layout_height="match_parent"
-                                    android:gravity="center_vertical|right"
-                                    android:id="@+id/spnLifeActivityThings"/>
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
                                 android:layout_marginTop="8dp"
                                 android:layout_height="32dp"
                                 android:orientation="horizontal">
@@ -117,14 +100,14 @@
                             android:onClick="onAnalyzeClick"
                             android:text="Analyze"/>
 
-                        <!--<ProgressBar-->
-                            <!--style="?android:attr/progressBarStyle"-->
-                            <!--android:layout_width="wrap_content"-->
-                            <!--android:layout_height="wrap_content"-->
-                            <!--android:layout_gravity="center_horizontal"-->
-                            <!--android:layout_marginTop="16dp"-->
-                            <!--android:id="@+id/progressLifeActivity"-->
-                            <!--android:visibility="gone" />-->
+                        <ProgressBar
+                            style="?android:attr/progressBarStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginTop="16dp"
+                            android:id="@+id/progressLifeActivity"
+                            android:visibility="gone" />
 
                         <TextView
                             android:layout_width="match_parent"
@@ -138,6 +121,107 @@
                     </LinearLayout>
                 </LinearLayout>
 
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    <RelativeLayout
+                        android:id="@+id/titleAnalyticsTendency"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="@drawable/background_cardview_clickable"
+                        android:padding="16dp">
+                        <android.support.v7.widget.AppCompatTextView
+                            android:layout_width="match_parent"
+                            android:layout_height="30dp"
+                            android:gravity="center_vertical"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentStart="true"
+                            android:textColor="@color/grey_700"
+                            android:textSize="24sp"
+                            android:text="Tendency"/>
+
+                        <ImageView
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            app:srcCompat="@drawable/ic_expand_more_black"
+                            android:id="@+id/ivAnalyticsTendencyExpand"
+                            android:scaleType="fitXY"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true" />
+                    </RelativeLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layoutAnalyticsTendency"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_marginTop="8dp"
+                                android:layout_height="32dp"
+                                android:orientation="horizontal">
+                                <TextView
+                                    android:textColor="@color/grey_800"
+                                    android:gravity="center_vertical"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="match_parent"
+                                    android:text="Period:"/>
+                                <Spinner
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:gravity="center_vertical|right"
+                                    android:id="@+id/spnTendencyPeriod" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <Button
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/button_pink_a200"
+                            android:textColor="@color/white"
+                            android:textSize="14sp"
+                            android:layout_marginTop="8dp"
+                            android:id="@+id/btnTendencyAnalyze"
+                            android:onClick="onAnalyzeClick"
+                            android:text="Analyze"/>
+
+                        <ProgressBar
+                            style="?android:attr/progressBarStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginTop="16dp"
+                            android:id="@+id/progressTendency"
+                            android:visibility="gone" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginTop="16dp"
+                            android:id="@+id/tvTendencyResult"
+                            android:textColor="@color/grey_700"
+                            android:text="Foods Most Liked:\nPizza, Hamburger, Pasta"
+                            android:textSize="16sp"
+                            android:visibility="visible" />
+                    </LinearLayout>
+                </LinearLayout>
             </android.support.v7.widget.CardView>
 
             <android.support.v7.widget.CardView
@@ -250,124 +334,6 @@
                             android:layout_height="match_parent"
                             android:layout_marginTop="16dp"
                             android:id="@+id/tvWellnessResult"
-                            android:textColor="@color/grey_700"
-                            android:text="Foods Most Liked:\nPizza, Hamburger, Pasta"
-                            android:textSize="16sp"
-                            android:visibility="visible" />
-                    </LinearLayout>
-                </LinearLayout>
-            </android.support.v7.widget.CardView>
-
-            <android.support.v7.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-                    <RelativeLayout
-                        android:id="@+id/titleAnalyticsTendency"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:background="@drawable/background_cardview_clickable"
-                        android:padding="16dp">
-                        <android.support.v7.widget.AppCompatTextView
-                            android:layout_width="match_parent"
-                            android:layout_height="30dp"
-                            android:gravity="center_vertical"
-                            android:layout_alignParentTop="true"
-                            android:layout_alignParentStart="true"
-                            android:textColor="@color/grey_700"
-                            android:textSize="24sp"
-                            android:text="Tendency"/>
-
-                        <ImageView
-                            android:layout_width="30dp"
-                            android:layout_height="30dp"
-                            app:srcCompat="@drawable/ic_expand_more_black"
-                            android:id="@+id/ivAnalyticsTendencyExpand"
-                            android:scaleType="fitXY"
-                            android:layout_alignParentTop="true"
-                            android:layout_alignParentEnd="true" />
-                    </RelativeLayout>
-
-                    <LinearLayout
-                        android:id="@+id/layoutAnalyticsTendency"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="16dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical">
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="32dp"
-                                android:orientation="horizontal">
-                                <TextView
-                                    android:textColor="@color/grey_800"
-                                    android:gravity="center_vertical"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="match_parent"
-                                    android:text="Thing/Activity:"/>
-                                <Spinner
-                                    android:layout_width="match_parent"
-                                    android:layout_height="match_parent"
-                                    android:gravity="center_vertical|right"
-                                    android:id="@+id/spnLifeTendencyThings"/>
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_marginTop="8dp"
-                                android:layout_height="32dp"
-                                android:orientation="horizontal">
-                                <TextView
-                                    android:textColor="@color/grey_800"
-                                    android:gravity="center_vertical"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="match_parent"
-                                    android:text="Tendency Type:"/>
-                                <Spinner
-                                    android:layout_width="match_parent"
-                                    android:layout_height="match_parent"
-                                    android:gravity="center_vertical|right"
-                                    android:id="@+id/spnTendencyType" />
-                            </LinearLayout>
-                        </LinearLayout>
-
-                        <Button
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/button_pink_a200"
-                            android:textColor="@color/white"
-                            android:textSize="14sp"
-                            android:layout_marginTop="8dp"
-                            android:id="@+id/btnTendencyAnalyze"
-                            android:onClick="onAnalyzeClick"
-                            android:text="Analyze"/>
-
-                        <ProgressBar
-                            style="?android:attr/progressBarStyle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_horizontal"
-                            android:layout_marginTop="16dp"
-                            android:id="@+id/progressTendency"
-                            android:visibility="gone" />
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_marginTop="16dp"
-                            android:id="@+id/tvTendencyResult"
                             android:textColor="@color/grey_700"
                             android:text="Foods Most Liked:\nPizza, Hamburger, Pasta"
                             android:textSize="16sp"

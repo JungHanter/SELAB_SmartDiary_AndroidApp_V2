@@ -19,6 +19,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Calendar;
 import java.util.Iterator;
 
 import ssu.sel.smartdiary.model.UserProfile;
@@ -29,9 +30,16 @@ public class AnalyticsActivity extends AppCompatActivity {
     private View titleAnalyticsLifeActivity = null;
     private ImageView ivLifeActivityExpand = null;
     private View layoutAnalyticsLifeActivity = null;
-    private Spinner spnLifeActivityThings = null;
     private Spinner spnLifeActivityPeriod = null;
     private TextView tvLifeActivityResult = null;
+    private ProgressBar progressLifeActivity = null;
+
+    private View titleAnalyticsTendency = null;
+    private ImageView ivAnalyticsTendencyExpand = null;
+    private View layoutAnalyticsTendency = null;
+    private Spinner spnTendencyPeriod = null;
+    private TextView tvTendencyResult = null;
+    private ProgressBar progressTendency = null;
 
     private View titleAnalyticsWellness = null;
     private ImageView ivAnalyticsWellnessExpand = null;
@@ -39,14 +47,6 @@ public class AnalyticsActivity extends AppCompatActivity {
     private Spinner spnWellnessType = null;
     private Spinner spnWellnessPeriod = null;
     private TextView tvWellnessResult = null;
-
-    private View titleAnalyticsTendency = null;
-    private ImageView ivAnalyticsTendencyExpand = null;
-    private View layoutAnalyticsTendency = null;
-    private Spinner spnLifeTendencyThings = null;
-    private Spinner spnTendencyType = null;
-    private TextView tvTendencyResult = null;
-    private ProgressBar progressTendency = null;
 
     private View titleAnalyticsCorrelation = null;
     private ImageView ivAnalyticsCorrelationExpand = null;
@@ -59,6 +59,7 @@ public class AnalyticsActivity extends AppCompatActivity {
     protected AlertDialog dlgAlert = null;
 
     private JsonRestConnector analyzeTendencyConnector = null;
+    private JsonRestConnector analyzeLifeActivityConnector = null;
 
 
     @Override
@@ -82,7 +83,6 @@ public class AnalyticsActivity extends AppCompatActivity {
         titleAnalyticsLifeActivity = findViewById(R.id.titleAnalyticsLifeActivity);
         ivLifeActivityExpand = (ImageView)findViewById(R.id.ivLifeActivityExpand);
         layoutAnalyticsLifeActivity = findViewById(R.id.layoutAnalyticsLifeActivity);
-        spnLifeActivityThings = (Spinner)findViewById(R.id.spnLifeActivityThings);
         spnLifeActivityPeriod = (Spinner)findViewById(R.id.spnLifeActivityPeriod);
         tvLifeActivityResult = (TextView)findViewById(R.id.tvLifeActivityResult);
         layoutAnalyticsLifeActivity.setVisibility(View.GONE);
@@ -98,6 +98,27 @@ public class AnalyticsActivity extends AppCompatActivity {
                 }
             }
         });
+        progressLifeActivity = (ProgressBar)findViewById(R.id.progressLifeActivity);
+
+        titleAnalyticsTendency = findViewById(R.id.titleAnalyticsTendency);
+        ivAnalyticsTendencyExpand = (ImageView)findViewById(R.id.ivAnalyticsTendencyExpand);
+        layoutAnalyticsTendency = findViewById(R.id.layoutAnalyticsTendency);
+        spnTendencyPeriod = (Spinner)findViewById(R.id.spnTendencyPeriod);
+        tvTendencyResult = (TextView)findViewById(R.id.tvTendencyResult);
+        layoutAnalyticsTendency.setVisibility(View.GONE);
+        titleAnalyticsTendency.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if (layoutAnalyticsTendency.getVisibility() == View.GONE) {
+                    layoutAnalyticsTendency.setVisibility(View.VISIBLE);
+                    ivAnalyticsTendencyExpand.setImageResource(R.drawable.ic_expand_less_black);
+                } else {
+                    layoutAnalyticsTendency.setVisibility(View.GONE);
+                    ivAnalyticsTendencyExpand.setImageResource(R.drawable.ic_expand_more_black);
+
+                }
+            }
+        });
+        progressTendency = (ProgressBar)findViewById(R.id.progressTendency);
 
         titleAnalyticsWellness = findViewById(R.id.titleAnalyticsWellness);
         ivAnalyticsWellnessExpand = (ImageView)findViewById(R.id.ivAnalyticsWellnessExpand);
@@ -118,27 +139,6 @@ public class AnalyticsActivity extends AppCompatActivity {
                 }
             }
         });
-
-        titleAnalyticsTendency = findViewById(R.id.titleAnalyticsTendency);
-        ivAnalyticsTendencyExpand = (ImageView)findViewById(R.id.ivAnalyticsTendencyExpand);
-        layoutAnalyticsTendency = findViewById(R.id.layoutAnalyticsTendency);
-        spnLifeTendencyThings = (Spinner)findViewById(R.id.spnLifeTendencyThings);
-        spnTendencyType = (Spinner)findViewById(R.id.spnTendencyType);
-        tvTendencyResult = (TextView)findViewById(R.id.tvTendencyResult);
-        layoutAnalyticsTendency.setVisibility(View.GONE);
-        titleAnalyticsTendency.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if (layoutAnalyticsTendency.getVisibility() == View.GONE) {
-                    layoutAnalyticsTendency.setVisibility(View.VISIBLE);
-                    ivAnalyticsTendencyExpand.setImageResource(R.drawable.ic_expand_less_black);
-                } else {
-                    layoutAnalyticsTendency.setVisibility(View.GONE);
-                    ivAnalyticsTendencyExpand.setImageResource(R.drawable.ic_expand_more_black);
-
-                }
-            }
-        });
-        progressTendency = (ProgressBar)findViewById(R.id.progressTendency);
 
         titleAnalyticsCorrelation = findViewById(R.id.titleAnalyticsCorrelation);
         ivAnalyticsCorrelationExpand = (ImageView)findViewById(R.id.ivAnalyticsCorrelationExpand);
@@ -161,11 +161,6 @@ public class AnalyticsActivity extends AppCompatActivity {
         });
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.analytics_things, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spnLifeActivityThings.setAdapter(adapter);
-
-        adapter = ArrayAdapter.createFromResource(this,
                 R.array.analytics_period, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spnLifeActivityPeriod.setAdapter(adapter);
@@ -181,14 +176,9 @@ public class AnalyticsActivity extends AppCompatActivity {
         spnWellnessPeriod.setAdapter(adapter);
 
         adapter = ArrayAdapter.createFromResource(this,
-                R.array.analytics_things, android.R.layout.simple_spinner_item);
+                R.array.analytics_period, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spnLifeTendencyThings.setAdapter(adapter);
-
-        adapter = ArrayAdapter.createFromResource(this,
-                R.array.analytics_tendency_type, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spnTendencyType.setAdapter(adapter);
+        spnTendencyPeriod.setAdapter(adapter);
 
         adapter = ArrayAdapter.createFromResource(this,
                 R.array.analytics_correlation_aspects, android.R.layout.simple_spinner_item);
@@ -220,7 +210,7 @@ public class AnalyticsActivity extends AppCompatActivity {
                 }).create();
 
 
-        analyzeTendencyConnector = new JsonRestConnector("analyze/lifestyle", "GET",
+        analyzeTendencyConnector = new JsonRestConnector("analyze/tendency", "GET",
                 new JsonRestConnector.OnConnectListener() {
                     @Override
                     public void onDone(JSONObject resJson) {
@@ -229,23 +219,74 @@ public class AnalyticsActivity extends AppCompatActivity {
                             openAlertModal("No response.", "Error");
                         } else {
                             try {
-                                boolean success = resJson.getBoolean("lifestyle");
+                                boolean success = resJson.getBoolean("analyzed");
                                 if (success) {
-                                    JSONArray result = resJson.getJSONArray("result");
+                                    JSONObject result = resJson.getJSONObject("result");
                                     Log.d("Analytics Activity", result.toString());
 
-                                    String resultHtmlString = "<font color='#3F51B5'>Food Most Liked</font>";
-                                    for (int i=0; i<result.length(); i++) {
-                                        JSONObject elem = result.getJSONObject(i);
-                                        resultHtmlString += "<br/>";
-                                        String thing = elem.getString("thing");
-                                        float value = (float)elem.getDouble("value");
-                                        String msg = elem.getString("message");
-                                        resultHtmlString += "<font color='#ff4081'>" + thing + "</font>"
-                                                + " (" + msg + "; " + String.format("%.1f", value) + ")";
-                                    }
-                                    tvTendencyResult.setText(Html.fromHtml(resultHtmlString));
+                                    StringBuilder resultString = new StringBuilder();
+                                    JSONObject posResult = result.getJSONObject("pos");
+                                    Iterator<String> posType = posResult.keys();
+                                    while (posType.hasNext()) {
+                                        String type = posType.next();
 
+                                        JSONArray likeArray = posResult.getJSONArray(type);
+                                        if (likeArray.length() > 0) {
+                                            resultString.append("Most liked " + type).append(":\n");
+                                            for (int i=0; i<likeArray.length(); i++) {
+                                                JSONArray ta = likeArray.getJSONArray(i);
+                                                String name = ta.getString(0);
+                                                double value = ta.getDouble(1);
+                                                resultString.append(name).append(" (");
+                                                String valueString = "Slightly Like";
+                                                if (value == 1) {
+                                                    valueString = "Absolutely Like";
+                                                } else if (value >= 0.8) {
+                                                    valueString = "Very Like";
+                                                } else if (value >= 0.6) {
+                                                    valueString = "More Like";
+                                                } else if (value >= 0.4) {
+                                                    valueString = "Like";
+                                                }
+                                                value = ((int)(value*1000))/1000.0;
+                                                resultString.append(valueString).append("; ")
+                                                        .append(value).append(")\n");
+                                            }
+                                            resultString.append('\n');
+                                        }
+                                    }
+                                    JSONObject negResult = result.getJSONObject("neg");
+                                    Iterator<String> negType = negResult.keys();
+                                    while (negType.hasNext()) {
+                                        String type = negType.next();
+
+                                        JSONArray dislikeArray = negResult.getJSONArray(type);
+                                        if (dislikeArray.length() > 0) {
+                                            resultString.append("Most disliked " + type).append(":\n");
+                                            for (int i=0; i<dislikeArray.length(); i++) {
+                                                JSONArray ta = dislikeArray.getJSONArray(i);
+                                                String name = ta.getString(0);
+                                                double value = ta.getDouble(1);
+                                                resultString.append(name).append(" (");
+                                                String valueString = "Slightly Dislike";
+                                                if (value == -1) {
+                                                    valueString = "Absolutely Dislike";
+                                                } else if (value <= -0.8) {
+                                                    valueString = "Very Dislike";
+                                                } else if (value <= -0.6) {
+                                                    valueString = "More Dislike";
+                                                } else if (value <= -0.4) {
+                                                    valueString = "Dislike";
+                                                }
+                                                value = ((int)(value*1000))/1000.0;
+                                                resultString.append(valueString).append("; ")
+                                                        .append(value).append(")\n");
+                                            }
+                                            resultString.append('\n');
+                                        }
+                                    }
+
+                                    tvTendencyResult.setText(resultString.toString());
                                     tvTendencyResult.setVisibility(View.VISIBLE);
                                 } else {
                                     openAlertModal("Analyze Failed");
@@ -261,19 +302,164 @@ public class AnalyticsActivity extends AppCompatActivity {
                         progressTendency.setVisibility(View.GONE);
                     }
                 });
+        analyzeTendencyConnector.setReadTimeOut(180000); // 3 min
+
+        analyzeLifeActivityConnector = new JsonRestConnector("analyze/activity_pattern", "GET",
+                new JsonRestConnector.OnConnectListener() {
+                    @Override
+                    public void onDone(JSONObject resJson) {
+                        if (resJson == null) {
+                            Log.d("Main - Json", "No response");
+                            openAlertModal("No response.", "Error");
+                        } else {
+                            try {
+                                boolean success = resJson.getBoolean("analyzed");
+                                if (success) {
+                                    JSONObject result = resJson.getJSONObject("result");
+                                    Log.d("Analytics Activity", result.toString());
+
+                                    StringBuilder resultString = new StringBuilder();
+                                    JSONArray recurrentList = result.getJSONArray("recurrent");
+                                    if (recurrentList.length() > 0) {
+                                        resultString.append("Recurrent Analysis:\n");
+                                        for (int i=0; i<recurrentList.length(); i++) {
+                                            JSONArray recItem = recurrentList.getJSONArray(i);
+                                            String name = recItem.getString(0);
+                                            double valuePercent = ((int)(recItem.getDouble(1)*1000))/10.0;
+                                            resultString.append(name).append(": ").
+                                                    append(valuePercent).append("%\n");
+                                        }
+                                        resultString.append('\n');
+                                    }
+                                    JSONArray frequencyList = result.getJSONArray("frequency");
+                                    if (frequencyList.length() > 0) {
+                                        resultString.append("Frequency Analysis:\n");
+                                        for (int i=0; i<frequencyList.length(); i++) {
+                                            JSONArray freqItem = frequencyList.getJSONArray(i);
+                                            String name = freqItem.getString(0);
+                                            JSONArray values = freqItem.getJSONArray(1);
+                                            resultString.append(name).append(": ");
+                                            for (int k=0; k<values.length(); k++) {
+                                                int day = (int)(values.getDouble(k));
+                                                if (values.length()>=2 && k==values.length()-1) {
+                                                    resultString.append(" and ");
+                                                } else if (k>0) {
+                                                    resultString.append(", ");
+                                                }
+                                                resultString.append(day);
+                                            }
+                                            resultString.append(" days\n");
+                                        }
+                                        resultString.append('\n');
+                                    }
+                                    JSONArray regularityList = result.getJSONArray("regularity");
+                                    if (regularityList.length() > 0) {
+                                        resultString.append("Regularity Analysis:\n");
+                                        for (int i=0; i<regularityList.length(); i++) {
+                                            JSONArray regItem = regularityList.getJSONArray(i);
+                                            String name = regItem.getString(0);
+                                            JSONArray values = regItem.getJSONArray(1);
+                                            resultString.append(name).append(": ");
+                                            for (int k=0; k<values.length(); k++) {
+                                                int day = (int)(values.getDouble(k));
+                                                if (values.length()>=2 && k==values.length()-1) {
+                                                    resultString.append(" and ");
+                                                } else if (k>0) {
+                                                    resultString.append(", ");
+                                                }
+                                                resultString.append(day);
+                                            }
+                                            resultString.append(" days\n");
+                                        }
+                                    }
+
+                                    tvLifeActivityResult.setText(resultString.toString());
+                                    tvLifeActivityResult.setVisibility(View.VISIBLE);
+                                } else {
+                                    openAlertModal("Analyze Failed");
+                                    tvLifeActivityResult.setVisibility(View.GONE);
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                                Log.d("Main - Json", "Json parsing error");
+                                openAlertModal("Json parsing error.", "Error");
+                                tvLifeActivityResult.setVisibility(View.GONE);
+                            }
+                        }
+                        progressLifeActivity.setVisibility(View.GONE);
+                    }
+                });
+        analyzeLifeActivityConnector.setReadTimeOut(180000);
     }
 
     public void onAnalyzeClick(View v) {
+        JSONObject reqJson = new JSONObject();
+        long endTime = Calendar.getInstance().getTimeInMillis();
+        long startTime = 0;
+
+        int periodPos = spnTendencyPeriod.getSelectedItemPosition();
+        switch (v.getId()) {
+        case R.id.btnTendencyAnalyze:
+            periodPos = spnTendencyPeriod.getSelectedItemPosition();
+            break;
+        case R.id.btnLifeActivityAnalyze:
+            periodPos = spnLifeActivityPeriod.getSelectedItemPosition();
+            break;
+        }
+        switch (periodPos) {
+        case 1:
+            startTime = endTime - (1000l * 60l * 60l * 24l * 365l * 10l);
+            break;
+        case 2:
+            startTime = endTime - (1000l * 60l * 60l * 24l * 365l * 5l);
+            break;
+        case 3:
+            startTime = endTime - (1000l * 60l * 60l * 24l * 365l);
+            break;
+        case 4:
+            startTime = endTime - (1000l * 60l * 60l * 24l * 30l * 6);
+            break;
+        case 5:
+            startTime = endTime - (1000l * 60l * 60l * 24l * 30l * 3);
+            break;
+        case 6:
+            startTime = endTime - (1000l * 60l * 60l * 24l * 30l);
+            break;
+        }
+
+        try {
+            reqJson.put("user_id", UserProfile.getUserProfile().getUserID());
+            reqJson.put("timestamp_from", startTime);
+//            reqJson.put("timestamp_to", endTime);
+        } catch (Exception e) {}
+
         switch (v.getId()) {
             case R.id.btnTendencyAnalyze:
-                JSONObject reqJson = new JSONObject();
-                try {
-                    reqJson.put("user_id", UserProfile.getUserProfile().getUserID());
-                    reqJson.put("thing_type", "food");
-                    reqJson.put("option", "like");
-                } catch (Exception e) {}
                 progressTendency.setVisibility(View.VISIBLE);
                 analyzeTendencyConnector.request(reqJson);
+                return;
+
+            case R.id.btnLifeActivityAnalyze:
+                int daysInterval = 3;
+
+                switch (periodPos) {
+                    case 0: daysInterval = 0; break;
+                    case 1: daysInterval = 30; break;
+                    case 2: daysInterval = 30; break;
+                    case 3: daysInterval = 14; break;
+                    case 4: daysInterval = 7; break;
+                    case 5: daysInterval = 7; break;
+                    case 6: daysInterval = 3; break;
+                }
+                Log.d("LifeActivityAnalytics", "Days Interval " + daysInterval);
+                try {
+                    reqJson.put("user_id", UserProfile.getUserProfile().getUserID());
+                    reqJson.put("timestamp_from", startTime);
+                    reqJson.put("interval", daysInterval);
+                } catch (Exception e) {}
+
+                progressLifeActivity.setVisibility(View.VISIBLE);
+                analyzeLifeActivityConnector.request(reqJson);
                 return;
         }
     }

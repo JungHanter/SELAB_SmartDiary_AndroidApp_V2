@@ -32,9 +32,11 @@
 
     <string-array name="analytics_period">
         <item>All</item>
-        <item>10 years</item>
-        <item>5 years</item>
+        <item>The last 10 years</item>
+        <item>The last 5 years</item>
         <item>The past year</item>
+        <item>The last 6 months</item>
+        <item>The last 3 months</item>
         <item>The past month</item>
     </string-array>
 

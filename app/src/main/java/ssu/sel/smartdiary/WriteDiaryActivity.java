@@ -16,6 +16,7 @@ import android.graphics.drawable.Drawable;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Debug;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -74,6 +75,7 @@ public class WriteDiaryActivity extends AppCompatActivity {
     protected EditText edtAnnotation = null;
     protected EditText edtEnvPlace = null;
     protected EditText edtEnvWeather = null;
+    protected EditText edtEnvHolidays = null;
     protected EditText edtEnvEvents = null;
 
     protected ScrollView viewWriteDiaryLayout = null;
@@ -146,6 +148,7 @@ public class WriteDiaryActivity extends AppCompatActivity {
         edtAnnotation = (EditText) findViewById(R.id.edtAnnotation);
         edtEnvPlace = (EditText) findViewById(R.id.edtEnvPlace);
         edtEnvWeather = (EditText) findViewById(R.id.edtEnvWeather);
+        edtEnvHolidays = (EditText) findViewById(R.id.edtHolidays);
         edtEnvEvents = (EditText) findViewById(R.id.edtEnvEvents);
         viewWriteDiaryLayout = (ScrollView) findViewById(R.id.viewWriteDiaryForm);
         viewProgress = findViewById(R.id.progressLayout);
@@ -364,6 +367,7 @@ public class WriteDiaryActivity extends AppCompatActivity {
             String envPlace = edtEnvPlace.getText().toString();
             String envWeather = edtEnvWeather.getText().toString();
             String envEvents = edtEnvEvents.getText().toString();
+            String envHolidays = edtEnvHolidays.getText().toString();
             long createdTime = selectedDate.getTime().getTime();
 
             JSONObject json = new JSONObject();
@@ -431,18 +435,30 @@ public class WriteDiaryActivity extends AppCompatActivity {
             if (diaryAcitivityType.equals("NEW_AUDIO")) {
                 File recordedFile = (File) getIntent().getSerializableExtra("DIARY_AUDIO");
 
-                Intent i = new Intent(getApplicationContext(), DiaryUploadService.class);
-                i.putExtra(DiaryUploadService.EXTRA_NAME_DIARY_TITLE, title);
-                i.putExtra(DiaryUploadService.EXTRA_NAME_RECORDED_FILE, recordedFile);
-                i.putExtra(DiaryUploadService.EXTRA_NAME_RECORDED_TEMP_FILE, diaryAudioFile);
-                i.putExtra(DiaryUploadService.EXTRA_NAME_MEDIA_CONTEXTS, mediaContextList);
-                i.putExtra(DiaryUploadService.EXTRA_NAME_REQUEST_JSON, json.toString());
-                startService(i);
+                // URI is not serializable, so mediacontextlist cannot add for extra
+//                ArrayList<Integer> mediaTypeList = new ArrayList<>(mediaContextList.size());
+//                ArrayList<File> fileList = new ArrayList<>(mediaContextList.size());
+//                for (MediaContext mediaContext : mediaContextList) {
+//                    mediaTypeList.add(mediaContext.getMediaType());
+//                    fileList.add(mediaContext.getFile());
+//                }
+//
+//                Intent i = new Intent(getApplicationContext(), DiaryUploadService.class);
+//                i.putExtra(DiaryUploadService.EXTRA_NAME_DIARY_TITLE, title);
+//                i.putExtra(DiaryUploadService.EXTRA_NAME_RECORDED_FILE, recordedFile);
+//                i.putExtra(DiaryUploadService.EXTRA_NAME_RECORDED_TEMP_FILE, diaryAudioFile);
+////                i.putExtra(DiaryUploadService.EXTRA_NAME_MEDIA_CONTEXTS, mediaContextList);
+//                i.putExtra(DiaryUploadService.EXTRA_NAME_MEDIA_CONTEXTS_TYPES, mediaTypeList);
+//                i.putExtra(DiaryUploadService.EXTRA_NAME_MEDIA_CONTEXTS_FILES, fileList);
+//                i.putExtra(DiaryUploadService.EXTRA_NAME_REQUEST_JSON, json.toString());
+//                startService(i);
 
-//                saveDiaryConnector.request(recordedFile, mediaContextList, json);
+                saveDiaryConnector.request(recordedFile, mediaContextList, json);
             } else {
-//                saveDiaryConnector.request(null, json);
+                saveDiaryConnector.request(null, null, json);
+//                openAlertModal("ERROR");
             }
+//            WriteDiaryActivity.this.finish();
         }
     }
 
@@ -574,7 +590,15 @@ public class WriteDiaryActivity extends AppCompatActivity {
                 try {
 //                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(),
 //                            mediaContext.getUri());
-                    Bitmap bitmap = BitmapFactory.decodeFile(mediaContext.getFile().getAbsolutePath());
+                    Log.d("BitmapFactory", "NativeHeapSize: " + Debug.getNativeHeapSize());
+                    Log.d("BitmapFactory", "NativeHeapFreeSize: " + Debug.getNativeHeapFreeSize());
+                    Log.d("BitmapFactory", "NativeHeapAllocatedSize: " + Debug.getNativeHeapAllocatedSize());
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inSampleSize=2;
+                    options.inDither=true;
+                    options.inPurgeable=true;
+
+                    Bitmap bitmap = BitmapFactory.decodeFile(mediaContext.getFile().getAbsolutePath(), options);
 
                     ivMedia.setImageBitmap(bitmap);
 

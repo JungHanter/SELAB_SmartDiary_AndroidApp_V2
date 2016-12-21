@@ -94,6 +94,7 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
         edtAnnotation = (EditText)findViewById(R.id.edtAnnotation);
         edtEnvPlace = (EditText)findViewById(R.id.edtEnvPlace);
         edtEnvWeather = (EditText) findViewById(R.id.edtEnvWeather);
+        edtEnvHolidays = (EditText) findViewById(R.id.edtHolidays);
         edtEnvEvents = (EditText) findViewById(R.id.edtEnvEvents);
         btnConfirm = (Button)findViewById(R.id.btnDiaryConfirm);
         viewWriteDiaryLayout = (ScrollView) findViewById(R.id.viewWriteDiaryForm);
@@ -522,12 +523,16 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
         ArrayList<DiaryContext> envWeathers =
                 diary.getDiaryContexts(DiaryContext.CONTEXT_TYPE_ENVIRONMENT,
                         DiaryContext.SUB_TYPE_ENV_WEATHER);
+        ArrayList<DiaryContext> envHolidays =
+                diary.getDiaryContexts(DiaryContext.CONTEXT_TYPE_ENVIRONMENT,
+                        DiaryContext.SUB_TYPE_ENV_HOLIDAY);
         ArrayList<DiaryContext> envEvents =
                 diary.getDiaryContexts(DiaryContext.CONTEXT_TYPE_ENVIRONMENT,
                         DiaryContext.SUB_TYPE_ENV_EVENT);
 
         edtEnvPlace.setText(DiaryContext.diaryContextsToString(envPlaces));
         edtEnvWeather.setText(DiaryContext.diaryContextsToString(envWeathers));
+        edtEnvHolidays.setText(DiaryContext.diaryContextsToString(envHolidays));
         edtEnvEvents.setText(DiaryContext.diaryContextsToString(envEvents));
     }
 
@@ -538,6 +543,7 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
         edtAnnotation.setFocusable(false);
         edtEnvPlace.setFocusable(false);
         edtEnvWeather.setFocusable(false);
+        edtEnvHolidays.setFocusable(false);
         edtEnvEvents.setFocusable(false);
         btnConfirm.setVisibility(View.GONE);
     }
