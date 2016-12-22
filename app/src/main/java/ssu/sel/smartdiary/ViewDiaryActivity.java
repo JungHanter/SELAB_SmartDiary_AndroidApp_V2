@@ -1,5 +1,6 @@
 package ssu.sel.smartdiary;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,6 +11,8 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -38,6 +41,9 @@ import ssu.sel.smartdiary.view.MediaContextLoadingView;
  * Created by hanter on 16. 10. 7..
  */
 public class ViewDiaryActivity extends WriteDiaryActivity {
+    private View viewModeActionbar = null;
+    private View editModeActionbar = null;
+
     private Button btnConfirm = null;
 
     private View layoutAttachment = null;
@@ -71,14 +77,8 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
 
     @Override
     protected void initView() {
-        ActionBar actionBar = getSupportActionBar();
-//        View actionbarView = getLayoutInflater().inflate(R.layout.action_bar_view_diary_noedit, null);
-        View actionbarView = getLayoutInflater().inflate(R.layout.action_bar_view_diary, null);
-        actionBar.setCustomView(actionbarView,
-                new ActionBar.LayoutParams(ActionBar.LayoutParams.MATCH_PARENT,
-                        ActionBar.LayoutParams.MATCH_PARENT, Gravity.CENTER));
-        actionBar.setDisplayShowCustomEnabled(true);
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        viewModeActionbar = getLayoutInflater().inflate(R.layout.action_bar_view_diary, null);
+        editModeActionbar = getLayoutInflater().inflate(R.layout.action_bar_edit_diary, null);
 
         setContentView(R.layout.activity_write_diary);
 
@@ -104,20 +104,121 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
         layoutAttachment.setVisibility(View.GONE);
         layoutAttachmentFiles = (LinearLayout) findViewById(R.id.layoutAttachmentFiles);
 
+        edtEnvPlace.setFocusable(false);
+        edtEnvWeather.setFocusable(false);
+        edtEnvHolidays.setFocusable(false);
+        edtEnvEvents.setFocusable(false);
+
         diaryAcitivityType = "VIEW";
-        setDiaryViews();
 
         edtTitle.setText("");
         edtContent.setText("");
         selectedDate = Calendar.getInstance();
 
         setModals();
+        setEditModeViews();
+        changeEditMode(false);
         setJsonConnectors();
 
         diaryRecordAudioPlayer.setDiaryAudioName(this);
 
         //EXAMPLE
 //        findViewById(R.id.exampleAttachment).setVisibility(View.VISIBLE);
+    }
+
+    private void setEditModeViews() {
+        View menuEdit = viewModeActionbar.findViewById(R.id.btnActionBarEdit);
+        View menuEditCancel = editModeActionbar.findViewById(R.id.btnActionBarCancel);
+        View menuDelete = editModeActionbar.findViewById(R.id.btnActionBarDelete);
+
+        View.OnClickListener viewModeListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (v.getId()) {
+                case R.id.btnActionBarEdit:
+                    changeEditMode(true);
+                    break;
+                }
+            }
+        };
+
+        View.OnClickListener editModeListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (v.getId()) {
+                case R.id.btnActionBarCancel:
+                    // roll back to before change
+                    setDiary(nowDiary);
+                    changeEditMode(false);
+                    break;
+                case R.id.btnActionBarDelete:
+                    dlgDeleteConfirm.show();
+                    break;
+                }
+            }
+        };
+
+        menuEdit.setOnClickListener(viewModeListener);
+        menuEditCancel.setOnClickListener(editModeListener);
+        menuDelete.setOnClickListener(editModeListener);
+    }
+
+    public void changeEditMode(boolean editMode) {
+        ActionBar actionBar = getSupportActionBar();
+        if (editMode) { //viewMode -> editMode
+            actionBar.setCustomView(editModeActionbar,
+                    new ActionBar.LayoutParams(ActionBar.LayoutParams.MATCH_PARENT,
+                            ActionBar.LayoutParams.MATCH_PARENT, Gravity.CENTER));
+            actionBar.setDisplayShowCustomEnabled(true);
+            actionBar.setDisplayHomeAsUpEnabled(false);
+
+            edtTitle.setFocusable(true);
+            edtTitle.setFocusableInTouchMode(true);
+            tvDiarySelectDate.setFocusable(true);
+            tvDiarySelectDate.setClickable(true);
+            tvDiarySelectDate.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    dlgDatePicker.show();
+                }
+            });
+            tvDiarySelectTime.setFocusable(true);
+            tvDiarySelectTime.setFocusableInTouchMode(true);
+            tvDiarySelectTime.setClickable(true);
+            tvDiarySelectTime.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    dlgTimePicker.show();
+                }
+            });
+            edtContent.setFocusable(true);
+            edtContent.setFocusableInTouchMode(true);
+            edtAnnotation.setFocusable(true);
+            edtAnnotation.setFocusableInTouchMode(true);
+            btnConfirm.setVisibility(View.VISIBLE);
+
+        } else {    //editMode -> viewMode
+            actionBar.setCustomView(viewModeActionbar,
+                    new ActionBar.LayoutParams(ActionBar.LayoutParams.MATCH_PARENT,
+                            ActionBar.LayoutParams.MATCH_PARENT, Gravity.CENTER));
+            actionBar.setDisplayShowCustomEnabled(true);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+
+            edtTitle.setFocusable(false);
+            tvDiarySelectDate.setClickable(false);
+            tvDiarySelectDate.setOnClickListener(null);
+            tvDiarySelectTime.setClickable(false);
+            tvDiarySelectTime.setOnClickListener(null);
+            edtContent.setFocusable(false);
+            edtAnnotation.setFocusable(false);
+            btnConfirm.setVisibility(View.GONE);
+
+            View focusView = this.getCurrentFocus();
+            if (focusView != null) {
+                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(focusView.getWindowToken(), 0);
+            }
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+            viewWriteDiaryLayout.scrollTo(0, 0);
+        }
     }
 
     // update diary
@@ -186,6 +287,8 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
                                             nextDownloadMediaContext();
                                         }
                                     }
+
+                                    viewWriteDiaryLayout.scrollTo(0, 0);
 
                                 } else {
                                     nowDiary = null;
@@ -258,6 +361,8 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
                         showProgress(false);
                     }
                 });
+
+//        saveDiaryConnector = new JsonRestConnector()
     }
 
     private LinkedList<MediaContextWait> mediaContextWaitQueue = new LinkedList<>();
@@ -444,19 +549,17 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
                 dlgConfirm.show();
                 return;
             case R.id.tvDiarySelectDate:
-                if (diaryAcitivityType.equals("EDIT"))
-                    dlgDatePicker.show();
+                dlgDatePicker.show();
+                return;
+            case R.id.tvDiarySelectTime:
+                dlgTimePicker.show();
                 return;
         }
     }
 
     @Override
     public void onActionMenuClick(View v) {
-        switch (v.getId()) {
-            case R.id.btnActionBarDelete:
-                dlgDeleteConfirm.show();
-                return;
-        }
+        return;
     }
 
     @Override
@@ -534,17 +637,5 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
         edtEnvWeather.setText(DiaryContext.diaryContextsToString(envWeathers));
         edtEnvHolidays.setText(DiaryContext.diaryContextsToString(envHolidays));
         edtEnvEvents.setText(DiaryContext.diaryContextsToString(envEvents));
-    }
-
-    private void setDiaryViews() {
-        edtTitle.setFocusable(false);
-        tvDiarySelectDate.setClickable(false);
-        edtContent.setFocusable(false);
-        edtAnnotation.setFocusable(false);
-        edtEnvPlace.setFocusable(false);
-        edtEnvWeather.setFocusable(false);
-        edtEnvHolidays.setFocusable(false);
-        edtEnvEvents.setFocusable(false);
-        btnConfirm.setVisibility(View.GONE);
     }
 }
