@@ -1,12 +1,17 @@
 package ssu.sel.smartdiary;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -19,6 +24,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import ssu.sel.smartdiary.speech.MSSpeechRecognizer;
 import ssu.sel.smartdiary.speech.WavRecorder;
@@ -28,6 +34,8 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 
 public class NewAudioDiaryActivity extends AppCompatActivity {
+    private final static int REQUEST_RECORD_AUDIO = 1;
+
     private boolean bActivityDestroyed = false;
 
     private Button btnStartRecord = null;
@@ -160,6 +168,15 @@ public class NewAudioDiaryActivity extends AppCompatActivity {
                 setDiaryAudioPlayer(false);
             }
         };
+
+        //Runtime permission for android M (6.0)
+        if (PackageManager.PERMISSION_GRANTED ==
+                ActivityCompat.checkSelfPermission(getApplicationContext(),
+                        Manifest.permission.RECORD_AUDIO)) {
+            //It have permission
+        } else {
+            requestRecordAudioPermissions(this);
+        }
 
         speechRecognizer = new MSSpeechRecognizer(this, recognizeDoneListener);
 
@@ -446,4 +463,42 @@ public class NewAudioDiaryActivity extends AppCompatActivity {
             else showProgress(true);
         }
     };
+
+    private static void requestRecordAudioPermissions(final Activity activity) {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.RECORD_AUDIO)) {
+            new AlertDialog.Builder(activity).setCancelable(false)
+                    .setMessage("This application needs 'Record Audio' Permission.\nAre you agree?")
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            ActivityCompat.requestPermissions(activity,
+                                    new String[]{Manifest.permission.RECORD_AUDIO},
+                                    REQUEST_RECORD_AUDIO);
+                        }
+                    }).show();
+        } else {
+            // permission has not been granted yet. Request it directly.
+            ActivityCompat.requestPermissions(activity,
+                    new String[]{Manifest.permission.RECORD_AUDIO},
+                    REQUEST_RECORD_AUDIO);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_RECORD_AUDIO:
+                if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, "'Record Audio' Permission is agreed.",
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "'Record Audio' Permission is denied.",
+                            Toast.LENGTH_SHORT).show();
+                    NewAudioDiaryActivity.this.finish();
+                }
+                return;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
 }

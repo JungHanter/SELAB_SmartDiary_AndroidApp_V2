@@ -6,10 +6,61 @@
         <item name="android:fontFamily">sans-serif-light</item>
     </style>
 
+    <style name="LoginTheme" parent="DiaryAppTheme">
+        <item name="colorPrimary">@color/indigo_500</item>
+        <item name="colorPrimaryDark">@color/indigo_700</item>
+        <item name="colorAccent">@color/pink_A200</item>
+    </style>
+
     <style name="AppTheme.NoActionBar" parent="DiaryAppTheme">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
+    <style name="IndigoSwitchStyle">
+        <item name="colorButtonNormal">@color/indigo_500</item>
+        <item name="colorSwitchThumbNormal">@color/indigo_500</item>
+        <item name="android:colorBackground">@color/indigo_200</item>
+        <item name="android:colorForeground">@color/indigo_500</item>
+        <item name="colorControlActivated">@color/indigo_500</item>
+        <item name="colorControlHighlight">@color/indigo_200</item>
+        <item name="colorControlNormal">@color/indigo_500</item>
+        <item name="colorAccent">@color/pink_A200</item>
+    </style>
+
+    <style name="TealSwitchStyle">
+        <item name="colorButtonNormal">@color/teal_500</item>
+        <item name="colorSwitchThumbNormal">@color/teal_500</item>
+        <item name="android:colorBackground">@color/teal_200</item>
+        <item name="android:colorForeground">@color/teal_500</item>
+        <item name="colorControlActivated">@color/teal_500</item>
+        <item name="colorControlHighlight">@color/teal_200</item>
+        <item name="colorControlNormal">@color/teal_500</item>
+        <item name="colorAccent">@color/teal_500</item>
+    </style>
+
+    <style name="PinkASwitchStyle">
+        <item name="colorButtonNormal">@color/pink_A200</item>
+        <item name="colorSwitchThumbNormal">@color/pink_A200</item>
+        <item name="android:colorBackground">@color/pink_A100</item>
+        <item name="android:colorForeground">@color/pink_A200</item>
+        <item name="colorControlActivated">@color/pink_A200</item>
+        <item name="colorControlHighlight">@color/pink_A100</item>
+        <item name="colorControlNormal">@color/pink_A200</item>
+        <item name="colorAccent">@color/pink_A200</item>
+    </style>
+
+    <style name="AccentTeal">
+        <item name="colorAccent">@color/teal_500</item>
+    </style>
+
+    <style name="AccentIndigo">
+        <item name="colorAccent">@color/indigo_500</item>
+    </style>
+
+    <style name="AccentPinkA">
+        <item name="colorAccent">@color/pink_A200</item>
     </style>
 </resources>

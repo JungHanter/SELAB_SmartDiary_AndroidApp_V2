@@ -1,10 +1,16 @@
 package ssu.sel.smartdiary;
 
+import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.Environment;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -14,10 +20,10 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -31,6 +37,8 @@ import ssu.sel.smartdiary.view.DiaryListViewItem;
 import ssu.sel.smartdiary.view.DiarySearchToolbar;
 
 public class MainActivity extends AppCompatActivity {
+    private final static int REQUEST_WRITE_EXTERNAL_STORAGE = 1;
+
     public static MainActivity rootMainActivity = null;
 
     private JsonRestConnector getRecentDiaryConnector = null;
@@ -160,6 +168,17 @@ public class MainActivity extends AppCompatActivity {
                 searchTextConnector.request(json);
             }
         });
+
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+            //Runtime permission for android M (6.0)
+            if (PackageManager.PERMISSION_GRANTED ==
+                    ActivityCompat.checkSelfPermission(getApplicationContext(),
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                //It have permission
+            } else {
+                requestWriteStoragePermissions(this);
+            }
+        }
     }
 
     @Override
@@ -450,5 +469,44 @@ public class MainActivity extends AppCompatActivity {
             } else
                 viewMainLayout.setVisibility(show ? View.GONE : View.VISIBLE);
         }
+    }
+
+    private static void requestWriteStoragePermissions(final Activity activity) {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            new AlertDialog.Builder(activity).setCancelable(false)
+                    .setMessage("This application needs 'Write External Storage' Permission.\nAre you agree?")
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            ActivityCompat.requestPermissions(activity,
+                                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                    REQUEST_WRITE_EXTERNAL_STORAGE);
+                        }
+                    }).show();
+        } else {
+            // permission has not been granted yet. Request it directly.
+            ActivityCompat.requestPermissions(activity,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    REQUEST_WRITE_EXTERNAL_STORAGE);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_WRITE_EXTERNAL_STORAGE:
+                if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, "'Write External Storage' Permission is agreed.",
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "'Write External Storage' Permission is denied.",
+                            Toast.LENGTH_SHORT).show();
+                    MainActivity.this.finish();
+                }
+                return;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+
     }
 }

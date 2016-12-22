@@ -19,7 +19,6 @@
             android:text="Diary"
             android:textAlignment="center"
             android:textColor="@color/white"
-            android:textAllCaps="false"
             android:textStyle="normal"
             android:id="@+id/tvActionBarTitle"
             android:textSize="20sp" />

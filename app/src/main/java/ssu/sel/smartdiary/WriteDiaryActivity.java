@@ -1,5 +1,6 @@
 package ssu.sel.smartdiary;
 
+import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
@@ -8,6 +9,7 @@ import android.app.TimePickerDialog;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
@@ -18,6 +20,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Debug;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -36,6 +40,7 @@ import android.widget.MediaController;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 import org.json.JSONArray;
@@ -60,6 +65,9 @@ import ssu.sel.smartdiary.view.AudioPlayerView;
 import ssu.sel.smartdiary.view.RemovableView;
 
 public class WriteDiaryActivity extends AppCompatActivity {
+    private final static int REQUEST_READ_EXTERNAL_STORAGE = 1;
+    private final static int REQUEST_CAMERA = 2;
+
     protected static final int ACTIVITY_REQ_CODE_PICTURE = 100;
     protected static final int ACTIVITY_REQ_CODE_CAMERA = 101;
     protected static final int ACTIVITY_REQ_CODE_VIDEO = 102;
@@ -103,6 +111,14 @@ public class WriteDiaryActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initView();
+
+        if (PackageManager.PERMISSION_GRANTED ==
+                ActivityCompat.checkSelfPermission(getApplicationContext(),
+                        Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            //It have permission
+        } else {
+            requestPermissions(this, REQUEST_READ_EXTERNAL_STORAGE);
+        }
     }
 
     @Override
@@ -513,8 +529,17 @@ public class WriteDiaryActivity extends AppCompatActivity {
                 startActivityForResult(pickImage, ACTIVITY_REQ_CODE_PICTURE);
                 return;
             case R.id.btnAttachCamera:
-                Intent takeImage = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(takeImage, ACTIVITY_REQ_CODE_CAMERA);
+                if (PackageManager.PERMISSION_GRANTED ==
+                        ActivityCompat.checkSelfPermission(getApplicationContext(),
+                                Manifest.permission.CAMERA)) {
+                    //It have permission
+                    Log.d("WriteDiaryActivity", "Start Camera Activity with Permissions");
+                    Intent takeImage = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    startActivityForResult(takeImage, ACTIVITY_REQ_CODE_CAMERA);
+                } else {
+                    Log.d("WriteDiaryActivity", "Request Camera Permissions");
+                    requestPermissions(this, REQUEST_CAMERA);
+                }
                 return;
             case R.id.btnAttachVideo:
                 Intent pickVideo = new Intent(Intent.ACTION_PICK,
@@ -586,6 +611,11 @@ public class WriteDiaryActivity extends AppCompatActivity {
                     return;
             }
         }
+
+        String dataString = "";
+        if (data != null) dataString = data.toString();
+        Log.d("WriteDiaryActivity", "requestCode: " + requestCode + ", resultCode: " + requestCode +
+                ", data: " + dataString);
         super.onActivityResult(requestCode, resultCode, data);
     }
 
@@ -775,6 +805,77 @@ public class WriteDiaryActivity extends AppCompatActivity {
         } else {
             viewProgress.setVisibility(show ? View.VISIBLE : View.GONE);
             viewWriteDiaryLayout.setVisibility(show ? View.GONE : View.VISIBLE);
+        }
+    }
+
+    private static void requestPermissions(final Activity activity, int requestCode) {
+        switch (requestCode) {
+            case REQUEST_READ_EXTERNAL_STORAGE:
+                if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                    new AlertDialog.Builder(activity).setCancelable(false)
+                            .setMessage("This application needs 'Read Storage' Permission.\nAre you agree?")
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    ActivityCompat.requestPermissions(activity,
+                                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                                            REQUEST_READ_EXTERNAL_STORAGE);
+                                }
+                            }).show();
+                } else {
+                    // permission has not been granted yet. Request it directly.
+                    ActivityCompat.requestPermissions(activity,
+                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                            REQUEST_READ_EXTERNAL_STORAGE);
+                }
+                break;
+
+            case REQUEST_CAMERA:
+                if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.CAMERA)) {
+                    new AlertDialog.Builder(activity).setCancelable(false)
+                            .setMessage("This application needs 'Camera' Permission.\nAre you agree?")
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    ActivityCompat.requestPermissions(activity,
+                                            new String[]{Manifest.permission.CAMERA},
+                                            REQUEST_CAMERA);
+                                }
+                            }).show();
+                } else {
+                    // permission has not been granted yet. Request it directly.
+                    ActivityCompat.requestPermissions(activity,
+                            new String[]{Manifest.permission.CAMERA},
+                            REQUEST_CAMERA);
+                }
+                break;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_READ_EXTERNAL_STORAGE:
+                if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, "'Read Storage' Permission is agreed.",
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "'Read Storage' Permission is denied.",
+                            Toast.LENGTH_SHORT).show();
+                    this.finish();
+                }
+                return;
+            case REQUEST_CAMERA:
+                if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, "'Camera' Permission is agreed.",
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "'Camera' Permission is denied.",
+                            Toast.LENGTH_SHORT).show();
+                }
+                return;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 }
