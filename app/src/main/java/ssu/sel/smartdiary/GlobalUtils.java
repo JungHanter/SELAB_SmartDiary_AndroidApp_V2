@@ -45,6 +45,16 @@ public class GlobalUtils {
         return audioFile.exists();
     }
 
+    public static final File TEMP_DIR =
+            new File(Environment.getExternalStorageDirectory().getPath() +
+                    "/smartdiary/.tmp/");
+
+    public static Uri getTempCapturedImageURI() {
+        if (!TEMP_DIR.exists()) TEMP_DIR.mkdirs();
+        Uri capturedUri = Uri.fromFile(new File(TEMP_DIR.getPath() + "/captured.jpg"));
+        return capturedUri;
+    }
+
     public static final File DIARY_DIR =
             new File (Environment.getExternalStorageDirectory().getPath() + "/smartdiary/.diary/");
 

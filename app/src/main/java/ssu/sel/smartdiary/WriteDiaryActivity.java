@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.ActivityNotFoundException;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -72,6 +73,8 @@ public class WriteDiaryActivity extends AppCompatActivity {
     protected static final int ACTIVITY_REQ_CODE_CAMERA = 101;
     protected static final int ACTIVITY_REQ_CODE_VIDEO = 102;
     protected static final int ACTIVITY_REQ_CODE_MUSIC = 103;
+
+    protected Uri lastCapturedImage = null;
 
     protected String diaryAcitivityType = null;
 
@@ -534,7 +537,15 @@ public class WriteDiaryActivity extends AppCompatActivity {
                                 Manifest.permission.CAMERA)) {
                     //It have permission
                     Log.d("WriteDiaryActivity", "Start Camera Activity with Permissions");
+                    ContentValues contentValues = new ContentValues();
+                    contentValues.put(MediaStore.Images.Media.TITLE, "Temp Captured");
+                    contentValues.put(MediaStore.Images.Media.DESCRIPTION, "Temporary captured image from camera");
                     Intent takeImage = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    lastCapturedImage = null;
+//                    Uri tempCapturedUri = GlobalUtils.getTempCapturedImageURI();
+                    Uri tempCapturedUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+                    takeImage.putExtra(MediaStore.EXTRA_OUTPUT, tempCapturedUri);
+                    lastCapturedImage = tempCapturedUri;
                     startActivityForResult(takeImage, ACTIVITY_REQ_CODE_CAMERA);
                 } else {
                     Log.d("WriteDiaryActivity", "Request Camera Permissions");
@@ -563,6 +574,11 @@ public class WriteDiaryActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        String dataString = "null";
+        if (data != null) dataString = data.toString();
+        Log.d("WriteDiaryActivity", "requestCode: " + requestCode + ", resultCode: " + resultCode +
+                ", data: " + dataString);
+
         if (resultCode == Activity.RESULT_OK) {
             switch (requestCode) {
                 case ACTIVITY_REQ_CODE_CAMERA:
@@ -570,6 +586,15 @@ public class WriteDiaryActivity extends AppCompatActivity {
                         Uri selectedImageUri = data.getData();
                         String imageFilePath = selectedImageUri.getPath();
                         Log.d("WriteDiaryActivity", "Camera: " + imageFilePath);
+
+                        MediaContext attachImage = new MediaContext(this,
+                                selectedImageUri, MediaContext.MEDIA_TYPE_IMAGE);
+                        addMediaContext(attachImage);
+//                    } else if ((data != null) && (data.getExtras().containsKey("data")) && (lastCapturedImage!=null)) {
+                    } else if (lastCapturedImage!=null) {
+                        Uri selectedImageUri = lastCapturedImage;
+                        String imageFilePath = selectedImageUri.getPath();
+                        Log.d("WriteDiaryActivity", "Camera (fromBitmap): " + imageFilePath);
 
                         MediaContext attachImage = new MediaContext(this,
                                 selectedImageUri, MediaContext.MEDIA_TYPE_IMAGE);
@@ -612,10 +637,6 @@ public class WriteDiaryActivity extends AppCompatActivity {
             }
         }
 
-        String dataString = "";
-        if (data != null) dataString = data.toString();
-        Log.d("WriteDiaryActivity", "requestCode: " + requestCode + ", resultCode: " + requestCode +
-                ", data: " + dataString);
         super.onActivityResult(requestCode, resultCode, data);
     }
 
