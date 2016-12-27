@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
@@ -55,6 +56,7 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
     private AlertDialog dlgDeleteConfirm = null;
 
     private JsonRestConnector getDiaryInfoConnector = null;
+    private JsonRestConnector updateDiaryConnector = null;
     private JsonRestConnector deleteDiaryConnector = null;
     private DiaryAudioDownloadConnector diaryAudioDownloadConnector = null;
 
@@ -104,6 +106,7 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
         layoutAttachment.setVisibility(View.GONE);
         layoutAttachmentFiles = (LinearLayout) findViewById(R.id.layoutAttachmentFiles);
 
+        edtAnnotation.setFocusable(false);
         edtEnvPlace.setFocusable(false);
         edtEnvWeather.setFocusable(false);
         edtEnvHolidays.setFocusable(false);
@@ -191,8 +194,8 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
             });
             edtContent.setFocusable(true);
             edtContent.setFocusableInTouchMode(true);
-            edtAnnotation.setFocusable(true);
-            edtAnnotation.setFocusableInTouchMode(true);
+//            edtAnnotation.setFocusable(true);
+//            edtAnnotation.setFocusableInTouchMode(true);
             btnConfirm.setVisibility(View.VISIBLE);
 
         } else {    //editMode -> viewMode
@@ -208,7 +211,7 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
             tvDiarySelectTime.setClickable(false);
             tvDiarySelectTime.setOnClickListener(null);
             edtContent.setFocusable(false);
-            edtAnnotation.setFocusable(false);
+//            edtAnnotation.setFocusable(false);
             btnConfirm.setVisibility(View.GONE);
 
             View focusView = this.getCurrentFocus();
@@ -224,7 +227,42 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
     // update diary
     @Override
     protected void saveDiary() {
-        return;
+        String title = edtTitle.getText().toString();
+        String content = edtContent.getText().toString();
+
+        boolean cancel = false;
+        View focusView = null;
+
+        if (TextUtils.isEmpty(content)) {
+            edtContent.setError(getString(R.string.error_field_required));
+            focusView = edtContent;
+            cancel = true;
+        }
+
+        if (TextUtils.isEmpty(title)) {
+            edtTitle.setError(getString(R.string.error_field_required));
+            focusView = edtTitle;
+            cancel = true;
+        }
+
+        if (cancel) {
+            focusView.requestFocus();
+        } else {
+            long createdTime = selectedDate.getTime().getTime();
+
+            JSONObject json = new JSONObject();
+            try {
+                json.put("user_id", UserProfile.getUserProfile().getUserID());
+                json.put("audio_diary_id", nowDiary.getDiaryID());
+                json.put("title", title);
+                json.put("content", content);
+                json.put("created_date", createdTime);
+            } catch (Exception e) {}
+
+            showProgress(true);
+            updateDiaryConnector.request(json);
+        }
+
     }
 
     @Override
@@ -362,7 +400,42 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
                     }
                 });
 
-//        saveDiaryConnector = new JsonRestConnector()
+        updateDiaryConnector = new JsonRestConnector("diary/update", "POST",
+                new JsonRestConnector.OnConnectListener() {
+                    @Override
+                    public void onDone(JSONObject resJson) {
+                        if (resJson == null) {
+                            Log.d("Main - Json", "No response");
+                            openAlertModal("No response.", "Error");
+                        } else {
+                            try {
+                                if (resJson.getBoolean("update_diary")) {
+                                    String title = edtTitle.getText().toString();
+                                    String content = edtContent.getText().toString();
+                                    long createdTime = selectedDate.getTime().getTime();
+                                    Calendar calendar = Calendar.getInstance();
+                                    calendar.setTimeInMillis(createdTime);
+
+                                    nowDiary.setTitle(title);
+                                    nowDiary.setContent(content);
+                                    nowDiary.setDate(calendar);
+
+                                    changeEditMode(false);
+                                    openAlertModal("The diary is updated", "Update Diary");
+                                } else {
+                                    Log.d("Main - Json", "Delete diary failed");
+                                    openAlertModal("Update Diary Failed.", "Update Error");
+                                }
+                            } catch (Exception e) {
+                                Log.d("Main - Json", "Json parsing error");
+                                openAlertModal("Json parsing error.", "Error");
+                                e.printStackTrace();
+                            }
+                        }
+
+                        showProgress(false);
+                    }
+                });
     }
 
     private LinkedList<MediaContextWait> mediaContextWaitQueue = new LinkedList<>();
@@ -612,9 +685,14 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
 
     private void setDiary(Diary diary) {
         edtTitle.setText(diary.getTitle());
-        tvDiarySelectDate.setText(GlobalUtils.DIARY_DATE_FORMAT.format(
-                diary.getDate().getTime()));
         edtContent.setText(diary.getContent());
+
+        selectedDate = Calendar.getInstance();
+        selectedDate.setTime(diary.getDate().getTime());
+        tvDiarySelectDate.setText(GlobalUtils.DIARY_DATE_FORMAT.format(
+                selectedDate.getTime()));
+        tvDiarySelectTime.setText(GlobalUtils.DIARY_TIME_FORMAT.format(
+                selectedDate.getTime()));
 
         DiaryContext annotation = diary.getAnnotation();
         if (annotation != null)
