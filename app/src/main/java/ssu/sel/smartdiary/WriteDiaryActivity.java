@@ -52,15 +52,13 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import ssu.sel.smartdiary.model.DiaryContext;
+import ssu.sel.smartdiary.model.DiaryEnvContext;
 import ssu.sel.smartdiary.model.MediaContext;
 import ssu.sel.smartdiary.model.UserProfile;
 import ssu.sel.smartdiary.network.DiaryUploadRestConnector;
-import ssu.sel.smartdiary.service.DiaryUploadService;
 import ssu.sel.smartdiary.speech.WavRecorder;
 import ssu.sel.smartdiary.view.AudioPlayerView;
 import ssu.sel.smartdiary.view.RemovableView;
@@ -415,52 +413,55 @@ public class WriteDiaryActivity extends AppCompatActivity {
                 json.put("title", title);
                 json.put("content", content);
 
-//                JSONArray arrTags = new JSONArray();
-//                if (!TextUtils.isEmpty(annotation)) {
-//                    JSONObject jsonAnnotation = new JSONObject();
-//                    jsonAnnotation.put("type", DiaryContext.CONTEXT_TYPE_ANNOTATION);
-//                    jsonAnnotation.put("subtype", "");
-//                    jsonAnnotation.put("value", annotation);
-//                    jsonAnnotation.put("date_added", createdTime);
-//                    arrTags.put(jsonAnnotation);
-//                }
-//                json.put("environmental _context", arrTags);
+                JSONArray arrTags = new JSONArray();
+                if (!TextUtils.isEmpty(annotation)) {
+                    String[] tags = annotation.split(",");
+                    for (String tag : tags) {
+                        JSONObject jsonTag = new JSONObject();
+                        jsonTag.put("value", tag.trim());
+                        arrTags.put(jsonTag);
+                    }
+                }
+                json.put("tag", arrTags);
 
-                JSONArray arrContexts = new JSONArray();
+                JSONArray arrEnvContexts = new JSONArray();
                 if (!TextUtils.isEmpty(envPlace)) {
                     String[] places = envPlace.split(",");
                     for (String place : places) {
                         JSONObject jsonPlace = new JSONObject();
-                        jsonPlace.put("type", DiaryContext.SUB_TYPE_ENV_PLACE);
-//                        jsonPlace.put("subtype", DiaryContext.SUB_TYPE_ENV_PLACE);
+                        jsonPlace.put("type", DiaryEnvContext.TYPE_ENV_PLACE);
                         jsonPlace.put("value", place.trim());
-//                        jsonPlace.put("date_added", createdTime);
-                        arrContexts.put(jsonPlace);
+                        arrEnvContexts.put(jsonPlace);
                     }
                 }
                 if (!TextUtils.isEmpty(envWeather)) {
                     String[] weathers = envWeather.split(",");
                     for (String weather : weathers) {
                         JSONObject jsonWeather = new JSONObject();
-                        jsonWeather.put("type", DiaryContext.SUB_TYPE_ENV_WEATHER);
-//                        jsonWeather.put("subtype", DiaryContext.SUB_TYPE_ENV_WEATHER);
+                        jsonWeather.put("type", DiaryEnvContext.TYPE_ENV_WEATHER);
                         jsonWeather.put("value", weather.trim());
-//                        jsonWeather.put("date_added", createdTime);
-                        arrContexts.put(jsonWeather);
+                        arrEnvContexts.put(jsonWeather);
                     }
                 }
                 if (!TextUtils.isEmpty(envEvents)) {
                     String[] events = envEvents.split(",");
                     for (String event : events) {
                         JSONObject jsonEvent = new JSONObject();
-                        jsonEvent.put("type", DiaryContext.SUB_TYPE_ENV_EVENT);
-//                        jsonEvent.put("subtype", DiaryContext.SUB_TYPE_ENV_EVENT);
+                        jsonEvent.put("type", DiaryEnvContext.TYPE_ENV_EVENT);
                         jsonEvent.put("value", event.trim());
-//                        jsonEvent.put("date_added", createdTime);
-                        arrContexts.put(jsonEvent);
+                        arrEnvContexts.put(jsonEvent);
                     }
                 }
-                json.put("environmental _context", arrContexts);
+                if (!TextUtils.isEmpty(envHolidays)) {
+                    String[] holidays = envHolidays.split(",");
+                    for (String holiday : holidays) {
+                        JSONObject jsonHoliday = new JSONObject();
+                        jsonHoliday.put("type", DiaryEnvContext.TYPE_ENV_HOLIDAY);
+                        jsonHoliday.put("value", holiday.trim());
+                        arrEnvContexts.put(jsonHoliday);
+                    }
+                }
+                json.put("environmental_context", arrEnvContexts);
 
             } catch (Exception e) {
                 e.printStackTrace();

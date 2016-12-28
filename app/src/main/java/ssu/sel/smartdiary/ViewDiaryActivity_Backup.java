@@ -21,7 +21,7 @@
 //import java.util.Calendar;
 //
 //import ssu.sel.smartdiary.model.Diary;
-//import ssu.sel.smartdiary.model.DiaryContext;
+//import ssu.sel.smartdiary.model.DiaryEnvContext;
 //import ssu.sel.smartdiary.model.UserProfile;
 //import ssu.sel.smartdiary.network.AudioDownloadConnector;
 //import ssu.sel.smartdiary.network.JsonRestConnector;
@@ -298,23 +298,23 @@
 //                diary.getDate().getTime()));
 //        edtContent.setText(diary.getContent());
 //
-//        DiaryContext annotation = diary.getAnnotation();
+//        DiaryEnvContext annotation = diary.getAnnotation();
 //        if (annotation != null)
 //            edtAnnotation.setText(annotation.getValue());
 //
-//        ArrayList<DiaryContext> envPlaces =
-//                diary.getDiaryContexts(DiaryContext.CONTEXT_TYPE_ENVIRONMENT,
-//                        DiaryContext.SUB_TYPE_ENV_PLACE);
-//        ArrayList<DiaryContext> envWeathers =
-//                diary.getDiaryContexts(DiaryContext.CONTEXT_TYPE_ENVIRONMENT,
-//                        DiaryContext.SUB_TYPE_ENV_WEATHER);
-//        ArrayList<DiaryContext> envEvents =
-//                diary.getDiaryContexts(DiaryContext.CONTEXT_TYPE_ENVIRONMENT,
-//                        DiaryContext.SUB_TYPE_ENV_EVENT);
+//        ArrayList<DiaryEnvContext> envPlaces =
+//                diary.getDiaryEnvContexts(DiaryEnvContext.CONTEXT_TYPE_ENVIRONMENT,
+//                        DiaryEnvContext.TYPE_ENV_PLACE);
+//        ArrayList<DiaryEnvContext> envWeathers =
+//                diary.getDiaryEnvContexts(DiaryEnvContext.CONTEXT_TYPE_ENVIRONMENT,
+//                        DiaryEnvContext.TYPE_ENV_WEATHER);
+//        ArrayList<DiaryEnvContext> envEvents =
+//                diary.getDiaryEnvContexts(DiaryEnvContext.CONTEXT_TYPE_ENVIRONMENT,
+//                        DiaryEnvContext.TYPE_ENV_EVENT);
 //
-//        edtEnvPlace.setText(DiaryContext.diaryContextsToString(envPlaces));
-//        edtEnvWeather.setText(DiaryContext.diaryContextsToString(envWeathers));
-//        edtEnvEvents.setText(DiaryContext.diaryContextsToString(envEvents));
+//        edtEnvPlace.setText(DiaryEnvContext.diaryContextsToString(envPlaces));
+//        edtEnvWeather.setText(DiaryEnvContext.diaryContextsToString(envWeathers));
+//        edtEnvEvents.setText(DiaryEnvContext.diaryContextsToString(envEvents));
 //    }
 //
 //    private void setDiaryViews() {

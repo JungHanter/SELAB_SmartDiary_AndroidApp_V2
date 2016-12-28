@@ -29,7 +29,7 @@ import java.util.Calendar;
 import java.util.LinkedList;
 
 import ssu.sel.smartdiary.model.Diary;
-import ssu.sel.smartdiary.model.DiaryContext;
+import ssu.sel.smartdiary.model.DiaryEnvContext;
 import ssu.sel.smartdiary.model.MediaContext;
 import ssu.sel.smartdiary.model.UserProfile;
 import ssu.sel.smartdiary.network.DiaryAudioDownloadConnector;
@@ -279,12 +279,16 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
                             try {
                                 if (resJson.has("result_detail") && resJson.getBoolean("retrieve_diary")) {
                                     JSONObject diary = resJson.getJSONObject("result_detail");
-                                    JSONArray diaryContexts = null;
-                                    if (resJson.has("result_context")) {
-                                        diaryContexts = resJson.getJSONArray("result_context");
+                                    JSONArray diaryTags = new JSONArray();
+                                    JSONArray diaryEnvContexts = new JSONArray();
+                                    if (resJson.has("result_tag_list")) {
+                                        diaryTags = resJson.getJSONArray("result_tag_list");
+                                    }
+                                    if (resJson.has("result_environmental_context")) {
+                                        diaryEnvContexts = resJson.getJSONArray("result_environmental_context");
                                     }
 
-                                    nowDiary = Diary.fromJSON(diary, diaryContexts);
+                                    nowDiary = Diary.fromJSON(diary, diaryTags, diaryEnvContexts);
                                     setDiary(nowDiary);
 
                                     boolean bIsDiaryAudioExists = false;
@@ -694,26 +698,21 @@ public class ViewDiaryActivity extends WriteDiaryActivity {
         tvDiarySelectTime.setText(GlobalUtils.DIARY_TIME_FORMAT.format(
                 selectedDate.getTime()));
 
-        DiaryContext annotation = diary.getAnnotation();
-        if (annotation != null)
-            edtAnnotation.setText(annotation.getValue());
+        String tagsString = diary.getDiaryTagsString();
+        edtAnnotation.setText(tagsString);
 
-        ArrayList<DiaryContext> envPlaces =
-                diary.getDiaryContexts(DiaryContext.CONTEXT_TYPE_ENVIRONMENT,
-                        DiaryContext.SUB_TYPE_ENV_PLACE);
-        ArrayList<DiaryContext> envWeathers =
-                diary.getDiaryContexts(DiaryContext.CONTEXT_TYPE_ENVIRONMENT,
-                        DiaryContext.SUB_TYPE_ENV_WEATHER);
-        ArrayList<DiaryContext> envHolidays =
-                diary.getDiaryContexts(DiaryContext.CONTEXT_TYPE_ENVIRONMENT,
-                        DiaryContext.SUB_TYPE_ENV_HOLIDAY);
-        ArrayList<DiaryContext> envEvents =
-                diary.getDiaryContexts(DiaryContext.CONTEXT_TYPE_ENVIRONMENT,
-                        DiaryContext.SUB_TYPE_ENV_EVENT);
+        ArrayList<DiaryEnvContext> envPlaces =
+                diary.getDiaryContexts(DiaryEnvContext.TYPE_ENV_PLACE);
+        ArrayList<DiaryEnvContext> envWeathers =
+                diary.getDiaryContexts(DiaryEnvContext.TYPE_ENV_WEATHER);
+        ArrayList<DiaryEnvContext> envHolidays =
+                diary.getDiaryContexts(DiaryEnvContext.TYPE_ENV_HOLIDAY);
+        ArrayList<DiaryEnvContext> envEvents =
+                diary.getDiaryContexts(DiaryEnvContext.TYPE_ENV_EVENT);
 
-        edtEnvPlace.setText(DiaryContext.diaryContextsToString(envPlaces));
-        edtEnvWeather.setText(DiaryContext.diaryContextsToString(envWeathers));
-        edtEnvHolidays.setText(DiaryContext.diaryContextsToString(envHolidays));
-        edtEnvEvents.setText(DiaryContext.diaryContextsToString(envEvents));
+        edtEnvPlace.setText(DiaryEnvContext.diaryContextsToString(envPlaces));
+        edtEnvWeather.setText(DiaryEnvContext.diaryContextsToString(envWeathers));
+        edtEnvHolidays.setText(DiaryEnvContext.diaryContextsToString(envHolidays));
+        edtEnvEvents.setText(DiaryEnvContext.diaryContextsToString(envEvents));
     }
 }

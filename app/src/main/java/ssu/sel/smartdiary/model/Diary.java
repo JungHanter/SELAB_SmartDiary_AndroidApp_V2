@@ -6,7 +6,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -19,27 +18,32 @@ public class Diary {
     private String title;
     private Calendar date;
     private String content;
-    private ArrayList<DiaryContext> diaryContexts = null;
+    private ArrayList<String> diaryTags = null;
+    private ArrayList<DiaryEnvContext> diaryEnvContexts = null;
 
     public Diary(int diaryID, String title, Calendar date, String content) {
         this.diaryID = diaryID;
         this.title = title;
         this.date = date;
         this.content = content;
-        this.diaryContexts = new ArrayList<>();
+        this.diaryTags = new ArrayList<>();
+        this.diaryEnvContexts = new ArrayList<>();
     }
 
     public Diary(int diaryID, String title, Calendar date, String content,
-                 Collection<DiaryContext> diaryContexts) {
+                 Collection<String> diaryTags,
+                 Collection<DiaryEnvContext> diaryEnvContexts) {
         this.diaryID = diaryID;
         this.title = title;
         this.date = date;
         this.content = content;
-        this.diaryContexts = new ArrayList<>();
-        this.diaryContexts.addAll(diaryContexts);
+        this.diaryTags = new ArrayList<>();
+        this.diaryTags.addAll(diaryTags);
+        this.diaryEnvContexts = new ArrayList<>();
+        this.diaryEnvContexts.addAll(diaryEnvContexts);
     }
 
-    public static Diary fromJSON(JSONObject jsonDiary, JSONArray jsonContexts) {
+    public static Diary fromJSON(JSONObject jsonDiary, JSONArray jsonTags, JSONArray jsonEnvContexts) {
         Diary diary = null;
         try {
             long time = jsonDiary.getLong("created_date");
@@ -49,13 +53,17 @@ public class Diary {
             diary = new Diary(jsonDiary.getInt("audio_diary_id"), jsonDiary.getString("title"),
                     calendar, jsonDiary.getString("content"));
 
-            if (jsonContexts != null) {
-                for (int i = 0; i < jsonContexts.length(); i++) {
-                    JSONObject jsonContext = jsonContexts.getJSONObject(i);
-                    DiaryContext diaryContext = DiaryContext.fromJSON(jsonContext);
-                    if (diaryContext != null) {
-                        diary.addDiaryContext(diaryContext);
-                    }
+            for (int i=0; i<jsonTags.length(); i++) {
+                JSONObject jsonTag = jsonTags.getJSONObject(i);
+                String tag = jsonTag.getString("value");
+                diary.addDiaryTag(tag);
+            }
+
+            for (int i = 0; i < jsonEnvContexts.length(); i++) {
+                JSONObject jsonContext = jsonEnvContexts.getJSONObject(i);
+                DiaryEnvContext diaryEnvContext = DiaryEnvContext.fromJSON(jsonContext);
+                if (diaryEnvContext != null) {
+                    diary.addDiaryEnvContext(diaryEnvContext);
                 }
             }
         } catch (JSONException je) {
@@ -68,29 +76,11 @@ public class Diary {
         return null;
     }
 
-    public DiaryContext getAnnotation() {
-        for (DiaryContext context : diaryContexts) {
-            if(context.getClass() == DiaryAnnotation.class ||
-                    context.getContextType().equals(DiaryContext.CONTEXT_TYPE_ANNOTATION)) {
-                return context;
-            }
-        }
-        return null;
-    }
-
-    public ArrayList<DiaryContext> getDiaryContexts(String type) {
-        return getDiaryContexts(type, null);
-    }
-
-    public ArrayList<DiaryContext> getDiaryContexts(String type, String subType) {
-        ArrayList<DiaryContext> searchContexts = new ArrayList<>();
-        for (DiaryContext context : diaryContexts) {
-            if(context.getContextType().equals(type)) {
-                if (subType == null || TextUtils.isEmpty(subType)) {
-                    searchContexts.add(context);
-                } else if (context.getSubType().equals(subType)) {
-                    searchContexts.add(context);
-                }
+    public ArrayList<DiaryEnvContext> getDiaryContexts(String type) {
+        ArrayList<DiaryEnvContext> searchContexts = new ArrayList<>();
+        for (DiaryEnvContext context : diaryEnvContexts) {
+            if(context.getType().equals(type)) {
+                searchContexts.add(context);
             }
         }
         return searchContexts;
@@ -128,19 +118,46 @@ public class Diary {
         this.content = content;
     }
 
-    public ArrayList<DiaryContext> getDiaryContexts() {
-        return diaryContexts;
+    public ArrayList<DiaryEnvContext> getDiaryEnvContexts() {
+        return diaryEnvContexts;
     }
 
-    public DiaryContext getDiaryContext(int index) {
-        return diaryContexts.get(index);
+    public DiaryEnvContext getDiaryEnvContext(int index) {
+        return diaryEnvContexts.get(index);
     }
 
-    public void addDiaryContext(DiaryContext diaryContext) {
-        diaryContexts.add(diaryContext);
+    public void addDiaryEnvContext(DiaryEnvContext diaryEnvContext) {
+        diaryEnvContexts.add(diaryEnvContext);
     }
 
-    public void addDiaryContexts(Collection<DiaryContext> diaryContexts) {
-        this.diaryContexts.addAll(diaryContexts);
+    public void addDiaryEnvContexts(Collection<DiaryEnvContext> diaryEnvContexts) {
+        this.diaryEnvContexts.addAll(diaryEnvContexts);
+    }
+
+    public ArrayList<String> getDiaryTags() {
+        return diaryTags;
+    }
+
+    public String getDiaryTag(int index) {
+        return diaryTags.get(index);
+    }
+
+    public String getDiaryTagsString() {
+        String tagsString = "";
+        for (int i=0; i<diaryTags.size(); i++) {
+            if (i>0) {
+                tagsString += ", ";
+            }
+            tagsString += diaryTags.get(i);
+        }
+        return tagsString;
+    }
+
+    public void addDiaryTag(String tag) {
+        diaryTags.add(tag);
+    }
+
+    public void addDiaryTags(Collection<String> tags) {
+        this.diaryTags.addAll(tags);
     }
 }
